@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test - Device Edit Feature</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 20px; background: #f5f5f5; border-radius: 8px; }
+        .step { margin: 10px 0; padding: 10px; background: white; border-left: 4px solid #007bff; }
+        .step.success { border-left-color: #28a745; }
+        .step.error { border-left-color: #dc3545; }
+        .code { background: #272822; color: #f8f8f2; padding: 10px; border-radius: 4px; overflow-x: auto; font-family: monospace; }
+        h2 { color: #333; }
+        .checklist { list-style: none; padding: 0; }
+        .checklist li { padding: 8px 0; }
+        .checklist li:before { content: "☐ "; margin-right: 8px; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test - Fonctionnalité Edit Device</h1>
+    
+    <div class="test-section">
+        <h2>Étapes de Test</h2>
+        
+        <div class="step success">
+            <h3>1. Accédez à la page Devices</h3>
+            <p>URL: <code>http://localhost:8000/device</code></p>
+            <p>✓ La page doit charger avec une liste de devices</p>
+        </div>
+        
+        <div class="step success">
+            <h3>2. Vérifiez le tableau des devices</h3>
+            <p>✓ Chaque ligne doit avoir un bouton d'édition (✏️) dans la colonne "Actions"</p>
+            <p>✓ Les colonnes visibles: Statut, Nom, IMEI, Modèle, Téléphone, Groupe, Dernière MAJ, Actions</p>
+        </div>
+        
+        <div class="step success">
+            <h3>3. Cliquez sur le bouton d'édition (✏️)</h3>
+            <p>✓ Sélectionnez un device dans le tableau</p>
+            <p>✓ Cliquez sur le bouton ✏️ (Modifier)</p>
+            <p>✓ Le modal doit s'ouvrir avec le titre: "Modifier: <strong>[Nom du Device]</strong>"</p>
+        </div>
+        
+        <div class="step success">
+            <h3>4. Vérifiez que le formulaire est rempli</h3>
+            <div class="checklist">
+                <li>Nom: [doit afficher le nom du device]</li>
+                <li>IMEI: [doit afficher l'IMEI du device]</li>
+                <li>Téléphone: [doit afficher le téléphone]</li>
+                <li>Modèle: [doit afficher le modèle]</li>
+                <li>Groupe: [doit être sélectionné]</li>
+                <li>Catégorie: [doit être sélectionnée]</li>
+                <li>Contact: [doit afficher le contact]</li>
+                <li>Désactiver: [checkbox doit être coché ou non selon l'état]</li>
+            </div>
+        </div>
+        
+        <div class="step success">
+            <h3>5. Modifiez un champ</h3>
+            <p>✓ Changez le nom du device (ex: "TEST-001")</p>
+            <p>✓ Vérifiez que le champ accepte les modifications</p>
+        </div>
+        
+        <div class="step success">
+            <h3>6. Enregistrez les modifications</h3>
+            <p>✓ Cliquez sur le bouton "Modifier" (en bas à droite)</p>
+            <p>✓ Le bouton doit afficher "Modification en cours..."</p>
+            <p>✓ Le modal doit se fermer après le succès</p>
+        </div>
+        
+        <div class="step success">
+            <h3>7. Vérifiez la mise à jour</h3>
+            <p>✓ Le tableau doit se rafraîchir automatiquement</p>
+            <p>✓ Le nouveau nom doit s'afficher dans le tableau</p>
+            <p>✓ Les changements doivent être sauvegardés dans Traccar</p>
+        </div>
+        
+        <div class="step success">
+            <h3>8. Test de validation</h3>
+            <p>Cliquez à nouveau sur d'édition et testez:</p>
+            <div class="checklist">
+                <li>Effacez le nom et cliquez "Modifier" → Erreur attendue</li>
+                <li>Effacez l'IMEI et cliquez "Modifier" → Erreur attendue</li>
+                <li>Vérifiez le message: "Le nom et l'identifiant unique sont obligatoires."</li>
+            </div>
+        </div>
+        
+        <div class="step success">
+            <h3>9. Test des sélects</h3>
+            <p>✓ Changez le groupe → Vérifiez la sauvegarde</p>
+            <p>✓ Changez la catégorie → Vérifiez la sauvegarde</p>
+            <p>✓ Effacez le groupe → Vérifiez la sauvegarde avec "aucun groupe"</p>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Vérification de la Console (F12)</h2>
+        <p>Ouvrez la console du navigateur (F12 → Console) et recherchez ces logs:</p>
+        <ul>
+            <li>✓ "Édition du device:" avec les données du device</li>
+            <li>✓ "Formulaire rempli - Groupe: X Catégorie: Y"</li>
+            <li>✓ "Modal title changed - Device: [Nom]"</li>
+            <li>✓ "Modal ouvert pour Modifier"</li>
+            <li>✓ "saveDevice() appelée"</li>
+            <li>✓ Pas d'erreurs en rouge</li>
+        </ul>
+    </div>
+    
+    <div class="test-section">
+        <h2>Code JavaScript Essentiel</h2>
+        <div class="code">
+// Fonction editDevice
+window.editDevice = function(id) {
+    const device = allDevices.find(d => d.id === id);
+    
+    // Remplit les champs
+    document.getElementById('deviceId').value = device.id;
+    document.getElementById('deviceName').value = device.name || '';
+    // ... autres champs ...
+    
+    // Remplit les sélects
+    document.getElementById('deviceGroup').value = device.groupId || '';
+    document.getElementById('deviceCategory').value = device.category || '';
+    
+    // Change le titre du modal
+    document.getElementById('exampleModalLabel').innerHTML = 
+        `Modifier: <strong>${device.name}</strong>`;
+    
+    // Ouvre le modal
+    new bootstrap.Modal(document.getElementById('exampleModal')).show();
+};
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Checklist Finale</h2>
+        <ul class="checklist">
+            <li>Modal ouvre et affiche les données actuelles</li>
+            <li>Tous les champs sont pré-remplis correctement</li>
+            <li>Les sélects (Groupe, Catégorie) sont sélectionnés</li>
+            <li>Modifications sont envoyées au serveur (PUT)</li>
+            <li>Tableau se rafraîchit après sauvegarde</li>
+            <li>Validation des champs obligatoires fonctionne</li>
+            <li>Messages d'erreur s'affichent correctement</li>
+            <li>Bouton "Modifier" change de texte pendant l'envoi</li>
+        </ul>
+    </div>
+    
+    <div class="test-section" style="background: #e8f4f8; border-left: 4px solid #17a2b8;">
+        <h2>✅ Si Tout Fonctionne</h2>
+        <p>La fonctionnalité edit/modify des devices est <strong>COMPLÈTEMENT OPÉRATIONNELLE</strong>.</p>
+        <p>Les données actuelles du device s'affichent dans le formulaire et peuvent être modifiées et sauvegardées.</p>
+    </div>
+
+</body>
+</html>
