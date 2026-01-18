@@ -6,7 +6,7 @@
 
 <div class="main-container">
      <!-- Sidebar -->
-    <aside class="sidebar">
+    <!-- <aside class="sidebar">
         <div class="sidebar-user">
             <img src="https://ui-avatars.com/api/?name={{ auth()->user()->name ?? 'U' }}&background=667eea&color=fff&size=40&bold=true" alt="Avatar" class="user-avatar">
             <div class="user-info">
@@ -57,7 +57,7 @@
                 </button>
             </form>
         </div>
-    </aside> 
+    </aside>  -->
 
     <!-- Main Content -->
     <main class="main-content">
