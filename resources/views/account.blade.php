@@ -5,11 +5,6 @@
 @section('content')
 
 <div class="main-container">
-    <!-- Sidebar Toggle Button -->
-    <button class="sidebar-toggle-btn" id="sidebarToggle" title="Afficher/Masquer le menu">
-        <i class="fas fa-chevron-left" id="toggleIcon"></i>
-    </button>
-    
     <!-- Sidebar -->
     <aside class="sidebar device-sidebar" id="accountSidebar">
         <div class="sidebar-search">
@@ -448,19 +443,17 @@
                             <th class="th-checkbox">
                                 <input type="checkbox" id="selectAll">
                             </th>
-                            <th>Statut</th>
                             <th>Nom</th>
                             <th>Email</th>
                             <th>Rôle</th>
                             <th>Téléphone</th>
-                            <th>Devices</th>
                             <th>Expiration</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody id="usersTableBody">
                         <tr>
-                            <td colspan="9" class="loading-cell">
+                            <td colspan="8" class="loading-cell">
                                 <div class="table-loading">
                                     <div class="spinner"></div>
                                     <span>Chargement des utilisateurs...</span>
@@ -507,26 +500,6 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('filterRole').addEventListener('change', filterUsers);
     document.getElementById('selectAll').addEventListener('change', toggleSelectAll);
     document.getElementById('treeSearch').addEventListener('input', debounce(filterTree, 300));
-    
-    // Sidebar Toggle functionality
-    const sidebarToggle = document.getElementById('sidebarToggle');
-    const accountSidebar = document.getElementById('accountSidebar');
-    const toggleIcon = document.getElementById('toggleIcon');
-    
-    // Restaurer l'état de la sidebar depuis localStorage
-    const sidebarCollapsed = localStorage.getItem('accountSidebarCollapsed') === 'true';
-    if (sidebarCollapsed) {
-        accountSidebar.classList.add('collapsed');
-        sidebarToggle.classList.add('collapsed');
-    }
-    
-    sidebarToggle.addEventListener('click', function() {
-        accountSidebar.classList.toggle('collapsed');
-        sidebarToggle.classList.toggle('collapsed');
-        
-        // Sauvegarder l'état dans localStorage
-        localStorage.setItem('accountSidebarCollapsed', accountSidebar.classList.contains('collapsed'));
-    });
 
     // Boutons Enregistrer - Modal Ajouter
     const btnAddSaveUser = document.getElementById('btnAddSaveUser');
@@ -785,7 +758,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (users.length === 0) {
             tbody.innerHTML = `
                 <tr>
-                    <td colspan="9" class="empty-cell">
+                    <td colspan="7" class="empty-cell">
                         <div class="empty-state">
                             <i class="fas fa-user fa-3x"></i>
                             <p>Aucun utilisateur trouvé</p>
@@ -798,13 +771,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 <tr data-id="${user.id}">
                     <td><input type="checkbox" class="user-checkbox" value="${user.id}"></td>
                     <td>
-                        <span class="status-badge status-${user.disabled ? 'offline' : 'online'}">
-                            ${user.disabled ? 'Désactivé' : 'Actif'}
-                        </span>
-                    </td>
-                    <td>
                         <div class="user-name-cell">
-                            <div class="user-avatar">${getInitials(user.name)}</div>
+                            <div class="user-avatar avatar-${user.disabled ? 'offline' : 'online'}">${getInitials(user.name)}</div>
                             <span>${user.name || '-'}</span>
                         </div>
                     </td>
@@ -815,7 +783,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         </span>
                     </td>
                     <td>${user.phone || '-'}</td>
-                    <td>${user.deviceLimit === -1 ? '∞' : user.deviceLimit}</td>
                     <td>${formatDate(user.expirationTime)}</td>
                     <td class="actions-cell">
                         <button class="btn-icon btn-edit" title="Modifier" onclick="editUser(${user.id})">
@@ -915,7 +882,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function showTableLoading() {
         document.getElementById('usersTableBody').innerHTML = `
             <tr>
-                <td colspan="9" class="loading-cell">
+                <td colspan="8" class="loading-cell">
                     <div class="table-loading">
                         <div class="spinner"></div>
                         <span>Chargement des utilisateurs...</span>
@@ -928,7 +895,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function showTableError(message) {
         document.getElementById('usersTableBody').innerHTML = `
             <tr>
-                <td colspan="9" class="error-cell">
+                <td colspan="8" class="error-cell">
                     <div class="error-state">
                         <i class="fas fa-exclamation-circle fa-3x"></i>
                         <p>${message}</p>
@@ -1576,16 +1543,27 @@ window.linkUser = function(id) {
 }
 
 .user-avatar {
-    width: 32px;
-    height: 32px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
     background: linear-gradient(135deg, #7556D6, #9b7ce8);
     color: white;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 600;
+    flex-shrink: 0;
+}
+
+.user-avatar.avatar-online {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    box-shadow: 0 0 0 2px rgba(40, 167, 69, 0.2);
+}
+
+.user-avatar.avatar-offline {
+    background: linear-gradient(135deg, #dc3545, #e74c3c);
+    box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.2);
 }
 
 /* Role Badge */
@@ -1681,6 +1659,42 @@ window.linkUser = function(id) {
         opacity: 1;
         transform: translateY(0);
     }
+}
+
+/* ============================================
+   ACCOUNT PAGE - MAIN CONTAINER & SIDEBAR
+   ============================================ */
+
+/* Main Container */
+.main-container {
+    display: flex;
+    min-height: calc(100vh - 60px);
+    margin-top: 60px;
+}
+
+/* Sidebar Fixed */
+.device-sidebar {
+    position: fixed;
+    left: 0;
+    top: 50px;
+    width: 280px;
+    height: calc(100vh - 50px);
+    background: white;
+    border-right: 1px solid #e3eafc;
+    display: flex;
+    flex-direction: column;
+    z-index: 99;
+    overflow-y: auto;
+}
+
+/* Main Content adjusted for fixed sidebar */
+.main-content {
+    margin-left: 280px;
+    flex: 1;
+    width: calc(100% - 280px);
+    padding: 20px;
+    background: #f8f9fa;
+    overflow-y: auto;
 }
 </style>
 @endpush

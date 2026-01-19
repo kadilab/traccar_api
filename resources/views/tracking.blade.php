@@ -170,12 +170,12 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
     padding: 20px 30px;
     border-radius: 12px;
     color: #fff;
     margin-bottom: 20px;
-    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
 }
 
 .header-left {
@@ -242,7 +242,7 @@
 }
 
 .status-badge.online .status-dot {
-    background: #10b981;
+    background: #3b82f6;
 }
 
 .status-badge.offline .status-dot {
@@ -290,7 +290,7 @@
 }
 
 .info-card-title i {
-    color: #10b981;
+    color: #3b82f6;
 }
 
 .info-grid {
@@ -356,14 +356,14 @@
 }
 
 .action-btn:hover {
-    border-color: #10b981;
-    color: #10b981;
-    background: #f0fdf4;
+    border-color: #3b82f6;
+    color: #3b82f6;
+    background: #eff6ff;
 }
 
 .action-btn.active {
-    border-color: #10b981;
-    background: #10b981;
+    border-color: #3b82f6;
+    background: #3b82f6;
     color: #fff;
 }
 
@@ -373,10 +373,10 @@
 
 /* Realtime Card */
 .realtime-card {
-    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
     border-radius: 12px;
     padding: 15px 20px;
-    border: 2px solid #10b981;
+    border: 2px solid #3b82f6;
 }
 
 .realtime-indicator {
@@ -384,13 +384,13 @@
     align-items: center;
     gap: 10px;
     font-weight: 700;
-    color: #059669;
+    color: #1e40af;
 }
 
 .realtime-indicator .realtime-dot {
     width: 12px;
     height: 12px;
-    background: #10b981;
+    background: #3b82f6;
     border-radius: 50%;
     animation: pulse 1.5s infinite;
 }
@@ -398,7 +398,7 @@
 .realtime-info {
     margin: 8px 0 0;
     font-size: 13px;
-    color: #065f46;
+    color: #1e40af;
 }
 
 /* Map Section */
@@ -444,7 +444,7 @@
 }
 
 .map-control-btn:hover {
-    background: #10b981;
+    background: #3b82f6;
     color: #fff;
 }
 
@@ -466,7 +466,7 @@
     align-items: center;
     justify-content: center;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-    border: 4px solid #10b981;
+    border: 4px solid #3b82f6;
 }
 
 .speed-value {
@@ -488,9 +488,14 @@
 }
 
 /* Responsive */
-@media (max-width: 1024px) {
+@media (max-width: 1200px) {
+    .tracking-container {
+        padding: 15px;
+        padding-top: 70px;
+    }
+    
     .tracking-content {
-        flex-direction: column;
+        gap: 15px;
         height: auto;
     }
     
@@ -502,23 +507,27 @@
     
     .info-card {
         flex: 1;
-        min-width: 280px;
+        min-width: 250px;
     }
     
     .map-section {
-        height: 500px;
+        height: 400px;
+        order: 1;
     }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 991px) {
     .tracking-header {
-        flex-direction: column;
         gap: 15px;
         padding: 15px 20px;
     }
     
     .device-info h1 {
         font-size: 20px;
+    }
+    
+    .device-info h1 i {
+        font-size: 22px;
     }
     
     .info-panel {
@@ -530,7 +539,321 @@
     }
     
     .action-buttons-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+    
+    .map-section {
+        height: 450px;
+    }
+    
+    .speed-gauge {
+        width: 85px;
+        height: 85px;
+    }
+    
+    .speed-value {
+        font-size: 28px;
+    }
+}
+
+@media (max-width: 768px) {
+    .tracking-container {
+        padding: 10px;
+        padding-top: 65px;
+    }
+    
+    .tracking-header {
+        flex-direction: column;
+        gap: 12px;
+        padding: 12px 15px;
+        margin-bottom: 15px;
+    }
+    
+    .header-left {
+        width: 100%;
+        gap: 12px;
+    }
+    
+    .device-info h1 {
+        font-size: 18px;
+        gap: 8px;
+    }
+    
+    .device-info h1 i {
+        font-size: 20px;
+    }
+    
+    .btn-back {
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
+    }
+    
+    .device-id {
+        font-size: 13px;
+    }
+    
+    .status-badge {
+        padding: 8px 16px;
+        font-size: 14px;
+    }
+    
+    .tracking-content {
+        gap: 12px;
+    }
+    
+    .info-panel {
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .info-card {
+        padding: 15px;
+    }
+    
+    .info-card-title {
+        font-size: 14px;
+        margin-bottom: 12px;
+    }
+    
+    .info-grid {
+        gap: 10px;
+    }
+    
+    .info-label {
+        font-size: 11px;
+    }
+    
+    .info-value {
+        font-size: 13px;
+    }
+    
+    .actions-card {
+        padding: 12px;
+    }
+    
+    .action-buttons-grid {
         grid-template-columns: 1fr;
+        gap: 8px;
+    }
+    
+    .action-btn {
+        padding: 10px;
+        font-size: 12px;
+        gap: 6px;
+    }
+    
+    .action-btn i {
+        font-size: 14px;
+    }
+    
+    .realtime-card {
+        padding: 12px 15px;
+    }
+    
+    .realtime-indicator {
+        gap: 8px;
+        font-size: 14px;
+    }
+    
+    .realtime-info {
+        font-size: 12px;
+    }
+    
+    .map-section {
+        height: 350px;
+    }
+    
+    .map-controls {
+        top: 10px;
+        right: 10px;
+        gap: 6px;
+    }
+    
+    .map-control-btn {
+        width: 36px;
+        height: 36px;
+        font-size: 14px;
+    }
+    
+    .speed-gauge-overlay {
+        bottom: 15px;
+        left: 15px;
+    }
+    
+    .speed-gauge {
+        width: 80px;
+        height: 80px;
+        border: 3px solid #3b82f6;
+    }
+    
+    .speed-value {
+        font-size: 26px;
+    }
+    
+    .speed-unit {
+        font-size: 11px;
+    }
+}
+
+@media (max-width: 600px) {
+    .tracking-container {
+        padding: 8px;
+        padding-top: 60px;
+    }
+    
+    .tracking-header {
+        padding: 10px 12px;
+        margin-bottom: 12px;
+        border-radius: 8px;
+    }
+    
+    .device-info h1 {
+        font-size: 16px;
+    }
+    
+    .device-id {
+        font-size: 12px;
+    }
+    
+    .btn-back {
+        width: 36px;
+        height: 36px;
+        font-size: 14px;
+    }
+    
+    .status-badge {
+        padding: 6px 12px;
+        font-size: 13px;
+    }
+    
+    .header-left {
+        gap: 10px;
+    }
+    
+    .info-card {
+        padding: 12px;
+        border-radius: 8px;
+    }
+    
+    .info-grid {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+    
+    .info-item:has(.address) {
+        grid-column: span 1;
+    }
+    
+    .info-card-title {
+        font-size: 13px;
+        margin-bottom: 10px;
+    }
+    
+    .info-label {
+        font-size: 10px;
+    }
+    
+    .info-value {
+        font-size: 12px;
+    }
+    
+    .action-btn {
+        padding: 8px 10px;
+        font-size: 11px;
+        gap: 4px;
+        border-radius: 6px;
+    }
+    
+    .action-btn i {
+        font-size: 12px;
+    }
+    
+    .map-section {
+        height: 300px;
+        border-radius: 8px;
+    }
+    
+    .map-control-btn {
+        width: 32px;
+        height: 32px;
+        font-size: 12px;
+    }
+    
+    .speed-gauge {
+        width: 70px;
+        height: 70px;
+        border: 2px solid #3b82f6;
+    }
+    
+    .speed-value {
+        font-size: 22px;
+    }
+    
+    .speed-unit {
+        font-size: 10px;
+    }
+}
+
+@media (max-width: 400px) {
+    .tracking-header {
+        padding: 8px 10px;
+        gap: 10px;
+    }
+    
+    .device-info h1 {
+        font-size: 14px;
+        gap: 6px;
+    }
+    
+    .device-info h1 i {
+        font-size: 16px;
+    }
+    
+    .btn-back {
+        width: 32px;
+        height: 32px;
+        font-size: 12px;
+    }
+    
+    .status-badge {
+        padding: 5px 10px;
+        font-size: 12px;
+        gap: 6px;
+    }
+    
+    .status-dot {
+        width: 8px;
+        height: 8px;
+    }
+    
+    .info-card {
+        padding: 10px;
+    }
+    
+    .info-grid {
+        gap: 6px;
+    }
+    
+    .info-label {
+        font-size: 9px;
+    }
+    
+    .info-value {
+        font-size: 11px;
+    }
+    
+    .map-section {
+        height: 280px;
+    }
+    
+    .speed-gauge {
+        width: 65px;
+        height: 65px;
+    }
+    
+    .speed-value {
+        font-size: 20px;
     }
 }
 
@@ -648,26 +971,33 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('infoPhone').textContent = device.phone || '--';
         
         // History link
-        document.getElementById('btnHistory').href = `/history?deviceId=${deviceId}`;
+        document.getElementById('btnHistory').href = `/history?id=${deviceId}`;
     }
 
     // Update position info in UI
     function updatePositionInfo() {
         if (!position) return;
         
-        document.getElementById('infoLatitude').textContent = position.latitude?.toFixed(6) || '--';
-        document.getElementById('infoLongitude').textContent = position.longitude?.toFixed(6) || '--';
+        const latElem = document.getElementById('infoLatitude');
+        const lngElem = document.getElementById('infoLongitude');
+        const speedElem = document.getElementById('infoSpeed');
+        const courseElem = document.getElementById('infoCourse');
+        const altElem = document.getElementById('infoAltitude');
+        const addrElem = document.getElementById('infoAddress');
+        
+        if (latElem) latElem.textContent = position.latitude?.toFixed(6) || '--';
+        if (lngElem) lngElem.textContent = position.longitude?.toFixed(6) || '--';
         
         const speedKmh = (position.speed * 1.852).toFixed(1); // knots to km/h
-        document.getElementById('infoSpeed').textContent = `${speedKmh} km/h`;
+        if (speedElem) speedElem.textContent = `${speedKmh} km/h`;
         document.getElementById('speedGaugeValue').textContent = Math.round(speedKmh);
         
-        document.getElementById('infoCourse').textContent = `${position.course?.toFixed(0) || 0}°`;
-        document.getElementById('infoAltitude').textContent = `${position.altitude?.toFixed(0) || 0} m`;
-        document.getElementById('infoAddress').textContent = position.address || '{{ __("messages.common.loading") }}...';
+        if (courseElem) courseElem.textContent = `${position.course?.toFixed(0) || 0}°`;
+        if (altElem) altElem.textContent = `${position.altitude?.toFixed(0) || 0} m`;
+        if (addrElem) addrElem.textContent = position.address || '{{ __("messages.common.loading") }}...';
         
         // If no address, try to get it
-        if (!position.address) {
+        if (!position.address && addrElem) {
             reverseGeocode(position.latitude, position.longitude);
         }
     }
@@ -679,17 +1009,22 @@ document.addEventListener('DOMContentLoaded', function() {
         const lat = position.latitude;
         const lng = position.longitude;
         
-        // Update marker position with animation
+        // Update marker position
         marker.setLatLng([lat, lng]);
         
-        // Rotate marker based on course
-        const markerIcon = marker.getElement();
-        if (markerIcon) {
-            const carIcon = markerIcon.querySelector('.car-marker-icon');
-            if (carIcon) {
-                carIcon.style.transform = `rotate(${position.course || 0}deg)`;
-            }
-        }
+        // Recreate icon with new rotation
+        const carIcon = L.divIcon({
+            className: 'custom-car-marker',
+            html: `<div class="car-marker-container" style="transform: rotate(${position.course || 0}deg);">
+                <div class="car-marker-pulse"></div>
+                <div class="car-marker-icon">
+                    <i class="fas fa-car"></i>
+                </div>
+            </div>`,
+            iconSize: [50, 50],
+            iconAnchor: [25, 25]
+        });
+        marker.setIcon(carIcon);
         
         // Center map if auto-follow is enabled
         if (autoFollow) {
@@ -845,6 +1180,7 @@ document.addEventListener('DOMContentLoaded', function() {
     position: relative;
     width: 50px;
     height: 50px;
+    transition: transform 0.3s ease;
 }
 
 .car-marker-pulse {
@@ -854,7 +1190,7 @@ document.addEventListener('DOMContentLoaded', function() {
     transform: translate(-50%, -50%);
     width: 50px;
     height: 50px;
-    background: rgba(16, 185, 129, 0.3);
+    background: rgba(59, 130, 246, 0.3);
     border-radius: 50%;
     animation: marker-pulse 2s infinite;
 }
@@ -866,15 +1202,14 @@ document.addEventListener('DOMContentLoaded', function() {
     transform: translate(-50%, -50%);
     width: 36px;
     height: 36px;
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
     font-size: 16px;
-    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
-    transition: transform 0.3s ease;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
 }
 
 @keyframes marker-pulse {
@@ -902,8 +1237,8 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .status-badge-mini.status-online {
-    background: #dcfce7;
-    color: #059669;
+    background: #dbeafe;
+    color: #1e40af;
 }
 
 .status-badge-mini.status-offline {

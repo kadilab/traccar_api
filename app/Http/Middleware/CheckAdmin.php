@@ -20,6 +20,14 @@ class CheckAdmin
 
         $user = auth()->user();
         
+        // Vérifier si l'utilisateur est désactivé
+        if ($user->disabled) {
+            auth()->logout();
+            $request->session()->invalidate();
+            return redirect()->route('login')
+                ->with('error', 'Votre compte a été désactivé. Veuillez contacter l\'administrateur.');
+        }
+        
         // Vérifier si l'utilisateur est admin (colonne 'administrator' dans Traccar)
         // La valeur peut être 1, true, ou "true" selon la base de données
         $isAdmin = $user->administrator === true || 

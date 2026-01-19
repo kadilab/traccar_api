@@ -129,8 +129,8 @@ html, body {
 
 /* Sidebar */
 .monitor-sidebar {
-    width: 280px;
-    min-width: 220px;
+    width: 240px;
+    min-width: 180px;
     background: #fff;
     border-right: 1px solid #e3eafc;
     display: flex;
@@ -201,7 +201,7 @@ html, body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 12px 14px;
+    padding: 10px 12px;
     background: linear-gradient(135deg, #1e88e5 0%, #1976d2 100%);
     color: white;
 }
@@ -249,7 +249,7 @@ html, body {
 }
 
 .compact-panel-body {
-    padding: 12px 14px;
+    padding: 10px 12px;
     max-height: 320px;
     overflow-y: auto;
 }
@@ -308,18 +308,18 @@ html, body {
 .dynamic-indicators {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-    gap: 8px;
-    padding: 10px 0;
+    gap: 6px;
+    padding: 8px 0;
     border-top: 1px solid rgba(0,0,0,0.08);
     border-bottom: 1px solid rgba(0,0,0,0.08);
-    margin: 10px 0;
+    margin: 8px 0;
 }
 
 .dynamic-indicator {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 10px 12px;
+    gap: 8px;
+    padding: 8px 10px;
     border-radius: 8px;
     background: rgba(0,0,0,0.04);
     transition: all 0.2s ease;
@@ -407,6 +407,37 @@ html, body {
     border-radius: 3px;
 }
 
+/* Action Icons Styles */
+.action-icons {
+    display: flex;
+    gap: 3px;
+    margin-top: 6px;
+}
+
+.action-icon-btn {
+    width: 24px !important;
+    height: 24px !important;
+    background: #f0f4ff;
+    border: none;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px !important;
+    color: #7556D6;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 0 !important;
+    min-width: 24px;
+    min-height: 24px;
+}
+
+.action-icon-btn:hover {
+    background: #7556D6;
+    color: white;
+    transform: translateY(-1px);
+}
+
 /* ========== RESPONSIVE ========== */
 @media (max-width: 991px) {
     .monitor-container {
@@ -485,11 +516,12 @@ document.addEventListener('DOMContentLoaded', function() {
     let map;
     let markers = {};
     let allDevices = [];
-    let allGroups = [];
+    let allUsers = [];
     let positions = {};
     let selectedDeviceId = null;
     let autoFollow = true;
     let refreshInterval = null;
+    let expandedGroups = {}; // Stocker l'état des groupes ouverts/fermés
     const REFRESH_RATE = 3000; // 3 secondes pour le temps réel
     
     // Initialiser la carte
@@ -538,13 +570,17 @@ document.addEventListener('DOMContentLoaded', function() {
     // Charger les groupes
     async function loadGroups() {
         try {
-            const response = await fetch('/api/traccar/groups');
+            const response = await fetch('/api/traccar/users');
             const data = await response.json();
             if (data.success) {
-                allGroups = data.groups || [];
+                allUsers = data.users || [];
+            } else if (response.status === 403) {
+                console.warn('Accès refusé aux utilisateurs - permissions insuffisantes');
+                allUsers = [];
             }
         } catch (error) {
-            console.error('Erreur chargement groupes:', error);
+            console.error('Erreur chargement utilisateurs:', error);
+            allUsers = [];
         }
     }
     
@@ -552,6 +588,11 @@ document.addEventListener('DOMContentLoaded', function() {
     async function loadDevices() {
         try {
             const response = await fetch('/api/traccar/devices?all=true');
+            if (response.status === 403) {
+                console.warn('Accès refusé aux devices - permissions insuffisantes');
+                allDevices = [];
+                return;
+            }
             const data = await response.json();
             if (data.success) {
                 allDevices = data.devices || [];
@@ -560,6 +601,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         } catch (error) {
             console.error('Erreur chargement devices:', error);
+            allDevices = [];
         }
     }
     
@@ -567,6 +609,10 @@ document.addEventListener('DOMContentLoaded', function() {
     async function loadPositions() {
         try {
             const response = await fetch('/api/traccar/positions');
+            if (response.status === 403) {
+                console.warn('Accès refusé aux positions - permissions insuffisantes');
+                return;
+            }
             const data = await response.json();
             if (data.success) {
                 const positionsArray = data.positions || [];
@@ -604,7 +650,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Mettre à jour l'heure de dernière MAJ
     function updateLastRefreshTime() {
         const now = new Date();
-        document.getElementById('lastUpdate').textContent = now.toLocaleTimeString('fr-FR');
+        const lastUpdateEl = document.getElementById('lastUpdate');
+        if (lastUpdateEl) {
+            lastUpdateEl.textContent = now.toLocaleTimeString('fr-FR');
+        }
     }
     
     // Mettre à jour les compteurs
@@ -612,23 +661,44 @@ document.addEventListener('DOMContentLoaded', function() {
         const online = allDevices.filter(d => d.status === 'online').length;
         const offline = allDevices.filter(d => d.status === 'offline').length;
         
-        document.getElementById('countAll').textContent = allDevices.length;
-        document.getElementById('countOnline').textContent = online;
-        document.getElementById('countOffline').textContent = offline;
-        document.getElementById('displayedDevices').textContent = allDevices.length;
+        const countAllEl = document.getElementById('countAll');
+        const countOnlineEl = document.getElementById('countOnline');
+        const countOfflineEl = document.getElementById('countOffline');
+        const displayedEl = document.getElementById('displayedDevices');
+        
+        if (countAllEl) countAllEl.textContent = allDevices.length;
+        if (countOnlineEl) countOnlineEl.textContent = online;
+        if (countOfflineEl) countOfflineEl.textContent = offline;
+        if (displayedEl) displayedEl.textContent = allDevices.length;
     }
     
-    // Construire l'arbre des devices par groupe
+    // Construire l'arbre des devices par utilisateur
     function buildDeviceTree() {
         const container = document.getElementById('deviceTree');
         const search = document.getElementById('deviceSearch').value.toLowerCase();
         const activeFilter = document.querySelector('.filter-btn.active')?.dataset.filter || 'all';
         
+        // Sauvegarder l'état actuel des groupes expandus
+        const currentExpandedGroups = {};
+        document.querySelectorAll('.group-node.expanded').forEach(node => {
+            const header = node.querySelector('.group-header');
+            if (header) {
+                const groupName = header.querySelector('.group-name').textContent;
+                currentExpandedGroups[groupName] = true;
+            }
+        });
+        expandedGroups = currentExpandedGroups;
+        
         // Filtrer les devices
         let filteredDevices = allDevices.filter(device => {
+            // Récupérer le nom de l'utilisateur assigné
+            const user = allUsers.find(u => u.id === device.userId);
+            const userName = user ? user.name.toLowerCase() : 'non assigné';
+            
             const matchSearch = !search || 
                 device.name?.toLowerCase().includes(search) ||
-                device.uniqueId?.toLowerCase().includes(search);
+                device.uniqueId?.toLowerCase().includes(search) ||
+                userName.includes(search);
             
             let matchFilter = true;
             if (activeFilter === 'online') matchFilter = device.status === 'online';
@@ -637,26 +707,27 @@ document.addEventListener('DOMContentLoaded', function() {
             return matchSearch && matchFilter;
         });
         
-        // Grouper par groupe
+        // Grouper par utilisateur
         const grouped = {};
-        grouped['Sans groupe'] = filteredDevices.filter(d => !d.groupId);
+        grouped['Non assigné'] = filteredDevices.filter(d => !d.userId);
         
-        allGroups.forEach(group => {
-            const groupDevices = filteredDevices.filter(d => d.groupId === group.id);
-            if (groupDevices.length > 0) {
-                grouped[group.name] = groupDevices;
+        allUsers.forEach(user => {
+            const userDevices = filteredDevices.filter(d => d.userId === user.id);
+            if (userDevices.length > 0) {
+                grouped[user.name] = userDevices;
             }
         });
         
         let html = '';
-        for (const [groupName, devices] of Object.entries(grouped)) {
+        for (const [userName, devices] of Object.entries(grouped)) {
             if (devices.length > 0) {
+                const isExpanded = expandedGroups[userName] ? 'expanded' : '';
                 html += `
-                    <div class="group-node expanded">
+                    <div class="group-node ${isExpanded}">
                         <div class="group-header" onclick="toggleGroup(this)">
                             <i class="fas fa-chevron-right arrow"></i>
-                            <i class="fas fa-folder folder-icon"></i>
-                            <span class="group-name">${groupName}</span>
+                            <i class="fas fa-user folder-icon"></i>
+                            <span class="group-name">${userName}</span>
                             <span class="group-count">${devices.length}</span>
                         </div>
                         <div class="group-devices">

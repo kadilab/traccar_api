@@ -23,6 +23,14 @@ class CheckAdminApi
 
         $user = auth()->user();
         
+        // Vérifier si l'utilisateur est désactivé
+        if ($user->disabled) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Votre compte a été désactivé'
+            ], 403);
+        }
+        
         // Vérifier si l'utilisateur est admin
         $isAdmin = $user->administrator === true || 
                    $user->administrator === 1 || 

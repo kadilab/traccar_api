@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use App\Models\UserDevice;
 
 class TraccarController extends Controller
 {
@@ -246,7 +247,58 @@ class TraccarController extends Controller
     {
         $query = $request->only(['all', 'userId', 'id', 'uniqueId']);
         $response = $this->apiRequest('GET', 'devices', [], $query);
-        return $this->formatResponse($response, 'devices');
+        
+        if ($response->successful()) {
+            $devices = $response->json();
+            $user = auth()->user();
+            
+            // Charger les assignations utilisateur-device depuis la table tc_user_device
+            try {
+                $userDevices = UserDevice::all();
+                
+                // Créer un mapping deviceId -> userId
+                $deviceUserMap = [];
+                foreach ($userDevices as $ud) {
+                    $deviceUserMap[$ud->deviceid] = $ud->userid;
+                }
+                
+                // Ajouter l'userId à chaque device
+                if (is_array($devices)) {
+                    foreach ($devices as &$device) {
+                        $device['userId'] = $deviceUserMap[$device['id']] ?? null;
+                    }
+                }
+            } catch (\Exception $e) {
+                \Log::warning('Erreur lors du chargement des assignations utilisateur-device: ' . $e->getMessage());
+                // Continuer même si les assignations ne se chargent pas
+                if (is_array($devices)) {
+                    foreach ($devices as &$device) {
+                        $device['userId'] = null;
+                    }
+                }
+            }
+            
+            // Si l'utilisateur n'est pas admin, filtrer pour afficher seulement ses devices
+            if (!$user->administrator) {
+                $devices = array_filter($devices, function($device) use ($user) {
+                    // Afficher le device si :
+                    // 1. Il est assigné à l'utilisateur courant
+                    // 2. Il est assigné à aucun utilisateur (devices non assignés visibles par tous)
+                    return $device['userId'] === $user->id || $device['userId'] === null;
+                });
+            }
+            
+            return response()->json([
+                'success' => true,
+                'devices' => $devices
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Erreur API Traccar',
+            'error' => $response->body()
+        ], $response->status());
     }
 
     /**
@@ -255,6 +307,22 @@ class TraccarController extends Controller
      */
     public function getDevice(int $id): JsonResponse
     {
+        $user = auth()->user();
+        
+        // Si l'utilisateur n'est pas admin, vérifier qu'il a accès à ce device
+        if (!$user->administrator) {
+            $userDevice = UserDevice::where('userid', $user->id)
+                ->where('deviceid', $id)
+                ->first();
+            
+            if (!$userDevice) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Accès refusé à ce device',
+                ], 403);
+            }
+        }
+        
         $response = $this->apiRequest('GET', 'devices', [], ['id' => $id]);
         
         if ($response->successful()) {
@@ -410,6 +478,16 @@ class TraccarController extends Controller
     // ==================== PERMISSIONS ====================
 
     /**
+     * Fetch all Permissions
+     * GET /permissions
+     */
+    public function getPermissions(Request $request): JsonResponse
+    {
+        $response = $this->apiRequest('GET', 'permissions', [], []);
+        return $this->formatResponse($response, 'permissions');
+    }
+
+    /**
      * Link an Object to another Object
      * POST /permissions
      */
@@ -437,7 +515,25 @@ class TraccarController extends Controller
      */
     public function getPositions(Request $request): JsonResponse
     {
+        $user = auth()->user();
         $query = $request->only(['deviceId', 'from', 'to', 'id']);
+        
+        // Si l'utilisateur n'est pas admin et a spécifié un deviceId
+        if (!$user->administrator && isset($query['deviceId'])) {
+            // Vérifier que l'utilisateur a accès à ce device
+            $userDevice = UserDevice::where('userid', $user->id)
+                ->where('deviceid', $query['deviceId'])
+                ->first();
+            
+            // Si le device n'est pas assigné à cet utilisateur, refuser l'accès
+            if (!$userDevice) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Accès refusé à ce device',
+                ], 403);
+            }
+        }
+        
         $response = $this->apiRequest('GET', 'positions', [], $query);
         return $this->formatResponse($response, 'positions');
     }

@@ -15,6 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // Middleware pour la gestion de la langue
         $middleware->web(append: [
             \App\Http\Middleware\SetLocale::class,
+            \App\Http\Middleware\CheckUserActive::class,
         ]);
         
         // Ajouter les middlewares web (session, cookies) aux routes API
@@ -26,10 +27,11 @@ return Application::configure(basePath: dirname(__DIR__))
             \Illuminate\View\Middleware\ShareErrorsFromSession::class,
         ]);
         
-        // Alias pour le middleware admin
+        // Alias pour les middlewares
         $middleware->alias([
             'admin' => \App\Http\Middleware\CheckAdmin::class,
             'admin.api' => \App\Http\Middleware\CheckAdminApi::class,
+            'active' => \App\Http\Middleware\CheckUserActive::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

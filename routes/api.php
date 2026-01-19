@@ -52,6 +52,7 @@ Route::prefix('traccar')->group(function () {
     });
 
     // Permissions - Accessible à tous (Traccar gère les droits)
+    Route::get('/permissions', [TraccarController::class, 'getPermissions']);
     Route::post('/permissions', [TraccarController::class, 'createPermission']);
     Route::delete('/permissions', [TraccarController::class, 'deletePermission']);
 

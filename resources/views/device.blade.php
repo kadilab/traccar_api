@@ -38,7 +38,7 @@
                 <div class="filters-row">
                     <div class="filter-group">
                         <label>Recherche</label>
-                        <input type="text" id="searchDevice" class="filter-input" placeholder="Nom, IMEI...">
+                        <input type="text" id="searchDevice" class="filter-input" placeholder="Nom, IMEI, Groupe...">
                     </div>
                     <div class="filter-group">
                         <label>Statut</label>
@@ -434,6 +434,46 @@
             </div>
             </div>
 
+            <!-- Modal Lier Utilisateur au Device -->
+            <div class="modal fade" id="linkUserModal" tabindex="-1" aria-labelledby="linkUserModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="linkUserModalLabel">
+                                <i class="fas fa-user-tie me-2"></i>
+                                Assigner un Utilisateur
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="device-info-header mb-3">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-microchip fa-2x text-primary me-3"></i>
+                                    <div>
+                                        <h6 class="mb-0" id="linkUserDeviceName">-</h6>
+                                        <small class="text-muted" id="linkUserDeviceImei">-</small>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="link-section">
+                                <label for="selectUserForDevice" class="form-label">Sélectionner un Utilisateur</label>
+                                <select id="selectUserForDevice" class="form-select" onchange="addLinkedUserToDevice(this)">
+                                    <option value="">-- Aucun utilisateur (Supprimer l'assignation) --</option>
+                                </select>
+                                <div class="linked-items-container mt-2" id="linkedUserContainer"></div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                <i class="fas fa-times me-1"></i>
+                                Fermer
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Modal Lier Geofences au Device -->
             <div class="modal fade" id="linkGeofenceModal" tabindex="-1" aria-labelledby="linkGeofenceModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-lg">
@@ -498,7 +538,6 @@
                             <th>Modèle</th>
                             <th>Téléphone</th>
                             <th>Groupe</th>
-                            <th>Dernière MAJ</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -538,6 +577,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     let allDevices = [];
     let allGroups = [];
+    let allUsers = [];
     let currentPage = 1;
     const itemsPerPage = 10;
     let refreshInterval = null;
@@ -545,6 +585,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Charger les groupes d'abord, puis les devices
     async function initializeData() {
+        await loadUsers();
         await loadGroups();
         await loadDevices();
         startRealTimeUpdates();
@@ -715,13 +756,6 @@ document.addEventListener('DOMContentLoaded', function() {
             hasChanged = true;
         }
         
-        // Last Update (index 7)
-        const newDate = formatDate(device.lastUpdate);
-        if (cells[7] && cells[7].textContent !== newDate) {
-            cells[7].textContent = newDate;
-            hasChanged = true;
-        }
-
         // Animation de mise en évidence seulement si quelque chose a changé
         if (hasChanged) {
             row.classList.add('row-updated');
@@ -798,6 +832,40 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Charger les groupes
+    // Charger les utilisateurs
+    async function loadUsers() {
+        console.log('Chargement des utilisateurs...');
+        try {
+            const response = await fetch('/api/traccar/users');
+            console.log('Users Response status:', response.status);
+            
+            if (!response.ok) {
+                console.error('Erreur HTTP lors du chargement des utilisateurs:', response.status);
+                return;
+            }
+            
+            const data = await response.json();
+            console.log('Users API response:', JSON.stringify(data));
+            
+            if (data.success && data.users && Array.isArray(data.users)) {
+                allUsers = data.users;
+                console.log('Utilisateurs chargés avec succès:', allUsers.length, 'utilisateurs');
+            } else if (Array.isArray(data.users)) {
+                allUsers = data.users;
+                console.log('Utilisateurs chargés avec succès:', allUsers.length, 'utilisateurs');
+            } else if (Array.isArray(data)) {
+                allUsers = data;
+                console.log('Utilisateurs chargés avec succès:', allUsers.length, 'utilisateurs');
+            } else {
+                console.warn('Format de réponse inattendu pour les utilisateurs:', data);
+                allUsers = [];
+            }
+        } catch (error) {
+            console.error('Erreur lors du chargement des utilisateurs:', error);
+            allUsers = [];
+        }
+    }
+
     async function loadGroups() {
         console.log('Chargement des groupes...');
         try {
@@ -1084,10 +1152,14 @@ document.addEventListener('DOMContentLoaded', function() {
         const category = document.getElementById('filterCategory').value;
 
         let filtered = allDevices.filter(device => {
+            // Récupérer le nom du groupe pour la recherche
+            const groupName = getGroupName(device.groupId)?.toLowerCase() || '';
+            
             const matchSearch = !search || 
                 device.name?.toLowerCase().includes(search) ||
                 device.uniqueId?.toLowerCase().includes(search) ||
-                device.phone?.toLowerCase().includes(search);
+                device.phone?.toLowerCase().includes(search) ||
+                groupName.includes(search);
             
             const matchStatus = !status || device.status === status;
             const matchGroup = !groupId || device.groupId == groupId;
@@ -1132,11 +1204,16 @@ document.addEventListener('DOMContentLoaded', function() {
                     <td>${device.model || '-'}</td>
                     <td>${device.phone || '-'}</td>
                     <td>${getGroupName(device.groupId)}</td>
-                    <td>${formatDate(device.lastUpdate)}</td>
                     <td class="actions-cell">
                         ${isAdmin ? `<button class="btn-icon btn-edit" title="Modifier" onclick="editDevice(${device.id})">
                             <i class="fas fa-edit"></i>
                         </button>` : ''}
+                        <button class="btn-icon btn-link-user ${device.userId ? 'has-links' : ''}" 
+                                title="${device.userId ? 'Utilisateur assigné' : 'Assigner Utilisateur'}" 
+                                onclick="openLinkUserModal(${device.id})">
+                            <i class="fas fa-user-tie"></i>
+                            ${device.userId ? `<span class="link-badge"><i class="fas fa-check"></i></span>` : ''}
+                        </button>
                         <button class="btn-icon btn-link-geofence ${device.geofenceIds && device.geofenceIds.length > 0 ? 'has-links' : ''}" 
                                 title="${device.geofenceIds && device.geofenceIds.length > 0 ? device.geofenceIds.length + ' geofence(s) liée(s)' : 'Associer Geofences'}" 
                                 onclick="openLinkGeofenceModal(${device.id})">
@@ -1162,23 +1239,23 @@ document.addEventListener('DOMContentLoaded', function() {
     function buildTreeView() {
         const treeContainer = document.getElementById('deviceTree');
         
-        // Grouper les devices par groupe
+        // Grouper les devices par utilisateur
         const grouped = {};
-        grouped['Sans groupe'] = allDevices.filter(d => !d.groupId);
+        grouped['Non assigné'] = allDevices.filter(d => !d.userId);
         
-        allGroups.forEach(group => {
-            grouped[group.name] = allDevices.filter(d => d.groupId === group.id);
+        allUsers.forEach(user => {
+            grouped[user.name] = allDevices.filter(d => d.userId === user.id);
         });
 
         let html = '';
-        for (const [groupName, devices] of Object.entries(grouped)) {
+        for (const [userName, devices] of Object.entries(grouped)) {
             if (devices.length > 0) {
                 html += `
                     <div class="tree-node">
                         <div class="tree-parent" onclick="toggleTreeNode(this)">
                             <i class="fas fa-chevron-right tree-arrow"></i>
-                            <i class="fas fa-folder tree-folder"></i>
-                            <span class="tree-label">${groupName}</span>
+                            <i class="fas fa-user tree-user-icon"></i>
+                            <span class="tree-label">${userName}</span>
                             <span class="tree-count">${devices.length}</span>
                         </div>
                         <div class="tree-children">
@@ -1425,7 +1502,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // ==================== GEOFENCE LINKING ====================
     
     let allGeofences = [];
-    let currentLinkDeviceId = null;
     let deviceGeofenceLinks = [];
 
     // Charger toutes les geofences
@@ -1466,6 +1542,156 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Ouvrir le modal de liaison geofence
+    // Ouvrir le modal pour lier un utilisateur au device
+    window.openLinkUserModal = async function(deviceId) {
+        currentLinkDeviceId = deviceId;
+        const device = allDevices.find(d => d.id === deviceId);
+        
+        if (!device) return;
+        
+        // Afficher les infos du device
+        document.getElementById('linkUserDeviceName').textContent = device.name || 'Device';
+        document.getElementById('linkUserDeviceImei').textContent = device.uniqueId || '-';
+        
+        // Remplir le select avec les utilisateurs
+        const select = document.getElementById('selectUserForDevice');
+        select.innerHTML = '<option value="">-- Aucun utilisateur (Supprimer l\'assignation) --</option>';
+        
+        allUsers.forEach(user => {
+            const option = document.createElement('option');
+            option.value = user.id;
+            option.textContent = user.name || user.email;
+            if (device.userId === user.id) {
+                option.selected = true;
+            }
+            select.appendChild(option);
+        });
+        
+        // Afficher l'utilisateur actuellement assigné
+        const linkedUserContainer = document.getElementById('linkedUserContainer');
+        linkedUserContainer.innerHTML = '';
+        
+        if (device.userId) {
+            const user = allUsers.find(u => u.id === device.userId);
+            if (user) {
+                const badge = document.createElement('div');
+                badge.className = 'linked-item-badge';
+                badge.innerHTML = `
+                    <span><i class="fas fa-user me-2"></i>${user.name || user.email}</span>
+                    <span class="badge-type">Assigné</span>
+                    <button type="button" class="remove-link" onclick="removeUserFromDevice(${deviceId})">×</button>
+                `;
+                linkedUserContainer.appendChild(badge);
+            }
+        }
+        
+        // Ouvrir le modal
+        const modal = new bootstrap.Modal(document.getElementById('linkUserModal'));
+        modal.show();
+    };
+
+    // Ajouter/modifier l'assignation d'utilisateur au device
+    window.addLinkedUserToDevice = async function(selectElement) {
+        const userId = selectElement.value ? parseInt(selectElement.value) : null;
+        const device = allDevices.find(d => d.id === currentLinkDeviceId);
+        
+        if (!device) return;
+        
+        try {
+            if (userId) {
+                // Assigner l'utilisateur
+                const response = await fetch('/api/traccar/permissions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+                    },
+                    body: JSON.stringify({
+                        userId: userId,
+                        deviceId: device.id
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success || response.ok) {
+                    // Mettre à jour le device
+                    device.userId = userId;
+                    const user = allUsers.find(u => u.id === userId);
+                    
+                    // Afficher le badge
+                    const linkedUserContainer = document.getElementById('linkedUserContainer');
+                    linkedUserContainer.innerHTML = '';
+                    const badge = document.createElement('div');
+                    badge.className = 'linked-item-badge';
+                    badge.innerHTML = `
+                        <span><i class="fas fa-user me-2"></i>${user.name || user.email}</span>
+                        <span class="badge-type">Assigné</span>
+                        <button type="button" class="remove-link" onclick="removeUserFromDevice(${device.id})">×</button>
+                    `;
+                    linkedUserContainer.appendChild(badge);
+                    
+                    // Reconstruire l'arbre
+                    buildTreeView();
+                    
+                    console.log('Utilisateur assigné avec succès au device');
+                } else {
+                    alert(data.message || 'Erreur lors de l\'assignation');
+                }
+            }
+        } catch (error) {
+            console.error('Erreur:', error);
+            alert('Erreur de connexion au serveur');
+        }
+    };
+
+    // Supprimer l'assignation d'utilisateur
+    window.removeUserFromDevice = async function(deviceId) {
+        const device = allDevices.find(d => d.id === deviceId);
+        
+        if (!device || !device.userId) return;
+        
+        try {
+            const response = await fetch('/api/traccar/permissions-test', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+                },
+                body: JSON.stringify({
+                    userId: device.userId,
+                    deviceId: device.id
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.success || response.ok) {
+                // Mettre à jour le device
+                device.userId = null;
+                
+                // Mettre à jour l'interface
+                const linkedUserContainer = document.getElementById('linkedUserContainer');
+                linkedUserContainer.innerHTML = '';
+                
+                const select = document.getElementById('selectUserForDevice');
+                select.value = '';
+                
+                // Reconstruire l'arbre
+                buildTreeView();
+                
+                console.log('Utilisateur supprimé avec succès');
+            }
+        } catch (error) {
+            console.error('Erreur:', error);
+        }
+    };
+
+    // Variable pour stocker l'ID du device actuellement lié
+    let currentLinkDeviceId = null;
+
     window.openLinkGeofenceModal = async function(deviceId) {
         currentLinkDeviceId = deviceId;
         const device = allDevices.find(d => d.id === deviceId);
@@ -1632,7 +1858,7 @@ document.addEventListener('DOMContentLoaded', function() {
 /* Device Sidebar Fixed */
 .device-sidebar {
     position: fixed !important;
-    top: 60px;
+    top: 55px;
     left: 0;
     height: calc(100vh - 60px);
     width: 280px;
@@ -1685,6 +1911,65 @@ document.addEventListener('DOMContentLoaded', function() {
 
 .device-sidebar .tree-view::-webkit-scrollbar-thumb:hover {
     background: #a1a1a1;
+}
+
+/* ===================== ACTION BUTTONS STYLES ===================== */
+
+/* Boutons d'action plus petits */
+.btn-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    margin: 0 2px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 0.75rem;
+    transition: all 0.2s ease;
+    background: #f0f0f0;
+    color: #333;
+}
+
+.btn-icon:hover {
+    background: #e0e0e0;
+    transform: scale(1.15);
+}
+
+.btn-icon.btn-edit {
+    background: #cfe8ff;
+    color: #0c5dd6;
+}
+
+.btn-icon.btn-edit:hover {
+    background: #b5d7f0;
+}
+
+.btn-icon.btn-locate {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.btn-icon.btn-locate:hover {
+    background: #ffeaa7;
+}
+
+.btn-icon.btn-delete {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.btn-icon.btn-delete:hover {
+    background: #f5c2c7;
+}
+
+/* Actions cell */
+.actions-cell {
+    text-align: center;
+    white-space: nowrap;
+    padding: 6px !important;
 }
 
 /* Geofence Link Modal Styles */
@@ -1787,6 +2072,43 @@ document.addEventListener('DOMContentLoaded', function() {
     padding: 0 4px;
 }
 
+/* Bouton Lier Utilisateur */
+.btn-link-user {
+    background: linear-gradient(135deg, #17a2b8 0%, #20c997 100%);
+    color: white;
+    position: relative;
+}
+
+.btn-link-user:hover {
+    background: linear-gradient(135deg, #138496 0%, #1aa179 100%);
+    transform: scale(1.1);
+}
+
+.btn-link-user.has-links {
+    background: linear-gradient(135deg, #28a745 0%, #34ce57 100%);
+}
+
+.btn-link-user.has-links:hover {
+    background: linear-gradient(135deg, #218838 0%, #28a745 100%);
+}
+
+.btn-link-user .link-badge {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    background: #28a745;
+    color: white;
+    font-size: 10px;
+    font-weight: bold;
+    min-width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px;
+}
+
 .device-info-header {
     background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
     padding: 15px;
@@ -1863,6 +2185,284 @@ document.addEventListener('DOMContentLoaded', function() {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+/* ===================== RESPONSIVE STYLES ===================== */
+
+/* Tablet - 991px et moins */
+@media (max-width: 991px) {
+    /* Sidebar devient une barre horizontale en haut */
+    .device-sidebar {
+        position: fixed !important;
+        top: 50px !important;
+        left: 0 !important;
+        right: 0 !important;
+        width: 100% !important;
+        height: auto !important;
+        max-height: 180px;
+        flex-direction: row;
+        border-right: none;
+        border-bottom: 2px solid #e8e8e8;
+        z-index: 99;
+    }
+    
+    .device-sidebar .sidebar-search {
+        width: 40%;
+        min-width: 200px;
+        padding: 10px;
+        border-bottom: none;
+        border-right: 1px solid #f0f0f0;
+    }
+    
+    .device-sidebar .tree-view {
+        width: 60%;
+        max-height: 160px;
+        overflow-y: auto;
+        padding: 8px;
+    }
+    
+    /* Main content s'adapte */
+    .device-sidebar + .main-content {
+        margin-left: 0 !important;
+        margin-top: 180px;
+        width: 100% !important;
+    }
+    
+    /* Filtres en grille 2 colonnes */
+    .filters-row {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+    
+    .filter-group {
+        min-width: unset !important;
+    }
+    
+    /* Boutons d'action en wrap */
+    .action-buttons {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    
+    .action-buttons .btn {
+        padding: 8px 12px;
+        font-size: 0.85rem;
+    }
+    
+    /* Table responsive */
+    .device-table-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .device-table th,
+    .device-table td {
+        padding: 10px 8px;
+        white-space: nowrap;
+    }
+    
+    /* Colonnes masquées sur tablette */
+    .device-table .col-model,
+    .device-table .col-contact {
+        display: none;
+    }
+    
+    /* Modals */
+    .modal-dialog {
+        margin: 10px;
+        max-width: calc(100% - 20px);
+    }
+    
+    .modal-lg {
+        max-width: calc(100% - 20px);
+    }
+    
+    /* Card header */
+    .card-header-custom {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    /* Attributes grid */
+    .attributes-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Mobile - 600px et moins */
+@media (max-width: 600px) {
+    /* Sidebar empilée verticalement */
+    .device-sidebar {
+        flex-direction: column;
+        max-height: 250px;
+    }
+    
+    .device-sidebar .sidebar-search {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .device-sidebar .tree-view {
+        width: 100%;
+        max-height: 150px;
+    }
+    
+    /* Main content ajusté */
+    .device-sidebar + .main-content {
+        margin-top: 250px;
+    }
+    
+    /* Filtres en 1 colonne */
+    .filters-row {
+        grid-template-columns: 1fr !important;
+    }
+    
+    /* Boutons d'action pleine largeur */
+    .action-buttons {
+        flex-direction: column;
+    }
+    
+    .action-buttons .btn {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    /* Masquer plus de colonnes */
+    .device-table .col-phone,
+    .device-table .col-group,
+    .device-table .col-category {
+        display: none;
+    }
+    
+    /* Conserver seulement nom, statut, actions */
+    .device-table th,
+    .device-table td {
+        padding: 8px 6px;
+        font-size: 0.85rem;
+    }
+    
+    /* Boutons d'action de la table */
+    .device-actions {
+        flex-direction: column;
+        gap: 4px;
+    }
+    
+    .device-actions .btn {
+        padding: 6px 8px;
+        font-size: 0.75rem;
+    }
+    
+    /* Content card */
+    .content-card {
+        padding: 10px;
+        margin: 10px;
+        border-radius: 8px;
+    }
+    
+    /* Modal forms */
+    .modal-body .row {
+        flex-direction: column;
+    }
+    
+    .modal-body .col-md-6,
+    .modal-body .col-md-12 {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+    
+    /* Attributes grid */
+    .attributes-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    /* Geofence items */
+    .geofences-list-container {
+        max-height: 300px;
+    }
+    
+    .geofence-label {
+        padding: 10px;
+        font-size: 0.9rem;
+    }
+    
+    /* Status badges */
+    .status-badge {
+        font-size: 0.7rem;
+        padding: 3px 6px;
+    }
+    
+    /* Device info header */
+    .device-info-header {
+        padding: 10px;
+    }
+    
+    .device-info-header h6 {
+        font-size: 0.9rem;
+    }
+}
+
+/* Très petits écrans - 400px et moins */
+@media (max-width: 400px) {
+    .device-sidebar {
+        max-height: 200px;
+    }
+    
+    .device-sidebar .tree-view {
+        max-height: 120px;
+    }
+    
+    .device-sidebar + .main-content {
+        margin-top: 200px;
+    }
+    
+    .tree-item-content {
+        font-size: 0.8rem;
+    }
+    
+    /* Actions table simplifiées */
+    .device-actions .btn span {
+        display: none;
+    }
+    
+    .device-actions .btn i {
+        margin: 0;
+    }
+    
+    /* Card header */
+    .card-header-custom h3 {
+        font-size: 1.1rem;
+    }
+    
+    /* Filter labels */
+    .filter-group label {
+        font-size: 0.8rem;
+    }
+    
+    .filter-input,
+    .filter-select {
+        font-size: 0.85rem;
+        padding: 8px 10px;
+    }
+}
+
+/* Animation pour transition fluide */
+.device-sidebar,
+.device-sidebar + .main-content {
+    transition: all 0.3s ease;
+}
+
+/* Fix pour le scroll du body sur mobile */
+@media (max-width: 991px) {
+    .main-container {
+        flex-direction: column;
+    }
+    
+    body.modal-open {
+        overflow: hidden;
+    }
 }
 </style>
 @endpush

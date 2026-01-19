@@ -30,6 +30,16 @@ class AuthController extends Controller
         ]);
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
+            $user = Auth::user();
+            
+            // Vérifier si l'utilisateur est désactivé
+            if ($user->disabled) {
+                Auth::logout();
+                throw ValidationException::withMessages([
+                    'email' => ['Ce compte a été désactivé. Veuillez contacter l\'administrateur.'],
+                ]);
+            }
+            
             $request->session()->regenerate();
 
             // Stocker les credentials cryptés pour pouvoir recréer la session Traccar
@@ -42,7 +52,7 @@ class AuthController extends Controller
             $this->createTraccarSession($request, $credentials['email'], $credentials['password']);
 
             // Rediriger vers dashboard si admin, sinon vers monitor
-            $redirect = Auth::user()->administrator ? '/dashboard' : '/monitor';
+            $redirect = $user->administrator ? '/dashboard' : '/monitor';
             return redirect()->intended($redirect);
         }
 
