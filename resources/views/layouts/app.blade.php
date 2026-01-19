@@ -11,6 +11,81 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
     @endif
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+    <style>
+        /* Mobile Navigation */
+        .mobile-nav-toggle {
+            display: none;
+            background: rgba(255,255,255,0.15);
+            border: none;
+            padding: 8px 10px;
+            border-radius: 6px;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        .nav-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.35);
+            z-index: 999;
+        }
+        @media (max-width: 991px) {
+            .nav-menu {
+                position: fixed;
+                top: 0;
+                left: -280px;
+                width: 260px;
+                height: 100vh;
+                background: linear-gradient(135deg, #1e88e5 0%, #1565c0 100%);
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0;
+                padding: 60px 0 20px 0;
+                box-shadow: 2px 0 16px rgba(0,0,0,0.15);
+                transition: left 0.3s;
+                z-index: 1001;
+                overflow-y: auto;
+            }
+            .nav-menu.open {
+                left: 0;
+            }
+            .nav-menu .nav-item {
+                width: 100%;
+                border-radius: 0;
+                padding: 14px 24px;
+                font-size: 15px;
+            }
+            .nav-overlay.active {
+                display: block;
+            }
+            .mobile-nav-toggle {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .header-right {
+                margin-left: auto;
+            }
+        }
+        @media (max-width: 600px) {
+            .header {
+                padding: 0 6px;
+            }
+            .logo-text {
+                display: none;
+            }
+            .profile-details {
+                display: none;
+            }
+            .nav-menu {
+                width: 80vw;
+                min-width: 200px;
+                max-width: 280px;
+            }
+        }
+    </style>
     @stack('styles')
    
 </head>
@@ -23,8 +98,11 @@
                 <i class="fas fa-layer-group logo-icon"></i>
                 <span class="logo-text">Tracker</span>
             </div>
+            <button class="mobile-nav-toggle" aria-label="Ouvrir le menu">
+                <i class="fas fa-bars"></i>
+            </button>
         </div>
-        
+        <div class="nav-overlay"></div>
         <nav class="nav-menu">
             {{-- Pages réservées aux administrateurs --}}
             @if(Auth::user()->administrator ?? false)
@@ -65,14 +143,7 @@
                 {{ __('messages.nav.attributs') }}
             </a>
             @endif
-            <!-- <a href="#" class="nav-item">
-                <i class="fas fa-video"></i>
-                {{ __('messages.nav.video') }}
-            </a> -->
-            <!-- <a href="{{ route('fleet') }}" class="nav-item {{ request()->routeIs('fleet') ? 'active' : '' }}">
-                <i class="fas fa-truck"></i>
-                {{ __('messages.nav.fleet') }}
-            </a> -->
+           
         </nav>
 
         <div class="header-right">
@@ -148,17 +219,36 @@
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Profile & Language Dropdown Toggle
         document.addEventListener('DOMContentLoaded', function() {
+            // Mobile nav toggle
+            const mobileToggle = document.querySelector('.mobile-nav-toggle');
+            const navMenu = document.querySelector('.nav-menu');
+            const navOverlay = document.querySelector('.nav-overlay');
+            function toggleMobileMenu() {
+                navMenu.classList.toggle('open');
+                navOverlay.classList.toggle('active');
+            }
+            if (mobileToggle && navMenu && navOverlay) {
+                mobileToggle.addEventListener('click', toggleMobileMenu);
+                navOverlay.addEventListener('click', toggleMobileMenu);
+            }
+            // Fermer le menu mobile si on clique sur un lien
+            document.querySelectorAll('.nav-menu .nav-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    if (navMenu.classList.contains('open')) {
+                        navMenu.classList.remove('open');
+                        navOverlay.classList.remove('active');
+                    }
+                });
+            });
+
             // Profile Dropdown
             const profileBtn = document.getElementById('profileDropdownBtn');
             const profileMenu = document.getElementById('profileMenu');
-            
             if (profileBtn && profileMenu) {
                 profileBtn.addEventListener('click', function(e) {
                     e.stopPropagation();
                     profileMenu.classList.toggle('show');
-                    // Fermer le menu de langue si ouvert
                     document.getElementById('languageMenu')?.classList.remove('show');
                 });
             }
@@ -166,16 +256,14 @@
             // Language Dropdown
             const languageBtn = document.getElementById('languageDropdownBtn');
             const languageMenu = document.getElementById('languageMenu');
-            
             if (languageBtn && languageMenu) {
                 languageBtn.addEventListener('click', function(e) {
                     e.stopPropagation();
                     languageMenu.classList.toggle('show');
-                    // Fermer le menu profil si ouvert
                     document.getElementById('profileMenu')?.classList.remove('show');
                 });
             }
-            
+
             // Fermer les menus si on clique ailleurs
             document.addEventListener('click', function(e) {
                 if (profileMenu && !profileMenu.contains(e.target) && !profileBtn?.contains(e.target)) {

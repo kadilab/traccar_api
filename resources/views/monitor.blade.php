@@ -48,6 +48,26 @@
 
     <!-- Map Container -->
     <main class="map-container">
+ <div class="legend-bar">
+    <div class="legend-item">
+        <i class="fas fa-map-marker-alt moving"></i>
+        <span class="legend-text">Moving (0)</span>
+    </div>
+    <div class="legend-item">
+        <i class="fas fa-map-marker-alt stopped"></i>
+        <span class="legend-text">Stopped (0)</span>
+    </div>
+    <div class="legend-item">
+        <i class="fas fa-map-marker-alt idling"></i>
+        <span class="legend-text">Idling (0)</span>
+    </div>
+    <div class="legend-item">
+        <i class="fas fa-map-marker-alt offline "></i>
+        <span class="legend-text">Offline (0)</span>
+    </div>
+   
+
+    </div>
         <div id="map"></div>
         
         <!-- Device Info Panel -->
@@ -98,14 +118,200 @@ html, body {
     overflow: hidden;
 }
 
+/* ========== MONITOR PAGE LAYOUT ========== */
+.monitor-container {
+    display: flex;
+    height: calc(100vh - 50px);
+    margin-top: 50px;
+    overflow: hidden;
+    background: #f8faff;
+}
+
+/* Sidebar */
+.monitor-sidebar {
+    width: 280px;
+    min-width: 220px;
+    background: #fff;
+    border-right: 1px solid #e3eafc;
+    display: flex;
+    flex-direction: column;
+    z-index: 10;
+    transition: transform 0.3s, left 0.3s;
+}
+
+/* Map Container */
+.map-container {
+    flex: 1;
+    position: relative;
+    min-width: 0;
+    background: #e3f0ff;
+    display: flex;
+    flex-direction: column;
+}
+
+#map {
+    flex: 1;
+    width: 100%;
+    min-height: 300px;
+}
+
+/* Legend Bar */
+.legend-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    padding: 8px 15px;
+    background: linear-gradient(90deg, #f8faff 0%, #e3f0ff 100%);
+    border-bottom: 1px solid #e3eafc;
+    align-items: center;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.legend-text {
+    font-size: 12px;
+    font-family: inherit;
+    color: #555;
+}
+
+.legend-item i.moving { color: #28a745; }
+.legend-item i.stopped { color: #dc3545; }
+.legend-item i.idling { color: #ffc107; }
+.legend-item i.offline { color: #6c757d; }
+
+/* Device Info Panel */
+.device-info-panel.compact {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    width: 320px;
+    max-width: calc(100vw - 40px);
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.13);
+    z-index: 1000;
+    overflow: hidden;
+}
+
+.compact-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 14px;
+    background: linear-gradient(135deg, #1e88e5 0%, #1976d2 100%);
+    color: white;
+}
+
+.device-identity {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.device-identity .device-name {
+    font-size: 15px;
+    font-weight: 600;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.device-identity .device-imei {
+    font-size: 11px;
+    opacity: 0.85;
+    font-family: monospace;
+}
+
+.panel-close-btn {
+    background: rgba(255,255,255,0.2);
+    border: none;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: white;
+    transition: background 0.2s;
+    font-size: 14px;
+    flex-shrink: 0;
+}
+
+.panel-close-btn:hover {
+    background: rgba(255,255,255,0.35);
+}
+
+.compact-panel-body {
+    padding: 12px 14px;
+    max-height: 320px;
+    overflow-y: auto;
+}
+
+.compact-panel-body .no-device-selected {
+    text-align: center;
+    padding: 20px;
+    color: #6c757d;
+}
+
+.compact-panel-body .no-device-selected i {
+    opacity: 0.3;
+    margin-bottom: 10px;
+    display: block;
+}
+
+.compact-panel-body .no-device-selected p {
+    margin: 0;
+    font-size: 13px;
+}
+
+/* Map Controls */
+.map-controls {
+    position: absolute;
+    right: 16px;
+    top: 50px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 900;
+}
+
+.map-control-btn {
+    width: 40px;
+    height: 40px;
+    background: #fff;
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: #1e88e5;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+}
+
+.map-control-btn:hover, .map-control-btn.active {
+    background: #1e88e5;
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(30,136,229,0.18);
+}
+
 /* Dynamic Indicators Styles */
 .dynamic-indicators {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
     gap: 8px;
     padding: 10px 0;
-    border-top: 1px solid rgba(0,0,0,0.1);
-    border-bottom: 1px solid rgba(0,0,0,0.1);
+    border-top: 1px solid rgba(0,0,0,0.08);
+    border-bottom: 1px solid rgba(0,0,0,0.08);
     margin: 10px 0;
 }
 
@@ -175,10 +381,11 @@ html, body {
     display: flex;
     align-items: center;
     gap: 8px;
-    background: rgba(117, 86, 214, 0.3);
-    padding: 6px 12px;
+    background: rgba(117, 86, 214, 0.18);
+    padding: 6px 14px;
     border-radius: 20px;
     font-weight: 600;
+    color: #7556D6;
 }
 
 .speed-display i {
@@ -186,25 +393,84 @@ html, body {
 }
 
 /* Scrollable panel body */
-.compact-panel-body {
-    max-height: calc(100vh - 300px);
-    overflow-y: auto;
-}
-
 .compact-panel-body::-webkit-scrollbar {
-    width: 4px;
+    width: 5px;
 }
 
 .compact-panel-body::-webkit-scrollbar-track {
-    background: rgba(255,255,255,0.1);
-    border-radius: 2px;
+    background: rgba(0,0,0,0.04);
+    border-radius: 3px;
 }
 
 .compact-panel-body::-webkit-scrollbar-thumb {
-    background: rgba(255,255,255,0.3);
-    border-radius: 2px;
+    background: rgba(0,0,0,0.13);
+    border-radius: 3px;
 }
 
+/* ========== RESPONSIVE ========== */
+@media (max-width: 991px) {
+    .monitor-container {
+        flex-direction: column;
+        height: calc(100vh - 50px);
+    }
+    .monitor-sidebar {
+        width: 100vw;
+        min-width: 0;
+        max-width: 100vw;
+        height: 220px;
+        min-height: 120px;
+        border-right: none;
+        border-bottom: 1px solid #e3eafc;
+        flex-direction: column;
+        overflow-y: auto;
+    }
+    .map-container {
+        min-height: 250px;
+        height: calc(100vh - 270px);
+    }
+    .device-info-panel.compact {
+        left: 10px;
+        right: 10px;
+        bottom: 12px;
+        width: auto;
+        max-width: 100vw;
+    }
+    .legend-bar {
+        padding: 6px 8px;
+        gap: 10px;
+    }
+}
+@media (max-width: 600px) {
+    .monitor-sidebar {
+        height: 160px;
+        min-height: 80px;
+    }
+    .map-container {
+        height: calc(100vh - 210px);
+    }
+    .device-info-panel.compact {
+        left: 4px;
+        right: 4px;
+        bottom: 6px;
+        border-radius: 10px;
+    }
+    .compact-panel-body {
+        max-height: 180px;
+    }
+    .legend-bar {
+        padding: 4px 6px;
+        gap: 8px;
+        font-size: 11px;
+    }
+    .map-controls {
+        right: 8px;
+        top: 12px;
+    }
+    .map-control-btn {
+        width: 36px;
+        height: 36px;
+        font-size: 16px;
+    }
 }
 </style>
 @endpush

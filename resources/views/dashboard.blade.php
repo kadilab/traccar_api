@@ -71,19 +71,20 @@
        
 
     <!-- Tab Navigation -->
-        <div class="tab-nav d-flex align-items-center justify-content-between">
+        <!-- <div class="tab-nav d-flex align-items-center justify-content-between">
             <div class="col-auto d-flex gap-2">
                 <button class="tab-item active" data-tab="overview">Overview</button>
                 <button class="tab-item" data-tab="rapid-salle">Rapid Salle</button>
                 <button class="tab-item" data-tab="mi-coins">Mi Coins</button>  
             </div>
             <div class="col-auto ">
-                <button id="refresh-stats-btn" class="refresh-btn" title="Rafraîchir les statistiques">
-                    <i class="fas fa-sync-alt"></i>
-                </button>
+                
                 
             </div>
-        </div>
+        </div> -->
+        <button id="refresh-stats-btn" class="refresh-btn" title="Rafraîchir les statistiques">
+                    <i class="fas fa-sync-alt"></i>
+        </button>
 
         <!-- Tab Content: Overview -->
         <div class="tab-content active" id="tab-overview">

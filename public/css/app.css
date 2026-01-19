@@ -64,6 +64,8 @@ html, body {
   overflow: hidden;
 }
 
+
+
 .nav-item {
   display: flex;
   align-items: center;
@@ -1026,7 +1028,7 @@ html, body {
 
 .grid-card {
   padding: 20px;
-  border-radius: 8px;
+  border-radius: 1px;
   font-weight: 600;
   font-size: 18px;
   display: flex;
@@ -2019,14 +2021,14 @@ code {
 
 .monitor-container {
     display: flex;
-    height: calc(100vh - 60px);
-    margin-top: 60px;
+    height: 100vh;
+    margin-top: 50px;
     overflow: hidden;
 }
 
 /* Sidebar */
 .monitor-sidebar {
-    width: 320px;
+    width: 250px;
     background: #fff;
     border-right: 1px solid #e0e0e0;
     display: flex;
@@ -2052,26 +2054,26 @@ code {
 }
 
 .sidebar-search {
-    padding: 12px 16px;
+    padding: 8px 8px;
     border-bottom: 1px solid #e0e0e0;
 }
 
 /* Quick Filters */
 .quick-filters {
     display: flex;
-    padding: 8px 12px;
-    gap: 8px;
+    padding: 4px 4px;
+    gap: 4px;
     border-bottom: 1px solid #e0e0e0;
     background: #f8f9fa;
 }
 
 .filter-btn {
     flex: 1;
-    padding: 6px 10px;
+    padding: 4px 8px;
     border: 1px solid #dee2e6;
     background: white;
     border-radius: 6px;
-    font-size: 12px;
+    font-size: 10px;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -2085,9 +2087,9 @@ code {
 }
 
 .filter-btn.active {
-    background: #7556D6;
+    background: #1e88e5;
     color: white;
-    border-color: #7556D6;
+    border-color: #1e88e5;
 }
 
 .filter-btn .count {
@@ -2193,7 +2195,7 @@ code {
 }
 
 .device-item.selected {
-    background: #7556D6;
+    background: #1e88e5;
     color: white;
 }
 
@@ -2259,6 +2261,7 @@ code {
 /* Device Info Panel */
 /* Compact Device Info Panel */
 .device-info-panel.compact {
+   
     position: absolute;
     bottom: 50px;
     left: 20px;
@@ -2275,7 +2278,7 @@ code {
     align-items: center;
     justify-content: space-between;
     padding: 10px 12px;
-    background: linear-gradient(135deg, #7556D6, #9b7ce8);
+     background: linear-gradient(135deg, #1e88e5 0%, #1976d2 100%);
     color: white;
 }
 
@@ -2583,7 +2586,7 @@ code {
 }
 
 .map-control-btn.active {
-    background: #7556D6;
+    background: #1e88e5;
     color: white;
 }
 
@@ -2653,6 +2656,9 @@ code {
     cursor: pointer;
     transition: all 0.3s ease;
     box-shadow: 0 2px 8px rgba(30, 136, 229, 0.3);
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
 }
 
 .refresh-btn:hover {
@@ -2938,3 +2944,35 @@ code {
         width: calc(100% - 40px);
     }
   }
+.legend-bar {
+    display: flex;
+    flex-wrap: wrap; /* Permet de passer à la ligne sur mobile */
+    gap: 15px;       /* Espace entre chaque groupe (Moving, Stopped, etc.) */
+    padding: 5px 10px;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #ddd;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center; /* Aligne l'icône et le texte sur le même axe horizontal */
+    gap: 4px;            /* Espace très réduit entre l'icône et le mot */
+}
+
+.legend-text {
+    font-size: 11px;     /* 8px est vraiment très petit, 11px correspond mieux à ton image */
+    font-family: Arial, sans-serif;
+    color: #555;
+}
+
+/* Couleurs spécifiques basées sur ton image */
+.moving   { color: #00e600; } /* Vert vif */
+.stopped  { color: #ff5c5c; } /* Rouge/Rose */
+.idling   { color: #ffaa00; } /* Orange */
+.offline  { color: #555555; } /* Gris foncé */
+.inactive { color: #cccccc; } /* Gris clair */
+
+/* Taille de l'icône pour qu'elle ne dépasse pas du texte */
+.legend-item i {
+    font-size: 14px; 
+}
