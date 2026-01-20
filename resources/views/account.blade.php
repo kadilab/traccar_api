@@ -26,10 +26,13 @@
     <main class="main-content">
         <div class="content-card">
             <div class="card-header-custom">
-                <h3>
-                    <i class="fas fa-users me-2"></i>
-                    Gestion des Utilisateurs
-                </h3>
+                <div>
+                    <h3 class="mb-1">
+                        <i class="fas fa-users me-2" style="color: #7556D6;"></i>
+                        Gestion des Utilisateurs
+                    </h3>
+                    <p class="text-muted small mb-0">Gérez les comptes utilisateurs et les permissions d'accès</p>
+                </div>
                 <div class="realtime-indicator" id="realtimeIndicator">
                     <span class="realtime-dot"></span>
                     <span class="realtime-text">Temps réel</span>
@@ -76,51 +79,53 @@
                 </div>
             </div>
 
-            <!-- Filters Section -->
-            <div class="filters-section">
-                <div class="filters-row">
-                    <div class="filter-group">
-                        <label>Recherche</label>
-                        <input type="text" id="searchUser" class="filter-input" placeholder="Nom, Email...">
-                    </div>
-                    <div class="filter-group">
-                        <label>Statut</label>
-                        <select id="filterStatus" class="filter-select">
-                            <option value="">Tous</option>
-                            <option value="active">Actif</option>
-                            <option value="disabled">Désactivé</option>
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        <label>Rôle</label>
-                        <select id="filterRole" class="filter-select">
-                            <option value="">Tous</option>
-                            <option value="admin">Administrateur</option>
-                            <option value="user">Utilisateur</option>
-                            <option value="readonly">Lecture seule</option>
-                        </select>
+            <!-- Filters & Actions Section -->
+            <div class="filters-and-actions-section">
+                <div class="filters-section">
+                    <div class="filters-row">
+                        <div class="filter-group">
+                            <label><i class="fas fa-search me-1" style="color: #7556D6;"></i>Recherche</label>
+                            <input type="text" id="searchUser" class="filter-input" placeholder="Nom, Email...">
+                        </div>
+                        <div class="filter-group">
+                            <label><i class="fas fa-toggle-on me-1" style="color: #7556D6;"></i>Statut</label>
+                            <select id="filterStatus" class="filter-select">
+                                <option value="">Tous les statuts</option>
+                                <option value="active">Actif</option>
+                                <option value="disabled">Désactivé</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label><i class="fas fa-user-tag me-1" style="color: #7556D6;"></i>Rôle</label>
+                            <select id="filterRole" class="filter-select">
+                                <option value="">Tous les rôles</option>
+                                <option value="admin">Administrateur</option>
+                                <option value="user">Utilisateur</option>
+                                <option value="readonly">Lecture seule</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Action Buttons -->
-            <div class="action-buttons">
-                <button class="btn btn-primary" id="btnAddUser" data-bs-toggle="modal" data-bs-target="#addUserModal">
-                    <i class="fas fa-user-plus"></i>
-                    Ajouter
-                </button>
-                <button class="btn btn-success" id="btnRefresh">
-                    <i class="fas fa-sync-alt"></i>
-                    Rafraîchir
-                </button>
-                <button class="btn btn-warning" id="btnExport">
-                    <i class="fas fa-download"></i>
-                    Exporter
-                </button>
-                <button class="btn btn-danger" id="btnDeleteSelected">
-                    <i class="fas fa-trash"></i>
-                    Supprimer
-                </button>
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <button class="btn btn-primary" id="btnAddUser" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                        <i class="fas fa-user-plus"></i>
+                        <span>Nouvel Utilisateur</span>
+                    </button>
+                    <button class="btn btn-info" id="btnRefresh">
+                        <i class="fas fa-sync-alt"></i>
+                        <span>Rafraîchir</span>
+                    </button>
+                    <button class="btn btn-success" id="btnExport">
+                        <i class="fas fa-download"></i>
+                        <span>Exporter</span>
+                    </button>
+                    <button class="btn btn-danger" id="btnDeleteSelected" style="display: none;">
+                        <i class="fas fa-trash"></i>
+                        <span>Supprimer</span>
+                    </button>
+                </div>
             </div>
 
             <!-- Modal Ajouter Utilisateur -->
@@ -1479,23 +1484,134 @@ window.linkUser = function(id) {
 
 @push('styles')
 <style>
+/* ===================== ACCOUNT PAGE ENHANCED DESIGN ===================== */
+
+/* Card Header Enhanced */
+.card-header-custom {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.card-header-custom h3 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #333;
+    margin: 0;
+}
+
+.card-header-custom .text-muted {
+    color: #999 !important;
+}
+
+/* Filters and Actions Section */
+.filters-and-actions-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 20px;
+    margin: 25px 0;
+    flex-wrap: wrap;
+}
+
+.filters-section {
+    flex: 1;
+    min-width: 280px;
+}
+
+.filters-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 15px;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.filter-group label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #495057;
+}
+
+.filter-input,
+.filter-select {
+    padding: 10px 12px;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    background: white;
+    transition: all 0.3s ease;
+}
+
+.filter-input:focus,
+.filter-select:focus {
+    border-color: #7556D6;
+    box-shadow: 0 0 0 3px rgba(117, 86, 214, 0.1);
+    outline: none;
+}
+
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.action-buttons .btn {
+    padding: 10px 16px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+    border: 1px solid transparent;
+}
+
+.action-buttons .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+}
+
+.action-buttons .btn i {
+    font-size: 0.95rem;
+}
+
 /* Stats Row */
 .stats-row {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 16px;
-    margin-bottom: 24px;
-    padding: 20px
+    gap: 15px;
+    margin-bottom: 25px;
+    padding: 20px;
+    background: rgba(117, 86, 214, 0.02);
+    border-radius: 10px;
 }
 
 .stat-card {
     display: flex;
     align-items: center;
-    padding: 16px;
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    border-left: 4px solid #6c757d;
+    padding: 18px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    border-radius: 10px;
+    border: 1px solid #e0e0e0;
+    border-left: 4px solid #7556D6;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+}
+
+.stat-card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transform: translateY(-2px);
 }
 
 .stat-card.stat-total { border-left-color: #7556D6; }
@@ -1504,35 +1620,94 @@ window.linkUser = function(id) {
 .stat-card.stat-admin { border-left-color: #ffc107; }
 
 .stat-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-right: 16px;
-    background: #f8f9fa;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+    margin-right: 15px;
 }
 
-.stat-card.stat-total .stat-icon { background: rgba(117, 86, 214, 0.1); color: #7556D6; }
-.stat-card.stat-active .stat-icon { background: rgba(40, 167, 69, 0.1); color: #28a745; }
-.stat-card.stat-disabled .stat-icon { background: rgba(220, 53, 69, 0.1); color: #dc3545; }
-.stat-card.stat-admin .stat-icon { background: rgba(255, 193, 7, 0.1); color: #ffc107; }
+.stat-total .stat-icon { background: rgba(117, 86, 214, 0.12); color: #7556D6; }
+.stat-active .stat-icon { background: rgba(40, 167, 69, 0.12); color: #28a745; }
+.stat-disabled .stat-icon { background: rgba(220, 53, 69, 0.12); color: #dc3545; }
+.stat-admin .stat-icon { background: rgba(255, 193, 7, 0.12); color: #ffc107; }
 
 .stat-info {
     display: flex;
     flex-direction: column;
+    gap: 4px;
 }
 
 .stat-value {
-    font-size: 24px;
+    font-size: 1.6rem;
     font-weight: 700;
-    color: #212529;
+    color: #333;
+    line-height: 1;
 }
 
 .stat-label {
-    font-size: 13px;
-    color: #6c757d;
+    font-size: 0.8rem;
+    color: #999;
+    font-weight: 500;
+}
+
+/* Users Table */
+.users-table-wrapper {
+    background: white;
+    border-radius: 10px;
+    border: 1px solid #e0e0e0;
+    overflow: hidden;
+    margin: 20px 0;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+}
+
+.users-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0;
+}
+
+.users-table thead {
+    background: linear-gradient(135deg, #f8f9fa 0%, #efefef 100%);
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.users-table thead th {
+    padding: 14px 16px;
+    font-weight: 600;
+    color: #495057;
+    font-size: 0.9rem;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.users-table tbody tr {
+    border-bottom: 1px solid #f0f0f0;
+    transition: all 0.2s ease;
+}
+
+.users-table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.users-table tbody tr.highlighted {
+    background-color: #fffbea;
+    border-left: 3px solid #ffc107;
+}
+
+.users-table tbody td {
+    padding: 12px 16px;
+    color: #333;
+    font-size: 0.9rem;
+}
+
+.users-table tbody td:first-child {
+    width: 40px;
+    text-align: center;
 }
 
 /* User Avatar */
@@ -1570,10 +1745,11 @@ window.linkUser = function(id) {
 .role-badge {
     display: inline-flex;
     align-items: center;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 12px;
-    font-weight: 500;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    gap: 4px;
 }
 
 .role-badge.role-admin {
@@ -1591,10 +1767,76 @@ window.linkUser = function(id) {
     color: #6c757d;
 }
 
+/* Status Badge */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    gap: 4px;
+}
+
+.status-badge.status-active {
+    background: rgba(40, 167, 69, 0.15);
+    color: #28a745;
+}
+
+.status-badge.status-disabled {
+    background: rgba(220, 53, 69, 0.15);
+    color: #dc3545;
+}
+
+.users-table .action-btns {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+}
+
+.users-table .action-btns .btn-icon {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+    cursor: pointer;
+}
+
+.users-table .action-btns .btn-icon:hover {
+    transform: scale(1.1);
+}
+
+.users-table .btn-edit {
+    background: rgba(108, 117, 125, 0.1);
+    color: #6c757d;
+}
+
+.users-table .btn-edit:hover {
+    background: #6c757d;
+    color: white;
+}
+
+.users-table .btn-delete {
+    background: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+}
+
+.users-table .btn-delete:hover {
+    background: #dc3545;
+    color: white;
+}
+
 /* Tree folder icon */
 .tree-folder-icon {
     margin-right: 6px;
     font-size: 14px;
+    color: #7556D6;
 }
 
 /* Link Modal Styles */
@@ -1602,6 +1844,7 @@ window.linkUser = function(id) {
     padding: 12px;
     background: #f8f9fa;
     border-radius: 6px;
+    border: 1px solid #e0e0e0;
 }
 
 .linked-items-container {
@@ -1695,6 +1938,64 @@ window.linkUser = function(id) {
     padding: 20px;
     background: #f8f9fa;
     overflow-y: auto;
+}
+
+/* Modal Enhancements */
+.modal-header {
+    background: linear-gradient(135deg, #f8f9fa 0%, #efefef 100%);
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.modal-title {
+    font-weight: 600;
+    color: #333;
+}
+
+/* Table Loading */
+.table-loading-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 40px 20px;
+    color: #999;
+}
+
+.loading-cell {
+    padding: 40px 20px !important;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .filters-and-actions-section {
+        flex-direction: column;
+    }
+    
+    .filters-section {
+        min-width: 100%;
+    }
+    
+    .action-buttons {
+        width: 100%;
+    }
+    
+    .action-buttons .btn {
+        flex: 1;
+        justify-content: center;
+    }
+    
+    .users-table {
+        font-size: 0.85rem;
+    }
+    
+    .users-table thead th,
+    .users-table tbody td {
+        padding: 10px 8px;
+    }
+    
+    .users-table .action-btns {
+        flex-direction: column;
+    }
 }
 </style>
 @endpush

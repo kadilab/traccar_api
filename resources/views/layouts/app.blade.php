@@ -69,7 +69,51 @@
                 margin-left: auto;
             }
         }
+
+        /* Notification Icon */
+        .notification-icon {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            color: #ffffff;
+            font-size: 18px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-radius: 8px;
+        }
+
+        .notification-icon:hover {
+            background: rgba(117, 86, 214, 0.1);
+            color: #d8d7db;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            border: 2px solid white;
+            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+        }
+
+        .notification-badge.hidden {
+            display: none;
+        }
+
         @media (max-width: 600px) {
+
             .header {
                 padding: 0 6px;
             }
@@ -138,7 +182,7 @@
                 <i class="fas fa-users"></i>
                 {{ __('messages.nav.account') }}
             </a>
-            <a href="{{ route('attributs') }}" class="nav-item {{ request()->routeIs('attributs') ? 'active' : '' }}">
+            <a href="{{ route('attribute') }}" class="nav-item {{ request()->routeIs('attribute', 'attributes') ? 'active' : '' }}">
                 <i class="fas fa-sliders-h"></i>
                 {{ __('messages.nav.attributs') }}
             </a>
@@ -147,6 +191,12 @@
         </nav>
 
         <div class="header-right">
+            <!-- Notifications -->
+            <a href="{{ route('events') }}" class="notification-icon" id="notificationBtn" title="Notifications">
+                <i class="fas fa-bell"></i>
+                <span class="notification-badge" id="notificationBadge">0</span>
+            </a>
+
             <!-- Language Selector -->
             <div class="language-dropdown">
                 <button class="language-btn" id="languageDropdownBtn">
@@ -273,6 +323,37 @@
                     languageMenu.classList.remove('show');
                 }
             });
+
+            // Load notifications count
+            async function loadNotificationsCount() {
+                try {
+                    const response = await fetch('/api/notifications/count');
+                    const data = await response.json();
+                    const count = data.count || 0;
+                    const badge = document.getElementById('notificationBadge');
+                    
+                    if (badge) {
+                        badge.textContent = count > 99 ? '99+' : count;
+                        if (count === 0) {
+                            badge.classList.add('hidden');
+                        } else {
+                            badge.classList.remove('hidden');
+                        }
+                    }
+                } catch (error) {
+                    console.error('Erreur lors du chargement des notifications:', error);
+                }
+            }
+
+            // Load notifications on page load
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', loadNotificationsCount);
+            } else {
+                loadNotificationsCount();
+            }
+
+            // Refresh notifications every 30 seconds
+            setInterval(loadNotificationsCount, 30000);
         });
     </script>
     @stack('scripts')

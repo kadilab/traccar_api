@@ -90,10 +90,16 @@ Route::middleware('auth')->group(function () {
             return view('account');
         })->name('account.index');
 
-        // Attributs - gestion des attributs personnalisés
-        Route::get('/attributs', function () {
-            return view('attributs');
-        })->name('attributs');
+        // Attributs Calculés - gestion des attributs personnalisés
+        Route::get('/attribute', function () {
+            return view('attribute');
+        })->name('attribute');
+        Route::get('/attributes', function () {
+            return view('attribute');
+        })->name('attributes');
+
+        // Attributs - gestion des attributs personnalisés (ancien)
+       
 
         // Reports - rapports
         Route::get('/reports', function () {

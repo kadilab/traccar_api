@@ -152,3 +152,10 @@ Route::prefix('traccar/permissions-test')->group(function () {
     Route::post('/', [PermissionController::class, 'createPermission']);
     Route::delete('/', [PermissionController::class, 'deletePermission']);
 });
+
+// ==================== USER STATUS ROUTE ====================
+Route::get('/user-status', function () {
+    return response()->json([
+        'isAdmin' => auth()->check() ? (bool)auth()->user()->administrator : false,
+    ]);
+});

@@ -522,10 +522,14 @@ document.addEventListener('DOMContentLoaded', function() {
     let autoFollow = true;
     let refreshInterval = null;
     let expandedGroups = {}; // Stocker l'état des groupes ouverts/fermés
+    let isCurrentUserAdmin = false; // Déterminer si l'utilisateur courant est admin
     const REFRESH_RATE = 3000; // 3 secondes pour le temps réel
     
     // Initialiser la carte
     initMap();
+    
+    // Charger le statut de l'utilisateur courant (admin ou non)
+    loadCurrentUserStatus();
     
     // Charger les données
     loadGroups();
@@ -672,22 +676,37 @@ document.addEventListener('DOMContentLoaded', function() {
         if (displayedEl) displayedEl.textContent = allDevices.length;
     }
     
+    
+    // Charger le statut de l'utilisateur courant
+    async function loadCurrentUserStatus() {
+        try {
+            const response = await fetch('/api/user-status');
+            const data = await response.json();
+            isCurrentUserAdmin = data.isAdmin === true;
+        } catch (error) {
+            console.error('Erreur lors du chargement du statut utilisateur:', error);
+            isCurrentUserAdmin = false;
+        }
+    }
+
     // Construire l'arbre des devices par utilisateur
     function buildDeviceTree() {
         const container = document.getElementById('deviceTree');
         const search = document.getElementById('deviceSearch').value.toLowerCase();
         const activeFilter = document.querySelector('.filter-btn.active')?.dataset.filter || 'all';
         
-        // Sauvegarder l'état actuel des groupes expandus
+        // Sauvegarder l'état actuel des groupes expandus (uniquement pour les admins)
         const currentExpandedGroups = {};
-        document.querySelectorAll('.group-node.expanded').forEach(node => {
-            const header = node.querySelector('.group-header');
-            if (header) {
-                const groupName = header.querySelector('.group-name').textContent;
-                currentExpandedGroups[groupName] = true;
-            }
-        });
-        expandedGroups = currentExpandedGroups;
+        if (isCurrentUserAdmin) {
+            document.querySelectorAll('.group-node.expanded').forEach(node => {
+                const header = node.querySelector('.group-header');
+                if (header) {
+                    const groupName = header.querySelector('.group-name').textContent;
+                    currentExpandedGroups[groupName] = true;
+                }
+            });
+            expandedGroups = currentExpandedGroups;
+        }
         
         // Filtrer les devices
         let filteredDevices = allDevices.filter(device => {
@@ -707,50 +726,72 @@ document.addEventListener('DOMContentLoaded', function() {
             return matchSearch && matchFilter;
         });
         
-        // Grouper par utilisateur
-        const grouped = {};
-        grouped['Non assigné'] = filteredDevices.filter(d => !d.userId);
-        
-        allUsers.forEach(user => {
-            const userDevices = filteredDevices.filter(d => d.userId === user.id);
-            if (userDevices.length > 0) {
-                grouped[user.name] = userDevices;
-            }
-        });
-        
         let html = '';
-        for (const [userName, devices] of Object.entries(grouped)) {
-            if (devices.length > 0) {
-                const isExpanded = expandedGroups[userName] ? 'expanded' : '';
-                html += `
-                    <div class="group-node ${isExpanded}">
-                        <div class="group-header" onclick="toggleGroup(this)">
-                            <i class="fas fa-chevron-right arrow"></i>
-                            <i class="fas fa-user folder-icon"></i>
-                            <span class="group-name">${userName}</span>
-                            <span class="group-count">${devices.length}</span>
-                        </div>
-                        <div class="group-devices">
-                            ${devices.map(device => {
-                                const pos = positions[device.id];
-                                const speed = pos ? Math.round(pos.speed * 1.852) : 0; // knots to km/h
-                                return `
-                                    <div class="device-item ${selectedDeviceId === device.id ? 'selected' : ''}" 
-                                         data-id="${device.id}" 
-                                         onclick="selectDevice(${device.id})">
-                                        <span class="device-status ${device.status || 'unknown'}"></span>
-                                        <div class="device-info">
-                                            <div class="device-name">${device.name}</div>
-                                            <div class="device-speed">${device.status === 'online' ? speed + ' km/h' : 'Hors ligne'}</div>
+        
+        // SI ADMIN: Grouper par utilisateur
+        if (isCurrentUserAdmin) {
+            const grouped = {};
+            grouped['Non assigné'] = filteredDevices.filter(d => !d.userId);
+            
+            allUsers.forEach(user => {
+                const userDevices = filteredDevices.filter(d => d.userId === user.id);
+                if (userDevices.length > 0) {
+                    grouped[user.name] = userDevices;
+                }
+            });
+            
+            for (const [userName, devices] of Object.entries(grouped)) {
+                if (devices.length > 0) {
+                    const isExpanded = expandedGroups[userName] ? 'expanded' : '';
+                    html += `
+                        <div class="group-node ${isExpanded}">
+                            <div class="group-header" onclick="toggleGroup(this)">
+                                <i class="fas fa-chevron-right arrow"></i>
+                                <i class="fas fa-user folder-icon"></i>
+                                <span class="group-name">${userName}</span>
+                                <span class="group-count">${devices.length}</span>
+                            </div>
+                            <div class="group-devices">
+                                ${devices.map(device => {
+                                    const pos = positions[device.id];
+                                    const speed = pos ? Math.round(pos.speed * 1.852) : 0; // knots to km/h
+                                    return `
+                                        <div class="device-item ${selectedDeviceId === device.id ? 'selected' : ''}" 
+                                             data-id="${device.id}" 
+                                             onclick="selectDevice(${device.id})">
+                                            <span class="device-status ${device.status || 'unknown'}"></span>
+                                            <div class="device-info">
+                                                <div class="device-name">${device.name}</div>
+                                                <div class="device-speed">${device.status === 'online' ? speed + ' km/h' : 'Hors ligne'}</div>
+                                            </div>
+                                            <span class="device-category">${getCategoryIcon(device.category)}</span>
                                         </div>
-                                        <span class="device-category">${getCategoryIcon(device.category)}</span>
-                                    </div>
-                                `;
-                            }).join('')}
+                                    `;
+                                }).join('')}
+                            </div>
                         </div>
+                    `;
+                }
+            }
+        } 
+        // SINON (utilisateur simple): Afficher directement les devices sans groupement
+        else {
+            html = filteredDevices.map(device => {
+                const pos = positions[device.id];
+                const speed = pos ? Math.round(pos.speed * 1.852) : 0; // knots to km/h
+                return `
+                    <div class="device-item ${selectedDeviceId === device.id ? 'selected' : ''}" 
+                         data-id="${device.id}" 
+                         onclick="selectDevice(${device.id})">
+                        <span class="device-status ${device.status || 'unknown'}"></span>
+                        <div class="device-info">
+                            <div class="device-name">${device.name}</div>
+                            <div class="device-speed">${device.status === 'online' ? speed + ' km/h' : 'Hors ligne'}</div>
+                        </div>
+                        <span class="device-category">${getCategoryIcon(device.category)}</span>
                     </div>
                 `;
-            }
+            }).join('');
         }
         
         container.innerHTML = html || '<div class="tree-empty">Aucun device trouvé</div>';

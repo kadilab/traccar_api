@@ -82,6 +82,19 @@
         <div class="map-section">
             <div id="historyMap" class="history-map"></div>
             
+            <!-- Map Controls -->
+            <div class="map-controls">
+                <button class="map-control-btn" id="btnZoomIn" title="Zoom In">
+                    <i class="fas fa-plus"></i>
+                </button>
+                <button class="map-control-btn" id="btnZoomOut" title="Zoom Out">
+                    <i class="fas fa-minus"></i>
+                </button>
+                <button class="map-control-btn" id="btnFullscreen" title="Fullscreen">
+                    <i class="fas fa-expand"></i>
+                </button>
+            </div>
+            
             <!-- Playback Controls -->
             <div class="playback-controls">
                 <div class="playback-buttons">
@@ -223,8 +236,8 @@
 <style>
 /* History Page Styles */
 .history-container {
-    padding: 20px;
-    padding-top: 80px;
+    padding: 10px;
+    padding-top: 60px;
     max-width: 1600px;
     margin: 0 auto;
 }
@@ -234,9 +247,9 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: linear-gradient(135deg, #7556D6 0%, #5a3fb3 100%);
-    padding: 20px 30px;
-    border-radius: 12px;
+    background:  linear-gradient(100deg, #1e88e5 0%, #1976d2 100%);
+    padding: 10px 15px;
+    border-radius: 5px;
     color: #fff;
     margin-bottom: 20px;
     box-shadow: 0 4px 15px rgba(117, 86, 214, 0.3);
@@ -256,7 +269,7 @@
     justify-content: center;
     background: rgba(255, 255, 255, 0.2);
     color: #fff;
-    border-radius: 10px;
+    border-radius: 5px;
     text-decoration: none;
     transition: all 0.3s ease;
     font-size: 18px;
@@ -293,7 +306,7 @@
     gap: 8px;
     background: rgba(255, 255, 255, 0.2);
     padding: 10px 20px;
-    border-radius: 25px;
+    border-radius: 5px;
     font-weight: 600;
 }
 
@@ -338,7 +351,7 @@
 
 .filter-card {
     background: #fff;
-    border-radius: 12px;
+    border-radius: 5px;
     padding: 25px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
     height: 100%;
@@ -389,7 +402,7 @@
 .filter-input {
     padding: 12px 15px;
     border: 2px solid #e5e7eb;
-    border-radius: 8px;
+    border-radius: 5px;
     font-size: 14px;
     transition: all 0.3s ease;
     width: 100%;
@@ -423,7 +436,7 @@
 .btn {
     padding: 12px 20px;
     border: none;
-    border-radius: 8px;
+    border-radius: 5px;
     font-weight: 600;
     font-size: 14px;
     cursor: pointer;
@@ -462,17 +475,58 @@
 .map-section {
     flex: 1;
     background: #fff;
-    border-radius: 12px;
+    border-radius: 5px;
     overflow: hidden;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
     display: flex;
     flex-direction: column;
+    position: relative;
 }
 
 .history-map {
     height: 400px;
     width: 100%;
     flex: 1;
+    position: relative;
+    z-index: 1;
+}
+
+/* Map Controls */
+.map-controls {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    z-index: 400;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.map-control-btn {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    border: 2px solid #ddd;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: #333;
+    font-size: 16px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.map-control-btn:hover {
+    background: #7556D6;
+    border-color: #7556D6;
+    color: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.map-control-btn:active {
+    transform: scale(0.95);
 }
 
 /* Playback Controls */
@@ -484,6 +538,8 @@
     padding: 20px;
     background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
     color: #fff;
+    position: relative;
+    z-index: 10;
 }
 
 .playback-buttons {
@@ -545,7 +601,7 @@
     background: rgba(255, 255, 255, 0.1);
     border: 2px solid rgba(255, 255, 255, 0.2);
     color: #fff;
-    border-radius: 8px;
+    border-radius: 5px;
     font-size: 14px;
     cursor: pointer;
 }
@@ -632,7 +688,7 @@
 
 .stat-card {
     background: #fff;
-    border-radius: 12px;
+    border-radius: 5px;
     padding: 20px;
     display: flex;
     align-items: center;
@@ -652,7 +708,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 12px;
+    border-radius: 5px;
     font-size: 22px;
 }
 
@@ -700,7 +756,7 @@
 /* Positions Table */
 .positions-section {
     background: #fff;
-    border-radius: 12px;
+    border-radius: 5px;
     overflow: hidden;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
 }
@@ -827,7 +883,7 @@
 .loading-spinner {
     background: #fff;
     padding: 40px;
-    border-radius: 12px;
+    border-radius: 5px;
     text-align: center;
 }
 
@@ -965,6 +1021,23 @@ document.addEventListener('DOMContentLoaded', function() {
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
+
+        // Add zoom control event listeners
+        document.getElementById('btnZoomIn').addEventListener('click', function() {
+            map.zoomIn();
+        });
+
+        document.getElementById('btnZoomOut').addEventListener('click', function() {
+            map.zoomOut();
+        });
+
+        document.getElementById('btnFullscreen').addEventListener('click', function() {
+            if (!document.fullscreenElement) {
+                document.getElementById('historyMap').requestFullscreen();
+            } else {
+                document.exitFullscreen();
+            }
+        });
     }
 
     // Load device info

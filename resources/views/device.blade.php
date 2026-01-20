@@ -81,10 +81,7 @@
                     <i class="fas fa-sync-alt"></i>
                     Rafraîchir
                 </button>
-                <button class="btn btn-warning" id="btnExport">
-                    <i class="fas fa-download"></i>
-                    Exporter
-                </button>
+                
                 @if(Auth::user()->administrator)
                 <button class="btn btn-danger" id="btnDeleteSelected">
                     <i class="fas fa-trash"></i>
@@ -417,6 +414,24 @@
                             </div>
                         </div>
 
+                        <!-- Section Notifications -->
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <label class="form-label">
+                                    <i class="fas fa-bell me-1"></i>
+                                    Notifications
+                                </label>
+                                <p class="text-muted small">Sélectionnez les notifications que vous souhaitez activer pour cet appareil. Vous serez alerté via les canaux configurés (Web, Email, SMS, Telegram).</p>
+                                
+                                <div class="notifications-container" id="editDeviceNotifications">
+                                    <div class="text-muted text-center py-3">
+                                        <i class="fas fa-spinner fa-spin"></i>
+                                        Chargement des notifications...
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <div id="editDeviceFormError" class="alert alert-danger d-none" role="alert"></div>
                     </form>
                 </div>
@@ -524,6 +539,104 @@
                 </div>
             </div>
 
+            <!-- Modal Détails Device -->
+            <div class="modal fade" id="deviceDetailsModal" tabindex="-1" aria-labelledby="deviceDetailsModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="deviceDetailsModalLabel">
+                                <i class="fas fa-microchip me-2"></i>
+                                Détails du Device
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="device-details-header mb-4">
+                                <div class="d-flex align-items-center">
+                                    <div class="device-details-icon me-3">
+                                        <i id="detailsDeviceIcon" class="fas fa-car fa-2x"></i>
+                                    </div>
+                                    <div>
+                                        <h4 id="detailsDeviceName" class="mb-0">-</h4>
+                                        <small id="detailsDeviceStatus" class="text-muted">-</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="details-grid">
+                                <!-- Row 1 -->
+                                <div class="detail-item">
+                                    <label>IMEI / Identifiant</label>
+                                    <span id="detailsDeviceImei">-</span>
+                                </div>
+                                <div class="detail-item">
+                                    <label>Modèle</label>
+                                    <span id="detailsDeviceModel">-</span>
+                                </div>
+                                
+                                <!-- Row 2 -->
+                                <div class="detail-item">
+                                    <label>Téléphone</label>
+                                    <span id="detailsDevicePhone">-</span>
+                                </div>
+                                <div class="detail-item">
+                                    <label>Contact</label>
+                                    <span id="detailsDeviceContact">-</span>
+                                </div>
+                                
+                                <!-- Row 3 -->
+                                <div class="detail-item">
+                                    <label>Catégorie</label>
+                                    <span id="detailsDeviceCategory">-</span>
+                                </div>
+                                <div class="detail-item">
+                                    <label>Groupe</label>
+                                    <span id="detailsDeviceGroup">-</span>
+                                </div>
+
+                                <!-- Row 4 -->
+                                <div class="detail-item">
+                                    <label>Longitude</label>
+                                    <span id="detailsDeviceLongitude">-</span>
+                                </div>
+                                <div class="detail-item">
+                                    <label>Latitude</label>
+                                    <span id="detailsDeviceLatitude">-</span>
+                                </div>
+
+                                <!-- Row 5 -->
+                                <div class="detail-item">
+                                    <label>Altitude</label>
+                                    <span id="detailsDeviceAltitude">-</span>
+                                </div>
+                                <div class="detail-item">
+                                    <label>Vitesse</label>
+                                    <span id="detailsDeviceSpeed">-</span>
+                                </div>
+
+                                <!-- Row 6 -->
+                                <div class="detail-item full-width">
+                                    <label>Attributs</label>
+                                    <div id="detailsDeviceAttributes" class="attributes-list">
+                                        <span class="text-muted">Aucun attribut</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                <i class="fas fa-times me-1"></i>
+                                Fermer
+                            </button>
+                            <button type="button" class="btn btn-primary" id="btnDetailsEdit">
+                                <i class="fas fa-edit me-1"></i>
+                                Modifier
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Devices Table -->
             <div class="table-container">
                 <table class="data-table" id="devicesTable">
@@ -578,6 +691,8 @@ document.addEventListener('DOMContentLoaded', function() {
     let allDevices = [];
     let allGroups = [];
     let allUsers = [];
+    let allNotifications = [];
+    let deviceNotifications = {}; // Map de deviceId -> array d'IDs de notifications
     let currentPage = 1;
     const itemsPerPage = 10;
     let refreshInterval = null;
@@ -587,6 +702,7 @@ document.addEventListener('DOMContentLoaded', function() {
     async function initializeData() {
         await loadUsers();
         await loadGroups();
+        await loadNotifications();
         await loadDevices();
         startRealTimeUpdates();
     }
@@ -902,6 +1018,25 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         } catch (error) {
             console.error('Erreur lors du chargement des groupes:', error);
+        }
+    }
+
+    // Charger les notifications
+    async function loadNotifications() {
+        try {
+            const response = await fetch('/api/traccar/notifications?all=true');
+            const data = await response.json();
+            
+            if (data.success) {
+                allNotifications = Array.isArray(data.notifications) ? data.notifications : data.notification || [];
+                console.log('Notifications chargées:', allNotifications.length);
+            } else {
+                console.warn('Erreur lors du chargement des notifications');
+                allNotifications = [];
+            }
+        } catch (error) {
+            console.error('Erreur lors du chargement des notifications:', error);
+            allNotifications = [];
         }
     }
 
@@ -1239,36 +1374,84 @@ document.addEventListener('DOMContentLoaded', function() {
     function buildTreeView() {
         const treeContainer = document.getElementById('deviceTree');
         
-        // Grouper les devices par utilisateur
-        const grouped = {};
-        grouped['Non assigné'] = allDevices.filter(d => !d.userId);
-        
-        allUsers.forEach(user => {
-            grouped[user.name] = allDevices.filter(d => d.userId === user.id);
-        });
-
         let html = '';
-        for (const [userName, devices] of Object.entries(grouped)) {
-            if (devices.length > 0) {
-                html += `
-                    <div class="tree-node">
-                        <div class="tree-parent" onclick="toggleTreeNode(this)">
-                            <i class="fas fa-chevron-right tree-arrow"></i>
-                            <i class="fas fa-user tree-user-icon"></i>
-                            <span class="tree-label">${userName}</span>
-                            <span class="tree-count">${devices.length}</span>
+        
+        // SI ADMIN: Grouper les devices par utilisateur
+        if (isAdmin) {
+            const grouped = {};
+            grouped['Non assigné'] = allDevices.filter(d => !d.userId);
+            
+            allUsers.forEach(user => {
+                grouped[user.name] = allDevices.filter(d => d.userId === user.id);
+            });
+
+            for (const [userName, devices] of Object.entries(grouped)) {
+                if (devices.length > 0) {
+                    html += `
+                        <div class="tree-node">
+                            <div class="tree-parent" onclick="toggleTreeNode(this)">
+                                <i class="fas fa-chevron-right tree-arrow"></i>
+                                <i class="fas fa-user tree-user-icon"></i>
+                                <span class="tree-label">${userName}</span>
+                                <span class="tree-count">${devices.length}</span>
+                            </div>
+                            <div class="tree-children">
+                                ${devices.map(d => `
+                                    <div class="tree-child device-widget" data-id="${d.id}">
+                                        <div class="device-widget-content" onclick="selectDevice(${d.id})">
+                                            <div class="device-widget-top">
+                                                <span class="device-widget-icon status-icon-${d.status || 'unknown'}">${getCategoryIcon(d.category)}</span>
+                                            </div>
+                                            <div class="device-widget-bottom">
+                                                <span class="tree-device-name">${d.name}</span>
+                                                <span class="device-emei">${d.uniqueId || 'N/A'}</span>
+                                            </div>
+                                        </div>
+                                        <div class="device-widget-menu" onclick="event.stopPropagation(); toggleDeviceMenu(this, ${d.id})">
+                                            <button class="btn-menu-icon"><i class="fas fa-ellipsis-v"></i></button>
+                                            <div class="device-menu-dropdown" style="display: none;">
+                                                <a href="#" onclick="event.preventDefault(); showDeviceDetails(${d.id})"><i class="fas fa-info-circle"></i> Détails</a>
+                                                <a href="#" onclick="event.preventDefault(); editDevice(${d.id})"><i class="fas fa-edit"></i> Modifier</a>
+                                                <a href="#" onclick="event.preventDefault(); goToHistory(${d.id})"><i class="fas fa-history"></i> Historique</a>
+                                                <a href="#" onclick="event.preventDefault(); goToTracking(${d.id})"><i class="fas fa-map"></i> Suivi</a>
+                                                <hr>
+                                                <a href="#" onclick="event.preventDefault(); deleteDevice(${d.id})" class="text-danger"><i class="fas fa-trash"></i> Supprimer</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
                         </div>
-                        <div class="tree-children">
-                            ${devices.map(d => `
-                                <div class="tree-child" data-id="${d.id}" onclick="selectDevice(${d.id})">
-                                    <span class="tree-status status-${d.status || 'unknown'}"></span>
-                                    <span class="tree-device-name">${d.name}</span>
-                                </div>
-                            `).join('')}
+                    `;
+                }
+            }
+        } 
+        // SINON (utilisateur simple): Afficher directement les devices sans groupement
+        else {
+            html = allDevices.map(d => `
+                <div class="tree-child device-widget" data-id="${d.id}">
+                    <div class="device-widget-content" onclick="selectDevice(${d.id})">
+                        <div class="device-widget-top">
+                            <span class="device-widget-icon status-icon-${d.status || 'unknown'}">${getCategoryIcon(d.category)}</span>
+                        </div>
+                        <div class="device-widget-bottom">
+                            <span class="tree-device-name">${d.name}</span>
+                            <span class="device-emei">${d.uniqueId || 'N/A'}</span>
                         </div>
                     </div>
-                `;
-            }
+                    <div class="device-widget-menu" onclick="event.stopPropagation(); toggleDeviceMenu(this, ${d.id})">
+                        <button class="btn-menu-icon"><i class="fas fa-ellipsis-v"></i></button>
+                        <div class="device-menu-dropdown" style="display: none;">
+                            <a href="#" onclick="event.preventDefault(); showDeviceDetails(${d.id})"><i class="fas fa-info-circle"></i> Détails</a>
+                            <a href="#" onclick="event.preventDefault(); editDevice(${d.id})"><i class="fas fa-edit"></i> Modifier</a>
+                            <a href="#" onclick="event.preventDefault(); goToHistory(${d.id})"><i class="fas fa-history"></i> Historique</a>
+                            <a href="#" onclick="event.preventDefault(); goToTracking(${d.id})"><i class="fas fa-map"></i> Suivi</a>
+                            <hr>
+                            <a href="#" onclick="event.preventDefault(); deleteDevice(${d.id})" class="text-danger"><i class="fas fa-trash"></i> Supprimer</a>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
         }
 
         treeContainer.innerHTML = html || '<div class="tree-empty">Aucun device</div>';
@@ -1278,23 +1461,33 @@ document.addEventListener('DOMContentLoaded', function() {
     function filterTree() {
         const search = document.getElementById('treeSearch').value.toLowerCase();
         const treeChildren = document.querySelectorAll('.tree-child');
-        const treeNodes = document.querySelectorAll('.tree-node');
-
-        treeChildren.forEach(child => {
-            const name = child.querySelector('.tree-device-name').textContent.toLowerCase();
-            child.style.display = name.includes(search) ? 'flex' : 'none';
-        });
-
-        // Afficher/masquer les groupes vides
-        treeNodes.forEach(node => {
-            const visibleChildren = node.querySelectorAll('.tree-child[style*="flex"], .tree-child:not([style])');
-            const hasVisibleChildren = Array.from(node.querySelectorAll('.tree-child')).some(c => c.style.display !== 'none');
-            node.style.display = hasVisibleChildren || !search ? 'block' : 'none';
+        
+        if (isAdmin) {
+            // Mode groupé (admin)
+            const treeNodes = document.querySelectorAll('.tree-node');
             
-            if (search && hasVisibleChildren) {
-                node.classList.add('expanded');
-            }
-        });
+            treeChildren.forEach(child => {
+                const name = child.querySelector('.tree-device-name').textContent.toLowerCase();
+                child.style.display = name.includes(search) ? 'flex' : 'none';
+            });
+
+            // Afficher/masquer les groupes vides
+            treeNodes.forEach(node => {
+                const visibleChildren = node.querySelectorAll('.tree-child[style*="flex"], .tree-child:not([style])');
+                const hasVisibleChildren = Array.from(node.querySelectorAll('.tree-child')).some(c => c.style.display !== 'none');
+                node.style.display = hasVisibleChildren || !search ? 'block' : 'none';
+                
+                if (search && hasVisibleChildren) {
+                    node.classList.add('expanded');
+                }
+            });
+        } else {
+            // Mode flat (utilisateur simple)
+            treeChildren.forEach(child => {
+                const name = child.querySelector('.tree-device-name').textContent.toLowerCase();
+                child.style.display = name.includes(search) ? 'flex' : 'none';
+            });
+        }
     }
 
     // Helpers
@@ -1316,6 +1509,90 @@ document.addEventListener('DOMContentLoaded', function() {
             day: '2-digit', month: '2-digit', year: 'numeric',
             hour: '2-digit', minute: '2-digit'
         });
+    }
+
+    function getCategoryIcon(category) {
+        const icons = {
+            'car': '<i class="fas fa-car"></i>',
+            'truck': '<i class="fas fa-truck"></i>',
+            'motorcycle': '<i class="fas fa-motorcycle"></i>',
+            'bus': '<i class="fas fa-bus"></i>',
+            'person': '<i class="fas fa-user"></i>',
+            'boat': '<i class="fas fa-ship"></i>',
+            'bicycle': '<i class="fas fa-bicycle"></i>',
+            'animal': '<i class="fas fa-paw"></i>',
+            'default': '<i class="fas fa-map-marker-alt"></i>'
+        };
+        return icons[category] || icons['default'];
+    }
+
+    // Afficher et gérer les sélecteurs de notifications
+    function renderNotificationsSelector(deviceId) {
+        const container = document.getElementById('editDeviceNotifications');
+        
+        if (!allNotifications || allNotifications.length === 0) {
+            container.innerHTML = `
+                <div class="alert alert-info mb-0">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Aucune notification disponible. <a href="/events" target="_blank">Créer une notification</a>
+                </div>
+            `;
+            return;
+        }
+        
+        // Récupérer les notifications déjà assignées à ce device
+        const assignedNotifs = deviceNotifications[deviceId] || [];
+        
+        // Créer une grille de notifications groupées par type
+        const notificationsByType = {};
+        allNotifications.forEach(notif => {
+            const type = notif.type || 'Autre';
+            if (!notificationsByType[type]) {
+                notificationsByType[type] = [];
+            }
+            notificationsByType[type].push(notif);
+        });
+        
+        // Créer le HTML
+        let html = `<div class="notifications-grid">`;
+        
+        for (const [type, notifs] of Object.entries(notificationsByType)) {
+            html += `
+                <div class="notification-group">
+                    <h6 class="notification-group-title">
+                        <i class="fas fa-bell text-info"></i> ${type}
+                    </h6>
+                    <div class="notification-items">
+            `;
+            
+            notifs.forEach(notif => {
+                const channels = notif.channels ? notif.channels.join(', ').toUpperCase() : 'Web';
+                const isChecked = assignedNotifs.includes(notif.id) ? 'checked' : '';
+                
+                html += `
+                    <div class="notification-checkbox">
+                        <input type="checkbox" 
+                               id="notif_${notif.id}" 
+                               class="device-notification-checkbox" 
+                               data-notif-id="${notif.id}"
+                               ${isChecked}>
+                        <label for="notif_${notif.id}">
+                            <span class="notification-title">${notif.description || type}</span>
+                            <span class="notification-channels"><small>${channels}</small></span>
+                        </label>
+                    </div>
+                `;
+            });
+            
+            html += `
+                    </div>
+                </div>
+            `;
+        }
+        
+        html += `</div>`;
+        
+        container.innerHTML = html;
     }
 
     function showTableLoading() {
@@ -1406,6 +1683,89 @@ document.addEventListener('DOMContentLoaded', function() {
         document.querySelector(`#devicesTable tbody tr[data-id="${id}"]`)?.classList.add('highlighted');
     };
 
+    // Toggle device menu dropdown
+    window.toggleDeviceMenu = function(menuElement, deviceId) {
+        const dropdown = menuElement.querySelector('.device-menu-dropdown');
+        
+        // Close all other dropdowns
+        document.querySelectorAll('.device-menu-dropdown').forEach(d => {
+            if (d !== dropdown) d.style.display = 'none';
+        });
+        
+        // Toggle current dropdown
+        dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!menuElement.contains(e.target) && dropdown.style.display !== 'none') {
+                dropdown.style.display = 'none';
+            }
+        });
+    };
+
+    window.showDeviceDetails = function(id) {
+        const device = allDevices.find(d => d.id === id);
+        if (!device) return;
+        
+        // Get the group name
+        const group = allUsers.find(u => u.id === device.userId);
+        const groupName = group ? group.name : 'Non assigné';
+        
+        // Fill modal with device details
+        document.getElementById('detailsDeviceName').textContent = device.name || '-';
+        document.getElementById('detailsDeviceIcon').className = getCategoryIcon(device.category);
+        document.getElementById('detailsDeviceStatus').textContent = `Statut: ${device.status || 'unknown'}`;
+        document.getElementById('detailsDeviceImei').textContent = device.uniqueId || '-';
+        document.getElementById('detailsDeviceModel').textContent = device.model || '-';
+        document.getElementById('detailsDevicePhone').textContent = device.phone || '-';
+        document.getElementById('detailsDeviceContact').textContent = device.contact || '-';
+        document.getElementById('detailsDeviceCategory').textContent = device.category || '-';
+        document.getElementById('detailsDeviceGroup').textContent = groupName;
+        document.getElementById('detailsDeviceLongitude').textContent = device.longitude ? device.longitude.toFixed(6) : '-';
+        document.getElementById('detailsDeviceLatitude').textContent = device.latitude ? device.latitude.toFixed(6) : '-';
+        document.getElementById('detailsDeviceAltitude').textContent = device.altitude ? device.altitude.toFixed(2) + ' m' : '-';
+        document.getElementById('detailsDeviceSpeed').textContent = device.speed ? (device.speed * 1.852).toFixed(1) + ' km/h' : '-';
+        
+        // Fill attributes
+        const attributesContainer = document.getElementById('detailsDeviceAttributes');
+        if (device.attributes && Object.keys(device.attributes).length > 0) {
+            attributesContainer.innerHTML = Object.entries(device.attributes)
+                .map(([key, value]) => `<span class="attribute-tag"><strong>${key}:</strong> ${value}</span>`)
+                .join('');
+        } else {
+            attributesContainer.innerHTML = '<span class="text-muted">Aucun attribut</span>';
+        }
+        
+        // Setup the edit button
+        document.getElementById('btnDetailsEdit').onclick = function() {
+            bootstrap.Modal.getInstance(document.getElementById('deviceDetailsModal')).hide();
+            editDevice(id);
+        };
+        
+        // Show the modal
+        const modal = new bootstrap.Modal(document.getElementById('deviceDetailsModal'));
+        modal.show();
+    };
+
+    window.goToHistory = function(id) {
+        window.location.href = `/history?id=${id}`;
+    };
+
+    window.goToTracking = function(id) {
+        window.location.href = `/tracking?id=${id}`;
+    };
+
+    window.deleteDevice = function(id) {
+        const device = allDevices.find(d => d.id === id);
+        if (!device) return;
+        
+        if (confirm(`Êtes-vous sûr de vouloir supprimer "${device.name}" ?`)) {
+            // Trigger the delete action - assuming there's a deleteDevice function
+            const deleteBtn = document.querySelector(`#devicesTable tbody tr[data-id="${id}"] .btn-icon.btn-delete`);
+            if (deleteBtn) deleteBtn.click();
+        }
+    };
+
     window.editDevice = function(id) {
         const device = allDevices.find(d => d.id === id);
         if (!device) {
@@ -1447,6 +1807,9 @@ document.addEventListener('DOMContentLoaded', function() {
         document.querySelectorAll('#editMonitorAttributes input[type="checkbox"]').forEach(cb => {
             cb.checked = monitorAttrs.includes(cb.value);
         });
+        
+        // Charger et afficher les notifications
+        renderNotificationsSelector(device.id);
         
         // Forcer le rafraîchissement des sélects (pour certains navigateurs)
         groupSelect.dispatchEvent(new Event('change'));
@@ -1855,14 +2218,100 @@ document.addEventListener('DOMContentLoaded', function() {
 
 @push('styles')
 <style>
+/* ===================== NOTIFICATIONS STYLES ===================== */
+
+/* Notifications Container */
+.notifications-container {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 15px;
+    border: 1px solid #e9ecef;
+}
+
+.notifications-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 15px;
+}
+
+.notification-group {
+    background: white;
+    border-radius: 8px;
+    padding: 12px;
+    border: 1px solid #e9ecef;
+}
+
+.notification-group-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.notification-items {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.notification-checkbox {
+    background: white;
+    border-radius: 6px;
+    padding: 8px 10px;
+    border: 1px solid #e9ecef;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.notification-checkbox:hover {
+    border-color: #17a2b8;
+    background: #f0f8ff;
+}
+
+.notification-checkbox input[type="checkbox"] {
+    display: none;
+}
+
+.notification-checkbox input[type="checkbox"]:checked + label {
+    color: #17a2b8;
+    font-weight: 600;
+}
+
+.notification-checkbox:has(input:checked) {
+    border-color: #17a2b8;
+    background: linear-gradient(135deg, #f0f8ff 0%, #e0f7ff 100%);
+    box-shadow: 0 2px 6px rgba(23, 162, 184, 0.15);
+}
+
+.notification-checkbox label {
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+    margin: 0;
+    gap: 4px;
+}
+
+.notification-title {
+    font-size: 0.9rem;
+    color: #333;
+    font-weight: 500;
+}
+
+.notification-channels {
+    color: #17a2b8;
+    font-weight: 600;
+}
+
 /* Device Sidebar Fixed */
 .device-sidebar {
     position: fixed !important;
     top: 55px;
     left: 0;
-    height: calc(100vh - 60px);
+    height: calc(100vh - 55px);
     width: 280px;
-    z-index: 100;
+    z-index: 1000;
     display: flex;
     flex-direction: column;
     background: #fff;
@@ -1882,16 +2331,239 @@ document.addEventListener('DOMContentLoaded', function() {
     overflow-y: auto;
     overflow-x: hidden;
     padding: 10px;
+    min-height: 0;
+}
+
+/* Device Widget Styles */
+.device-widget {
+    display: flex !important;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px !important;
+    margin-bottom: 6px;
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.device-widget:hover {
+    background: #fff;
+    border-color: #cfe2ff;
+    box-shadow: 0 2px 8px rgba(117, 86, 214, 0.15);
+}
+
+.device-widget.selected {
+    background: linear-gradient(135deg, #cfe2ff 0%, #cfe2ff 100%);
+    border-color: #cfe2ff;
+}
+
+.device-widget-content {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    flex: 1;
+    gap: 30px;
+    cursor: pointer;
+    min-width: 0;
+    margin-top: 2px;        
+}
+
+.device-widget-top {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    flex-shrink: 0;
+}
+
+.device-widget-icon {
+    font-size: 24px;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+}
+
+/* Status icon colors */
+.device-widget-icon.status-icon-online {
+    color: #10b981;
+}
+
+.device-widget-icon.status-icon-offline {
+    color: #ef4444;
+}
+
+.device-widget-icon.status-icon-unknown {
+    color: #9ca3af;
+}
+
+.device-widget.selected .device-widget-icon.status-icon-online {
+    color: #10b981;
+}
+
+.device-widget.selected .device-widget-icon.status-icon-offline {
+    color: #ef4444;
+}
+
+.device-widget.selected .device-widget-icon.status-icon-unknown {
+    color: #9ca3af;
+}
+
+.device-widget-bottom {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    flex: 1;
+    min-width: 0;
+}
+
+.tree-device-name {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #1f2937;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
+.device-widget.selected .tree-device-name {
+    color: #fff;
+}
+
+.device-emei {
+    font-size: 10px;
+    color: #9ca3af;
+    font-family: monospace;
+    background: rgba(0, 0, 0, 0.05);
+    padding: 2px 6px;
+    border-radius: 3px;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.device-widget.selected .device-emei {
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+}
+
+.device-widget-menu {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.btn-menu-icon {
+    width: 24px;
+    height: 24px;
+    border: none;
+    background: transparent;
+    color: #999;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    opacity: 0;
+}
+
+.device-widget:hover .btn-menu-icon,
+.device-widget.selected .btn-menu-icon {
+    opacity: 1;
+}
+
+.btn-menu-icon:hover {
+    background: rgba(117, 86, 214, 0.1);
+    color: #7556D6;
+}
+
+.device-widget.selected .btn-menu-icon:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+}
+
+.device-menu-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: #fff;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    min-width: 180px;
+    z-index: 1000;
+    margin-top: 4px;
+    animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.device-menu-dropdown a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 15px;
+    color: #333;
+    text-decoration: none;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.device-menu-dropdown a:hover {
+    background: #f8f9fa;
+    color: #7556D6;
+}
+
+.device-menu-dropdown a i {
+    width: 16px;
+    text-align: center;
+    color: inherit;
+}
+
+.device-menu-dropdown a.text-danger {
+    color: #dc3545;
+}
+
+.device-menu-dropdown a.text-danger:hover {
+    background: #fff5f5;
+    color: #c82333;
+}
+
+.device-menu-dropdown hr {
+    margin: 4px 0;
+    border: none;
+    border-top: 1px solid #f0f0f0;
 }
 
 /* Ajuster le main-content pour compenser le sidebar fixe */
 .main-container {
     display: flex;
+    overflow: visible;
 }
 
 .device-sidebar + .main-content {
     margin-left: 280px;
     width: calc(100% - 280px);
+    overflow-y: auto;
 }
 
 /* Scrollbar personnalisée pour le tree-view */
@@ -2034,6 +2706,74 @@ document.addEventListener('DOMContentLoaded', function() {
 
 .link-status {
     font-size: 1rem;
+}
+
+/* Device Details Modal Styles */
+.device-details-header {
+    padding: 20px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #f0f4ff 100%);
+    border-radius: 10px;
+    border-left: 4px solid #7556D6;
+}
+
+.device-details-icon {
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #7556D6 0%, #5a3fb3 100%);
+    color: white;
+    border-radius: 10px;
+}
+
+.details-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.detail-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.detail-item.full-width {
+    grid-column: 1 / -1;
+}
+
+.detail-item label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #9ca3af;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.detail-item span {
+    font-size: 15px;
+    font-weight: 500;
+    color: #1f2937;
+    padding: 8px 0;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.attributes-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding-top: 8px;
+}
+
+.attribute-tag {
+    display: inline-block;
+    background: rgba(117, 86, 214, 0.1);
+    color: #7556D6;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
 }
 
 .btn-link-geofence {

@@ -46,6 +46,47 @@
                 </div>
             </div>
 
+            <!-- Information Section: Événements vs Notifications -->
+            <div class="alert alert-info border-0 rounded-lg mb-4" style="background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%); border-left: 4px solid #17a2b8;">
+                <div class="row">
+                    <div class="col-md-6 mb-3 mb-md-0">
+                        <h5 class="text-primary mb-2">
+                            <i class="fas fa-database me-2"></i> L'Événement
+                        </h5>
+                        <p class="mb-0 small">
+                            <strong>Enregistrement du fait</strong> - Stocké dans la base de données et consultable à tout moment dans l'onglet "Événements" ou dans les rapports historiques.
+                        </p>
+                        <p class="mt-2 mb-0 small text-muted">
+                            Exemples: Démarrage du moteur, Sortie de géofence, Batterie faible, Appareil arrêté
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <h5 class="text-danger mb-2">
+                            <i class="fas fa-bell me-2"></i> La Notification
+                        </h5>
+                        <p class="mb-0 small">
+                            <strong>Alerte immédiate</strong> - Moyen de vous prévenir en temps réel (Web, Email, SMS, Telegram, Push).
+                        </p>
+                        <p class="mt-2 mb-0 small text-muted">
+                            Pour chaque événement, vous choisissez si vous voulez être notifié et par quel canal.
+                        </p>
+                    </div>
+                </div>
+                <hr class="my-3">
+                <div class="row">
+                    <div class="col-md-12">
+                        <h6 class="mb-2">
+                            <i class="fas fa-cogs me-2"></i> Configuration en 3 étapes :
+                        </h6>
+                        <ol class="mb-0 small">
+                            <li><strong>Créer la notification</strong> - Choisissez le type d'événement (ex: Entrée de zone) et le canal (ex: Web ou Telegram)</li>
+                            <li><strong>Lier à l'appareil</strong> - Allez dans Appareils, sélectionnez votre appareil, cliquez sur Notifications et cochez celles à activer</li>
+                            <li><strong>Lier à l'utilisateur</strong> - Assurez-vous que l'utilisateur possède les permissions pour ces notifications</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+
             <!-- Stats Section -->
             <div class="stats-row">
                 <div class="stat-card">
