@@ -18,7 +18,7 @@
                     </div>
                     <div class="card-title-group">
                         <h3 class="card-title-modern">{{ __('messages.device.title') }}</h3>
-                        <span class="card-subtitle" id="infoStatus">--</span>
+                        <!-- <span class="card-subtitle" id="infoStatus">--</span> -->
                     </div>
                 </div>
                 <div class="info-list">
@@ -1192,10 +1192,10 @@ document.addEventListener('DOMContentLoaded', function() {
         statusText.textContent = getStatusLabel(status);
         
         // Info panel - Card subtitle shows status
-        const infoStatus = document.getElementById('infoStatus');
-        if (infoStatus) {
-            infoStatus.innerHTML = `<span class="status-badge-mini status-${status}">${getStatusLabel(status)}</span>`;
-        }
+        // const infoStatus = document.getElementById('infoStatus');
+        // if (infoStatus) {
+        //     infoStatus.innerHTML = `<span class="status-badge-mini status-${status}">${getStatusLabel(status)}</span>`;
+        // }
         
         document.getElementById('infoLastUpdate').textContent = formatDate(device.lastUpdate);
         document.getElementById('infoModel').textContent = device.model || '--';
