@@ -5,127 +5,138 @@
 @section('content')
 
 <div class="tracking-container">
-    <!-- Header -->
-    <div class="tracking-header">
-        <div class="header-left">
-            <a href="{{ route('device') }}" class="btn-back">
-                <i class="fas fa-arrow-left"></i>
-            </a>
-            <div class="device-info">
-                <h1 id="deviceName">
-                    <i class="fas fa-car"></i>
-                    <span>{{ __('messages.common.loading') }}...</span>
-                </h1>
-                <p class="device-id" id="deviceIdentifier">ID: --</p>
-            </div>
-        </div>
-        <div class="header-right">
-            <div class="status-badge" id="statusBadge">
-                <span class="status-dot"></span>
-                <span class="status-text" id="statusText">{{ __('messages.common.loading') }}</span>
-            </div>
-        </div>
-    </div>
 
     <!-- Main Content -->
     <div class="tracking-content">
         <!-- Info Panel (Left) -->
         <div class="info-panel">
             <!-- Device Stats Card -->
-            <div class="info-card">
-                <h3 class="info-card-title">
-                    <i class="fas fa-info-circle"></i>
-                    {{ __('messages.device.title') }}
-                </h3>
-                <div class="info-grid">
-                    <div class="info-item">
-                        <span class="info-label">{{ __('messages.common.status') }}</span>
-                        <span class="info-value" id="infoStatus">--</span>
+            <div class="info-card device-card">
+                <div class="card-header-modern">
+                    <div class="card-icon device-icon">
+                        <i class="fas fa-car"></i>
                     </div>
-                    <div class="info-item">
-                        <span class="info-label">{{ __('messages.device.last_update') }}</span>
-                        <span class="info-value" id="infoLastUpdate">--</span>
+                    <div class="card-title-group">
+                        <h3 class="card-title-modern">{{ __('messages.device.title') }}</h3>
+                        <span class="card-subtitle" id="infoStatus">--</span>
                     </div>
-                    <div class="info-item">
-                        <span class="info-label">{{ __('messages.device.model') }}</span>
-                        <span class="info-value" id="infoModel">--</span>
+                </div>
+                <div class="info-list">
+                    <div class="info-row">
+                        <div class="info-icon"><i class="fas fa-clock"></i></div>
+                        <div class="info-content">
+                            <span class="info-label">{{ __('messages.device.last_update') }}</span>
+                            <span class="info-value" id="infoLastUpdate">--</span>
+                        </div>
                     </div>
-                    <div class="info-item">
-                        <span class="info-label">{{ __('messages.device.phone') }}</span>
-                        <span class="info-value" id="infoPhone">--</span>
+                    <div class="info-row">
+                        <div class="info-icon"><i class="fas fa-microchip"></i></div>
+                        <div class="info-content">
+                            <span class="info-label">{{ __('messages.device.model') }}</span>
+                            <span class="info-value" id="infoModel">--</span>
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-icon"><i class="fas fa-phone"></i></div>
+                        <div class="info-content">
+                            <span class="info-label">{{ __('messages.device.phone') }}</span>
+                            <span class="info-value" id="infoPhone">--</span>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- Position Card -->
-            <div class="info-card">
-                <h3 class="info-card-title">
-                    <i class="fas fa-map-marker-alt"></i>
-                    {{ __('messages.monitor.last_position') }}
-                </h3>
-                <div class="info-grid">
-                    <div class="info-item">
-                        <span class="info-label">{{ __('messages.geofence.latitude') }}</span>
-                        <span class="info-value" id="infoLatitude">--</span>
+            <div class="info-card position-card">
+                <div class="card-header-modern">
+                    <div class="card-icon position-icon">
+                        <i class="fas fa-map-marker-alt"></i>
                     </div>
-                    <div class="info-item">
-                        <span class="info-label">{{ __('messages.geofence.longitude') }}</span>
-                        <span class="info-value" id="infoLongitude">--</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">{{ __('messages.monitor.speed') }}</span>
-                        <span class="info-value" id="infoSpeed">--</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">{{ __('messages.monitor.course') }}</span>
-                        <span class="info-value" id="infoCourse">--</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">{{ __('messages.monitor.altitude') }}</span>
-                        <span class="info-value" id="infoAltitude">--</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">{{ __('messages.monitor.address') }}</span>
-                        <span class="info-value address" id="infoAddress">--</span>
+                    <div class="card-title-group">
+                        <h3 class="card-title-modern">{{ __('messages.monitor.last_position') }}</h3>
+                        <span class="card-subtitle coords" id="infoCoords">--</span>
                     </div>
                 </div>
-            </div>
-
-            <!-- Actions Card -->
-            <div class="info-card actions-card">
-                <div class="action-buttons-grid">
-                    <button class="action-btn" id="btnCenterMap" title="{{ __('messages.monitor.center_map') }}">
-                        <i class="fas fa-crosshairs"></i>
-                        <span>{{ __('messages.monitor.center_map') }}</span>
-                    </button>
-                    <button class="action-btn" id="btnRefresh" title="{{ __('messages.common.refresh') }}">
-                        <i class="fas fa-sync-alt"></i>
-                        <span>{{ __('messages.common.refresh') }}</span>
-                    </button>
-                    <a href="#" class="action-btn" id="btnHistory" title="{{ __('messages.monitor.view_history') }}">
-                        <i class="fas fa-history"></i>
-                        <span>{{ __('messages.monitor.view_history') }}</span>
-                    </a>
-                    <button class="action-btn" id="btnToggleFollow" title="Auto-Follow">
-                        <i class="fas fa-location-arrow"></i>
-                        <span>Auto-Follow</span>
-                    </button>
+                <div class="position-stats">
+                    <div class="stat-box speed-stat">
+                        <div class="stat-icon"><i class="fas fa-tachometer-alt"></i></div>
+                        <div class="stat-content">
+                            <span class="stat-value" id="infoSpeed">--</span>
+                            <span class="stat-label">{{ __('messages.monitor.speed') }}</span>
+                        </div>
+                    </div>
+                    <div class="stat-box course-stat">
+                        <div class="stat-icon"><i class="fas fa-compass"></i></div>
+                        <div class="stat-content">
+                            <span class="stat-value" id="infoCourse">--</span>
+                            <span class="stat-label">{{ __('messages.monitor.course') }}</span>
+                        </div>
+                    </div>
+                    <div class="stat-box altitude-stat">
+                        <div class="stat-icon"><i class="fas fa-mountain"></i></div>
+                        <div class="stat-content">
+                            <span class="stat-value" id="infoAltitude">--</span>
+                            <span class="stat-label">{{ __('messages.monitor.altitude') }}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="coordinates-detail">
+                    <div class="coord-item">
+                        <span class="coord-label">LAT</span>
+                        <span class="coord-value" id="infoLatitude">--</span>
+                    </div>
+                    <div class="coord-divider"></div>
+                    <div class="coord-item">
+                        <span class="coord-label">LNG</span>
+                        <span class="coord-value" id="infoLongitude">--</span>
+                    </div>
                 </div>
             </div>
 
             <!-- Real-time Indicator -->
-            <div class="realtime-card">
+            <!-- <div class="realtime-card">
                 <div class="realtime-indicator active" id="realtimeIndicator">
                     <span class="realtime-dot"></span>
                     <span class="realtime-text">{{ __('messages.monitor.title') }}</span>
                 </div>
-                <p class="realtime-info">{{ __('messages.common.refresh') }}: <span id="refreshRate">5s</span></p>
-            </div>
+                <p class="realtime-info">{{ __('messages.common.refresh') }}: <span id="refreshRate">2s</span></p>
+            </div> -->
         </div>
 
         <!-- Map Section (Right) -->
         <div class="map-section">
             <div id="trackingMap" class="tracking-map"></div>
+            
+            <!-- Floating Header (inside map) -->
+            <div class="floating-header">
+                <a href="{{ route('device') }}" class="btn-back" title="Retour">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+                <div class="device-title">
+                    <span class="device-name" id="deviceName">{{ __('messages.common.loading') }}...</span>
+                    <span class="device-imei" id="deviceIdentifier">--</span>
+                </div>
+                <div class="status-badge" id="statusBadge">
+                    <span class="status-dot"></span>
+                    <span class="status-text" id="statusText">--</span>
+                </div>
+            </div>
+            
+            <!-- Action Buttons Overlay -->
+            <div class="map-actions-overlay">
+                <button class="map-action-btn" id="btnCenterMap" title="{{ __('messages.monitor.center_map') }}">
+                    <i class="fas fa-crosshairs"></i>
+                </button>
+                <button class="map-action-btn" id="btnRefresh" title="{{ __('messages.common.refresh') }}">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+                <a href="#" class="map-action-btn" id="btnHistory" title="{{ __('messages.monitor.view_history') }}">
+                    <i class="fas fa-history"></i>
+                </a>
+                <button class="map-action-btn" id="btnToggleFollow" title="Auto-Follow">
+                    <i class="fas fa-location-arrow"></i>
+                </button>
+            </div>
             
             <!-- Map Controls -->
             <div class="map-controls">
@@ -158,167 +169,369 @@
 <style>
 /* Tracking Page Styles */
 .tracking-container {
-    padding: 20px;
-    padding-top: 80px;
-    max-width: 1600px;
-    margin: 0 auto;
-    min-height: calc(100vh - 40px);
-}
-
-/* Header */
-.tracking-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-    padding: 20px 30px;
-    border-radius: 12px;
-    color: #fff;
-    margin-bottom: 20px;
-    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
-}
-
-.header-left {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-}
-
-.btn-back {
-    width: 45px;
-    height: 45px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(255, 255, 255, 0.2);
-    color: #fff;
-    border-radius: 10px;
-    text-decoration: none;
-    transition: all 0.3s ease;
-    font-size: 18px;
-}
-
-.btn-back:hover {
-    background: rgba(255, 255, 255, 0.3);
-    transform: translateX(-3px);
-    color: #fff;
-}
-
-.device-info h1 {
+    padding: 0;
+    padding-top: 60px;
+    max-width: 100%;
     margin: 0;
-    font-size: 24px;
-    font-weight: 700;
+    min-height: calc(100vh - 60px);
+    position: relative;
+}
+
+/* Floating Header */
+.floating-header {
+    position: absolute;
+    top: 15px;
+    left: 50%;
+    transform: translateX(-50%);
     display: flex;
     align-items: center;
     gap: 12px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    padding: 8px 16px;
+    border-radius: 50px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    z-index: 450;
+    max-width: calc(100% - 200px);
 }
 
-.device-info h1 i {
-    font-size: 28px;
-}
-
-.device-id {
-    margin: 5px 0 0;
-    font-size: 14px;
-    opacity: 0.9;
-}
-
-.status-badge {
+.floating-header .btn-back {
+    width: 36px;
+    height: 36px;
     display: flex;
     align-items: center;
-    gap: 8px;
-    background: rgba(255, 255, 255, 0.2);
-    padding: 10px 20px;
-    border-radius: 25px;
-    font-weight: 600;
-}
-
-.status-dot {
-    width: 10px;
-    height: 10px;
-    background: #fbbf24;
+    justify-content: center;
+    background: #f3f4f6;
+    color: #374151;
     border-radius: 50%;
-    animation: pulse 2s infinite;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    font-size: 14px;
+    flex-shrink: 0;
 }
 
-.status-badge.online .status-dot {
+.floating-header .btn-back:hover {
     background: #3b82f6;
+    color: #fff;
 }
 
-.status-badge.offline .status-dot {
+.device-title {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.device-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: #1f2937;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.device-imei {
+    font-size: 11px;
+    color: #6b7280;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.floating-header .status-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    flex-shrink: 0;
+    background: #f3f4f6;
+    color: #374151;
+}
+
+.floating-header .status-badge.online {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.floating-header .status-badge.offline {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.floating-header .status-dot {
+    width: 8px;
+    height: 8px;
+    background: #9ca3af;
+    border-radius: 50%;
+}
+
+.floating-header .status-badge.online .status-dot {
+    background: #3b82f6;
+    animation: pulse 1.5s infinite;
+}
+
+.floating-header .status-badge.offline .status-dot {
     background: #ef4444;
     animation: none;
 }
 
 @keyframes pulse {
     0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.5; transform: scale(1.2); }
+    50% { opacity: 0.5; transform: scale(1.3); }
 }
 
 /* Main Content */
 .tracking-content {
     display: flex;
-    gap: 20px;
-    height: calc(100vh - 200px);
+    gap: 15px;
+    height: calc(100vh - 60px);
     min-height: 500px;
+    padding: 10px;
 }
 
 /* Info Panel */
 .info-panel {
-    width: 350px;
+    width: 280px;
     flex-shrink: 0;
     display: flex;
     flex-direction: column;
-    gap: 15px;
-}
-
-.info-card {
-    background: #fff;
-    border-radius: 12px;
-    padding: 20px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-}
-
-.info-card-title {
-    margin: 0 0 15px;
-    font-size: 16px;
-    font-weight: 700;
-    color: #1f2937;
-    display: flex;
-    align-items: center;
     gap: 10px;
 }
 
-.info-card-title i {
-    color: #3b82f6;
+.info-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    padding: 14px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.info-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
+.info-card:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
 }
 
-.info-item {
+/* Card Header Modern */
+.card-header-modern {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.card-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+}
+
+.device-icon {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.position-icon {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.card-title-group {
+    flex: 1;
+    min-width: 0;
+}
+
+.card-title-modern {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 700;
+    color: #1f2937;
+}
+
+.card-subtitle {
+    font-size: 11px;
+    color: #6b7280;
+    margin-top: 1px;
+    display: block;
+}
+
+.card-subtitle.coords {
+    font-family: 'Monaco', 'Consolas', monospace;
+    font-size: 10px;
+    color: #10b981;
+}
+
+/* Info List Style */
+.info-list {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 6px;
 }
 
-.info-item:has(.address) {
-    grid-column: span 2;
+.info-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 10px;
+    background: #f9fafb;
+    border-radius: 8px;
+    transition: background 0.2s ease;
+}
+
+.info-row:hover {
+    background: #f3f4f6;
+}
+
+.info-icon {
+    width: 26px;
+    height: 26px;
+    border-radius: 6px;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #3b82f6;
+    font-size: 12px;
+    flex-shrink: 0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.info-content {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
 }
 
 .info-label {
-    font-size: 12px;
-    color: #6b7280;
+    font-size: 10px;
+    color: #9ca3af;
     font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
 }
 
 .info-value {
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 600;
     color: #1f2937;
+}
+
+/* Position Stats */
+.position-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    margin-bottom: 10px;
+}
+
+.stat-box {
+    background: #f9fafb;
+    border-radius: 8px;
+    padding: 8px 6px;
+    text-align: center;
+    transition: all 0.2s ease;
+}
+
+.stat-box:hover {
+    background: #f3f4f6;
+    transform: scale(1.02);
+}
+
+.stat-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    margin: 0 auto 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+}
+
+.speed-stat .stat-icon {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: #fff;
+}
+
+.course-stat .stat-icon {
+    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+    color: #fff;
+}
+
+.altitude-stat .stat-icon {
+    background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+    color: #fff;
+}
+
+.stat-value {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 1px;
+}
+
+.stat-label {
+    font-size: 9px;
+    color: #9ca3af;
+    text-transform: uppercase;
+    letter-spacing: 0.2px;
+}
+
+/* Coordinates Detail */
+.coordinates-detail {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 8px;
+    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+    border-radius: 8px;
+    border: 1px solid #bbf7d0;
+}
+
+.coord-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+}
+
+.coord-label {
+    font-size: 9px;
+    font-weight: 600;
+    color: #059669;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.coord-value {
+    font-size: 11px;
+    font-weight: 600;
+    color: #065f46;
+    font-family: 'Monaco', 'Consolas', monospace;
+}
+
+.coord-divider {
+    width: 1px;
+    height: 22px;
+    background: #86efac;
 }
 
 .info-value.address {
@@ -416,6 +629,45 @@
     min-height: 500px;
 }
 
+/* Map Action Buttons Overlay */
+.map-actions-overlay {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 400;
+}
+
+.map-action-btn {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+    cursor: pointer;
+    color: #374151;
+    font-size: 18px;
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+
+.map-action-btn:hover {
+    background: #3b82f6;
+    color: #fff;
+    transform: scale(1.05);
+}
+
+.map-action-btn.active {
+    background: #3b82f6;
+    color: #fff;
+}
+
 /* Map Controls */
 .map-controls {
     position: absolute;
@@ -489,20 +741,17 @@
 
 /* Responsive */
 @media (max-width: 1200px) {
-    .tracking-container {
-        padding: 15px;
-        padding-top: 70px;
-    }
-    
     .tracking-content {
-        gap: 15px;
+        gap: 12px;
         height: auto;
+        flex-direction: column;
     }
     
     .info-panel {
         width: 100%;
         flex-direction: row;
         flex-wrap: wrap;
+        order: 2;
     }
     
     .info-card {
@@ -511,157 +760,125 @@
     }
     
     .map-section {
-        height: 400px;
+        height: 450px;
         order: 1;
     }
 }
 
-@media (max-width: 991px) {
-    .tracking-header {
-        gap: 15px;
-        padding: 15px 20px;
-    }
-    
-    .device-info h1 {
-        font-size: 20px;
-    }
-    
-    .device-info h1 i {
-        font-size: 22px;
-    }
-    
-    .info-panel {
-        flex-direction: column;
-    }
-    
-    .info-card {
-        min-width: 100%;
-    }
-    
-    .action-buttons-grid {
-        grid-template-columns: 1fr 1fr;
-    }
-    
-    .map-section {
-        height: 450px;
-    }
-    
-    .speed-gauge {
-        width: 85px;
-        height: 85px;
-    }
-    
-    .speed-value {
-        font-size: 28px;
-    }
-}
-
 @media (max-width: 768px) {
-    .tracking-container {
-        padding: 10px;
-        padding-top: 65px;
+    .floating-header {
+        top: 10px;
+        padding: 6px 12px;
+        gap: 10px;
+        max-width: calc(100% - 100px);
     }
     
-    .tracking-header {
-        flex-direction: column;
-        gap: 12px;
-        padding: 12px 15px;
-        margin-bottom: 15px;
+    .floating-header .btn-back {
+        width: 32px;
+        height: 32px;
+        font-size: 12px;
     }
     
-    .header-left {
-        width: 100%;
-        gap: 12px;
-    }
-    
-    .device-info h1 {
-        font-size: 18px;
-        gap: 8px;
-    }
-    
-    .device-info h1 i {
-        font-size: 20px;
-    }
-    
-    .btn-back {
-        width: 40px;
-        height: 40px;
-        font-size: 16px;
-    }
-    
-    .device-id {
+    .device-name {
         font-size: 13px;
     }
     
-    .status-badge {
-        padding: 8px 16px;
-        font-size: 14px;
+    .device-imei {
+        font-size: 10px;
+    }
+    
+    .floating-header .status-badge {
+        padding: 5px 10px;
+        font-size: 11px;
     }
     
     .tracking-content {
-        gap: 12px;
+        padding: 8px;
+        gap: 10px;
     }
     
     .info-panel {
         flex-direction: column;
-        gap: 12px;
+        gap: 10px;
     }
     
     .info-card {
         padding: 15px;
+        min-width: 100%;
+        border-radius: 14px;
     }
     
-    .info-card-title {
+    .card-header-modern {
+        gap: 12px;
+        margin-bottom: 14px;
+        padding-bottom: 12px;
+    }
+    
+    .card-icon {
+        width: 42px;
+        height: 42px;
+        font-size: 18px;
+    }
+    
+    .card-title-modern {
         font-size: 14px;
-        margin-bottom: 12px;
     }
     
-    .info-grid {
-        gap: 10px;
+    .info-row {
+        padding: 8px 10px;
     }
     
-    .info-label {
-        font-size: 11px;
-    }
-    
-    .info-value {
-        font-size: 13px;
-    }
-    
-    .actions-card {
-        padding: 12px;
-    }
-    
-    .action-buttons-grid {
-        grid-template-columns: 1fr;
-        gap: 8px;
-    }
-    
-    .action-btn {
-        padding: 10px;
+    .info-icon {
+        width: 28px;
+        height: 28px;
         font-size: 12px;
-        gap: 6px;
     }
     
-    .action-btn i {
-        font-size: 14px;
-    }
-    
-    .realtime-card {
-        padding: 12px 15px;
-    }
-    
-    .realtime-indicator {
+    .position-stats {
         gap: 8px;
+    }
+    
+    .stat-box {
+        padding: 10px 8px;
+    }
+    
+    .stat-icon {
+        width: 32px;
+        height: 32px;
         font-size: 14px;
     }
     
-    .realtime-info {
+    .stat-value {
+        font-size: 14px;
+    }
+    
+    .stat-label {
+        font-size: 9px;
+    }
+    
+    .coordinates-detail {
+        padding: 10px;
+        gap: 12px;
+    }
+    
+    .coord-value {
         font-size: 12px;
     }
     
     .map-section {
-        height: 350px;
+        height: 400px;
+    }
+    
+    .map-actions-overlay {
+        top: 10px;
+        left: 10px;
+        gap: 6px;
+    }
+    
+    .map-action-btn {
+        width: 38px;
+        height: 38px;
+        font-size: 16px;
     }
     
     .map-controls {
@@ -682,72 +899,102 @@
     }
     
     .speed-gauge {
-        width: 80px;
-        height: 80px;
+        width: 75px;
+        height: 75px;
         border: 3px solid #3b82f6;
     }
     
     .speed-value {
-        font-size: 26px;
+        font-size: 24px;
     }
     
     .speed-unit {
-        font-size: 11px;
+        font-size: 10px;
     }
 }
 
-@media (max-width: 600px) {
-    .tracking-container {
-        padding: 8px;
-        padding-top: 60px;
+@media (max-width: 480px) {
+    .floating-header {
+        top: 8px;
+        padding: 5px 10px;
+        gap: 8px;
+        border-radius: 30px;
+        max-width: calc(100% - 80px);
     }
     
-    .tracking-header {
-        padding: 10px 12px;
-        margin-bottom: 12px;
-        border-radius: 8px;
+    .floating-header .btn-back {
+        width: 28px;
+        height: 28px;
+        font-size: 11px;
     }
     
-    .device-info h1 {
-        font-size: 16px;
+    .device-title {
+        max-width: 120px;
     }
     
-    .device-id {
+    .device-name {
         font-size: 12px;
     }
     
-    .btn-back {
-        width: 36px;
-        height: 36px;
-        font-size: 14px;
+    .device-imei {
+        font-size: 9px;
     }
     
-    .status-badge {
-        padding: 6px 12px;
-        font-size: 13px;
+    .floating-header .status-badge {
+        padding: 4px 8px;
+        font-size: 10px;
+        gap: 4px;
     }
     
-    .header-left {
-        gap: 10px;
+    .floating-header .status-dot {
+        width: 6px;
+        height: 6px;
+    }
+    
+    .tracking-content {
+        padding: 5px;
     }
     
     .info-card {
         padding: 12px;
-        border-radius: 8px;
+        border-radius: 12px;
     }
     
-    .info-grid {
-        grid-template-columns: 1fr;
+    .card-header-modern {
+        gap: 10px;
+        margin-bottom: 12px;
+        padding-bottom: 10px;
+    }
+    
+    .card-icon {
+        width: 38px;
+        height: 38px;
+        font-size: 16px;
+        border-radius: 10px;
+    }
+    
+    .card-title-modern {
+        font-size: 13px;
+    }
+    
+    .card-subtitle {
+        font-size: 11px;
+    }
+    
+    .info-list {
         gap: 8px;
     }
     
-    .info-item:has(.address) {
-        grid-column: span 1;
+    .info-row {
+        padding: 8px;
+        border-radius: 8px;
     }
     
-    .info-card-title {
-        font-size: 13px;
-        margin-bottom: 10px;
+    .info-icon {
+        width: 26px;
+        height: 26px;
+        font-size: 11px;
+        border-radius: 6px;
     }
     
     .info-label {
@@ -758,20 +1005,60 @@
         font-size: 12px;
     }
     
-    .action-btn {
-        padding: 8px 10px;
-        font-size: 11px;
-        gap: 4px;
-        border-radius: 6px;
+    .position-stats {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
+        margin-bottom: 10px;
     }
     
-    .action-btn i {
+    .stat-box {
+        padding: 8px 6px;
+        border-radius: 10px;
+    }
+    
+    .stat-icon {
+        width: 28px;
+        height: 28px;
         font-size: 12px;
+        margin-bottom: 6px;
+        border-radius: 8px;
+    }
+    
+    .stat-value {
+        font-size: 13px;
+    }
+    
+    .stat-label {
+        font-size: 8px;
+    }
+    
+    .coordinates-detail {
+        padding: 8px;
+        gap: 10px;
+        border-radius: 8px;
+    }
+    
+    .coord-label {
+        font-size: 9px;
+    }
+    
+    .coord-value {
+        font-size: 11px;
+    }
+    
+    .coord-divider {
+        height: 24px;
     }
     
     .map-section {
-        height: 300px;
-        border-radius: 8px;
+        height: 350px;
+        border-radius: 10px;
+    }
+    
+    .map-action-btn {
+        width: 34px;
+        height: 34px;
+        font-size: 14px;
     }
     
     .map-control-btn {
@@ -781,79 +1068,17 @@
     }
     
     .speed-gauge {
-        width: 70px;
-        height: 70px;
+        width: 65px;
+        height: 65px;
         border: 2px solid #3b82f6;
     }
     
     .speed-value {
-        font-size: 22px;
+        font-size: 20px;
     }
     
     .speed-unit {
-        font-size: 10px;
-    }
-}
-
-@media (max-width: 400px) {
-    .tracking-header {
-        padding: 8px 10px;
-        gap: 10px;
-    }
-    
-    .device-info h1 {
-        font-size: 14px;
-        gap: 6px;
-    }
-    
-    .device-info h1 i {
-        font-size: 16px;
-    }
-    
-    .btn-back {
-        width: 32px;
-        height: 32px;
-        font-size: 12px;
-    }
-    
-    .status-badge {
-        padding: 5px 10px;
-        font-size: 12px;
-        gap: 6px;
-    }
-    
-    .status-dot {
-        width: 8px;
-        height: 8px;
-    }
-    
-    .info-card {
-        padding: 10px;
-    }
-    
-    .info-grid {
-        gap: 6px;
-    }
-    
-    .info-label {
         font-size: 9px;
-    }
-    
-    .info-value {
-        font-size: 11px;
-    }
-    
-    .map-section {
-        height: 280px;
-    }
-    
-    .speed-gauge {
-        width: 65px;
-        height: 65px;
-    }
-    
-    .speed-value {
-        font-size: 20px;
     }
 }
 
@@ -888,11 +1113,13 @@ document.addEventListener('DOMContentLoaded', function() {
     let position = null;
     let autoFollow = true;
     let refreshInterval = null;
-    const REFRESH_RATE = 5000; // 5 seconds
+    const REFRESH_RATE = 2000; // 2 seconds
 
     // Initialize map
     function initMap() {
-        map = L.map('trackingMap').setView([36.7538, 3.0588], 13);
+        map = L.map('trackingMap', {
+            zoomControl: false // Disable native zoom controls
+        }).setView([36.7538, 3.0588], 13);
         
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors'
@@ -953,8 +1180,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Update device info in UI
     function updateDeviceInfo() {
-        document.querySelector('#deviceName span').textContent = device.name || 'Unknown';
-        document.getElementById('deviceIdentifier').textContent = `IMEI: ${device.uniqueId || '--'}`;
+        document.getElementById('deviceName').textContent = device.name || 'Unknown';
+        document.getElementById('deviceIdentifier').textContent = device.uniqueId || '--';
         
         // Status badge
         const statusBadge = document.getElementById('statusBadge');
@@ -964,8 +1191,12 @@ document.addEventListener('DOMContentLoaded', function() {
         statusBadge.className = `status-badge ${status}`;
         statusText.textContent = getStatusLabel(status);
         
-        // Info panel
-        document.getElementById('infoStatus').innerHTML = `<span class="status-badge-mini status-${status}">${getStatusLabel(status)}</span>`;
+        // Info panel - Card subtitle shows status
+        const infoStatus = document.getElementById('infoStatus');
+        if (infoStatus) {
+            infoStatus.innerHTML = `<span class="status-badge-mini status-${status}">${getStatusLabel(status)}</span>`;
+        }
+        
         document.getElementById('infoLastUpdate').textContent = formatDate(device.lastUpdate);
         document.getElementById('infoModel').textContent = device.model || '--';
         document.getElementById('infoPhone').textContent = device.phone || '--';
@@ -983,10 +1214,14 @@ document.addEventListener('DOMContentLoaded', function() {
         const speedElem = document.getElementById('infoSpeed');
         const courseElem = document.getElementById('infoCourse');
         const altElem = document.getElementById('infoAltitude');
-        const addrElem = document.getElementById('infoAddress');
+        const coordsElem = document.getElementById('infoCoords');
         
-        if (latElem) latElem.textContent = position.latitude?.toFixed(6) || '--';
-        if (lngElem) lngElem.textContent = position.longitude?.toFixed(6) || '--';
+        const lat = position.latitude?.toFixed(6) || '--';
+        const lng = position.longitude?.toFixed(6) || '--';
+        
+        if (latElem) latElem.textContent = lat;
+        if (lngElem) lngElem.textContent = lng;
+        if (coordsElem) coordsElem.textContent = `${lat}, ${lng}`;
         
         const speedKmh = (position.speed * 1.852).toFixed(1); // knots to km/h
         if (speedElem) speedElem.textContent = `${speedKmh} km/h`;
@@ -994,12 +1229,6 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (courseElem) courseElem.textContent = `${position.course?.toFixed(0) || 0}°`;
         if (altElem) altElem.textContent = `${position.altitude?.toFixed(0) || 0} m`;
-        if (addrElem) addrElem.textContent = position.address || '{{ __("messages.common.loading") }}...';
-        
-        // If no address, try to get it
-        if (!position.address && addrElem) {
-            reverseGeocode(position.latitude, position.longitude);
-        }
     }
 
     // Update map
@@ -1100,7 +1329,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function showError(message) {
-        document.querySelector('#deviceName span').textContent = message;
+        document.getElementById('deviceName').textContent = message;
     }
 
     // Event listeners
