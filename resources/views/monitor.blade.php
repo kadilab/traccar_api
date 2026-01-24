@@ -290,7 +290,7 @@ body {
 
 .quick-filters {
     display: flex;
-    gap: 6px;
+    gap: 1px;
     flex-wrap: wrap;
 }
 
