@@ -5,328 +5,915 @@
 @section('content')
 
 <div class="monitor-container">
-    <!-- Sidebar -->
-    <aside class="monitor-sidebar">
-        <div class="sidebar-header">
-            <h4>
-                <i class="fas fa-map-marker-alt"></i>
-                Suivi en direct
-            </h4>
-            <div class="realtime-indicator active" id="realtimeIndicator">
-                <span class="realtime-dot"></span>
-                <span class="realtime-text">Live</span>
-            </div>
-        </div>
-        
-        <div class="sidebar-search">
-            <div class="search-input-wrapper">
-                <i class="fas fa-search search-icon"></i>
-                <input type="text" id="deviceSearch" class="search-input" placeholder="Rechercher un device...">
-            </div>
-        </div>
-
-        <!-- Filtres rapides -->
-        <div class="quick-filters">
-            <button class="filter-btn active" data-filter="all">
-                Tous <span class="count" id="countAll">0</span>
-            </button>
-            <button class="filter-btn" data-filter="online">
-                <span class="status-dot online"></span> Online <span class="count" id="countOnline">0</span>
-            </button>
-            <button class="filter-btn" data-filter="offline">
-                <span class="status-dot offline"></span> Offline <span class="count" id="countOffline">0</span>
-            </button>
-        </div>
-        
-        <div class="device-tree" id="deviceTree">
-            <div class="tree-loading">
-                <div class="spinner-small"></div>
-                <span>Chargement...</span>
-            </div>
-        </div>
-    </aside>
-
-    <!-- Map Container -->
-    <main class="map-container">
- <div class="legend-bar">
-    <div class="legend-item">
-        <i class="fas fa-map-marker-alt moving"></i>
-        <span class="legend-text">Moving (0)</span>
-    </div>
-    <div class="legend-item">
-        <i class="fas fa-map-marker-alt stopped"></i>
-        <span class="legend-text">Stopped (0)</span>
-    </div>
-    <div class="legend-item">
-        <i class="fas fa-map-marker-alt idling"></i>
-        <span class="legend-text">Idling (0)</span>
-    </div>
-    <div class="legend-item">
-        <i class="fas fa-map-marker-alt offline "></i>
-        <span class="legend-text">Offline (0)</span>
-    </div>
-   
-
-    </div>
-        <div id="map"></div>
-        
-        <!-- Device Info Panel -->
-        <div class="device-info-panel compact" id="deviceInfoPanel">
-            <div class="compact-panel-header">
-                <div class="device-identity">
-                    <span class="device-name" id="panelDeviceName">Sélectionnez un device</span>
-                    <span class="device-imei" id="panelDeviceImei">-</span>
+    <!-- Main Content -->
+    <div class="monitor-content">
+        <!-- Left Panel - Devices List -->
+        <div class="info-panel">
+            <!-- Search & Filters -->
+            <div class="info-card search-card">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="deviceSearch" placeholder="Rechercher un véhicule...">
                 </div>
-                <button class="panel-close-btn" id="closePanel">
-                    <i class="fas fa-times"></i>
+                <div class="quick-filters">
+                    <button class="filter-chip active" data-filter="all">
+                        <span>Tous</span>
+                        <span class="chip-count" id="countAll">0</span>
+                    </button>
+                    <button class="filter-chip" data-filter="online">
+                        <span class="status-dot online"></span>
+                        <span>Online</span>
+                        <span class="chip-count" id="countOnline">0</span>
+                    </button>
+                    <button class="filter-chip" data-filter="offline">
+                        <span class="status-dot offline"></span>
+                        <span>Offline</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Devices List -->
+            <div class="info-card list-card">
+                <div class="device-tree" id="deviceTree">
+                    <div class="loading-state">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <span>Chargement des véhicules...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Map Section -->
+        <div class="map-section">
+            <div id="map" class="main-map"></div>
+            
+            <!-- Floating Stats Card -->
+            <div class="floating-stats-card">
+                <div class="stats-header">
+                    <div class="stats-icon">
+                        <i class="fas fa-satellite-dish"></i>
+                    </div>
+                    <div class="stats-title">
+                        <span class="stats-title-text">Suivi en Direct</span>
+                        <span class="stats-subtitle">Temps réel</span>
+                    </div>
+                    <div class="live-badge" id="liveIndicator">
+                        <span class="live-dot"></span>
+                        <span>LIVE</span>
+                    </div>
+                </div>
+                <div class="stats-row">
+                    <div class="mini-stat moving">
+                        <i class="fas fa-play-circle"></i>
+                        <span class="mini-stat-value" id="countMoving">0</span>
+                        <span class="mini-stat-label">En route</span>
+                    </div>
+                    <div class="mini-stat stopped">
+                        <i class="fas fa-stop-circle"></i>
+                        <span class="mini-stat-value" id="countStopped">0</span>
+                        <span class="mini-stat-label">Arrêt</span>
+                    </div>
+                    <div class="mini-stat idling">
+                        <i class="fas fa-pause-circle"></i>
+                        <span class="mini-stat-value" id="countIdling">0</span>
+                        <span class="mini-stat-label">Ralenti</span>
+                    </div>
+                    <div class="mini-stat offline">
+                        <i class="fas fa-power-off"></i>
+                        <span class="mini-stat-value" id="countOffline">0</span>
+                        <span class="mini-stat-label">Offline</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+                <a href="{{ route('tracking') }}" class="action-btn" title="Tracking">
+                    <i class="fas fa-route"></i>
+                </a>
+                <a href="{{ route('history') }}" class="action-btn" title="Historique">
+                    <i class="fas fa-history"></i>
+                </a>
+                <a href="{{ route('geofence') }}" class="action-btn" title="Géobarrières">
+                    <i class="fas fa-draw-polygon"></i>
+                </a>
+                <div class="action-divider"></div>
+                <span class="last-update-badge" id="lastUpdate">--:--:--</span>
+            </div>
+            
+            <!-- Map Controls -->
+            <div class="map-controls">
+                <button class="map-control-btn" id="btnZoomIn" title="Zoom In">
+                    <i class="fas fa-plus"></i>
+                </button>
+                <button class="map-control-btn" id="btnZoomOut" title="Zoom Out">
+                    <i class="fas fa-minus"></i>
+                </button>
+                <div class="control-divider"></div>
+                <button class="map-control-btn" id="btnCenterAll" title="Voir tous">
+                    <i class="fas fa-expand-arrows-alt"></i>
+                </button>
+                <button class="map-control-btn active" id="btnAutoFollow" title="Suivi auto">
+                    <i class="fas fa-crosshairs"></i>
+                </button>
+                <button class="map-control-btn" id="btnFullscreen" title="Plein écran">
+                    <i class="fas fa-expand"></i>
                 </button>
             </div>
-            <div class="compact-panel-body" id="panelBody">
-                <div class="no-device-selected">
-                    <i class="fas fa-map-marker-alt fa-2x"></i>
-                    <p>Cliquez sur un device</p>
+
+            <!-- Legend -->
+            <div class="map-legend">
+                <div class="legend-item">
+                    <img src="/icons/automobile_2.png" alt="moving" class="legend-icon">
+                    <span>En route</span>
+                </div>
+                <div class="legend-item">
+                    <img src="/icons/automobile_1.png" alt="stopped" class="legend-icon">
+                    <span>Arrêté</span>
+                </div>
+                <div class="legend-item">
+                    <img src="/icons/automobile_3.png" alt="idling" class="legend-icon">
+                    <span>Ralenti</span>
+                </div>
+                <div class="legend-item">
+                    <img src="/icons/automobile_0.png" alt="offline" class="legend-icon">
+                    <span>Offline</span>
+                </div>
+            </div>
+
+            <!-- Device Info Panel (Floating) -->
+            <div class="device-panel" id="devicePanel">
+                <div class="panel-header">
+                    <div class="panel-device-info">
+                        <div class="panel-device-icon" id="panelIcon">
+                            <i class="fas fa-car"></i>
+                        </div>
+                        <div class="panel-device-details">
+                            <span class="panel-device-name" id="panelDeviceName">Sélectionnez un véhicule</span>
+                            <span class="panel-device-imei" id="panelDeviceImei">-</span>
+                        </div>
+                    </div>
+                    <button class="panel-close-btn" id="closePanel">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="panel-body" id="panelBody">
+                    <div class="no-selection">
+                        <i class="fas fa-hand-pointer"></i>
+                        <p>Cliquez sur un véhicule</p>
+                    </div>
                 </div>
             </div>
         </div>
-
-        <!-- Map Controls -->
-        <div class="map-controls">
-            <button class="map-control-btn" id="btnCenterAll" title="Voir tous les devices">
-                <i class="fas fa-expand-arrows-alt"></i>
-            </button>
-            <button class="map-control-btn" id="btnToggleTraffic" title="Afficher le trafic">
-                <i class="fas fa-traffic-light"></i>
-            </button>
-            <button class="map-control-btn active" id="btnAutoFollow" title="Suivi automatique">
-                <i class="fas fa-crosshairs"></i>
-            </button>
-        </div>
-
-        <!-- Speed & Info Bar -->
-
-    </main>
+    </div>
 </div>
 
 @push('styles')
-<!-- Leaflet CSS -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <style>
-html, body {
-    height: 100%;
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
+/* Monitor Page - Modern Design */
+html {
+    height: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
-/* ========== MONITOR PAGE LAYOUT ========== */
+body {
+    height: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+}
+
 .monitor-container {
-    display: flex;
-    height: calc(100vh - 50px);
-    margin-top: 50px;
+    position: fixed;
+    top: 50px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 0;
+    max-width: 100%;
+    margin: 0;
     overflow: hidden;
-    background: #f8faff;
 }
 
-/* Sidebar */
-.monitor-sidebar {
-    width: 240px;
-    min-width: 180px;
-    background: #fff;
-    border-right: 1px solid #e3eafc;
+/* Main Content Layout */
+.monitor-content {
+    display: flex;
+    gap: 12px;
+    height: 100%;
+    padding: 10px;
+    box-sizing: border-box;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+/* Left Panel */
+.info-panel {
+    width: 300px;
+    flex-shrink: 0;
     display: flex;
     flex-direction: column;
-    z-index: 10;
-    transition: transform 0.3s, left 0.3s;
+    gap: 10px;
+    height: 100%;
+    overflow: hidden;
 }
 
-/* Map Container */
-.map-container {
+/* Map Section */
+.map-section {
     flex: 1;
     position: relative;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    min-height: 500px;
+    background: #d1d5db;
+}
+
+#map, .main-map {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    z-index: 1 !important;
+    background: #e5e7eb;
+}
+
+/* Leaflet map fixes */
+.leaflet-container {
+    width: 100% !important;
+    height: 100% !important;
+    background: #e5e7eb !important;
+}
+
+.info-card {
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(10px);
+    border-radius: 0px;
+    padding: 14px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+}
+
+/* Search Card */
+.search-card {
+    padding: 12px;
+}
+
+.search-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #f3f4f6;
+    padding: 10px 14px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+
+.search-box i {
+    color: #9ca3af;
+}
+
+.search-box input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    outline: none;
+    font-size: 13px;
+}
+
+.quick-filters {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.filter-chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border: 2px solid #e5e7eb;
+    background: #fff;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: #374151;
+}
+
+.filter-chip:hover {
+    border-color: #1976d2;
+}
+
+.filter-chip.active {
+    background: #1976d2;
+    border-color: #1976d2;
+    color: #fff;
+}
+
+.filter-chip .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.filter-chip .status-dot.online { background: #22c55e; }
+.filter-chip .status-dot.offline { background: #9ca3af; }
+
+.chip-count {
+    background: rgba(0, 0, 0, 0.1);
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: 600;
+}
+
+.filter-chip.active .chip-count {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* List Card */
+.list-card {
+    flex: 1;
+    overflow: hidden;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.device-tree {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+}
+
+.device-tree::-webkit-scrollbar {
+    width: 6px;
+}
+
+.device-tree::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 3px;
+}
+
+.loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    color: #9ca3af;
+    gap: 10px;
+}
+
+/* Device Item */
+.device-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-bottom: 6px;
+    border: 2px solid transparent;
+    background: #f9fafb;
+}
+
+.device-item:hover {
+    background: #f3f4f6;
+    border-color: #e5e7eb;
+}
+
+.device-item.selected {
+    background: rgba(25, 118, 210, 0.1);
+    border-color: #1976d2;
+}
+
+.device-status-icon {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 10px;
+    flex-shrink: 0;
+}
+
+.device-status-icon img {
+    width: 32px;
+    height: 32px;
+}
+
+.device-info {
+    flex: 1;
     min-width: 0;
-    background: #e3f0ff;
+}
+
+.device-name {
+    font-weight: 600;
+    color: #1f2937;
+    font-size: 13px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.device-speed {
+    font-size: 11px;
+    color: #6b7280;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.device-speed.moving {
+    color: #22c55e;
+    font-weight: 600;
+}
+
+.device-category {
+    font-size: 14px;
+    color: #9ca3af;
+}
+
+/* Group Styles */
+.group-node {
+    margin-bottom: 8px;
+}
+
+.group-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid #e2e8f0;
+}
+
+.group-header:hover {
+    background: linear-gradient(135deg, #e2e8f0 0%, #f1f5f9 100%);
+}
+
+.group-header .arrow {
+    font-size: 10px;
+    color: #64748b;
+    transition: transform 0.2s;
+}
+
+.group-node.expanded .arrow {
+    transform: rotate(90deg);
+}
+
+.group-header .folder-icon {
+    color: #1976d2;
+}
+
+.group-name {
+    flex: 1;
+    font-weight: 600;
+    font-size: 13px;
+    color: #334155;
+}
+
+.group-count {
+    background: #e2e8f0;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #64748b;
+}
+
+.group-devices {
+    display: none;
+    padding: 8px 0 0 16px;
+}
+
+.group-node.expanded .group-devices {
+    display: block;
+}
+
+.tree-empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: #9ca3af;
+}
+
+/* Floating Stats Card */
+.floating-stats-card {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    background: linear-gradient(135deg, #ffffff 0%, #ffffff 100%);
+    color: #000000;
+    border-radius: 8px;
+    padding: 14px 18px;
+    box-shadow: 0 8px 30px rgba(25, 118, 210, 0.35);
+    z-index: 450;
+    min-width: 320px;
+}
+
+.stats-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-bottom: 0px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    margin-bottom: 12px;
+}
+
+.stats-icon {
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+}
+
+.stats-title {
+    flex: 1;
     display: flex;
     flex-direction: column;
 }
 
-#map {
-    flex: 1;
-    width: 100%;
-    min-height: 300px;
+.stats-title-text {
+    font-size: 15px;
+    font-weight: 700;
 }
 
-/* Legend Bar */
-.legend-bar {
+.stats-subtitle {
+    font-size: 11px;
+    opacity: 0.85;
+}
+
+.floating-stats-card .live-badge {
     display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-    padding: 8px 15px;
-    background: linear-gradient(90deg, #f8faff 0%, #e3f0ff 100%);
-    border-bottom: 1px solid #e3eafc;
     align-items: center;
+    gap: 6px;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.floating-stats-card .live-dot {
+    width: 8px;
+    height: 8px;
+    background: #4ade80;
+    border-radius: 50%;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+.floating-stats-card .stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+}
+
+.floating-stats-card .mini-stat {
+    background: rgba(255, 255, 255, 0.15);
+    padding: 10px 6px;
+    border-radius: 10px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.floating-stats-card .mini-stat i {
+    font-size: 16px;
+    opacity: 0.9;
+}
+
+.floating-stats-card .mini-stat-value {
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.floating-stats-card .mini-stat-label {
+    font-size: 9px;
+    opacity: 0.85;
+    text-transform: uppercase;
+}
+
+.floating-stats-card .mini-stat.moving { background: rgba(74, 222, 128, 0.25); }
+.floating-stats-card .mini-stat.stopped { background: rgba(239, 68, 68, 0.25); }
+.floating-stats-card .mini-stat.idling { background: rgba(251, 191, 36, 0.25); }
+.floating-stats-card .mini-stat.offline { background: rgba(156, 163, 175, 0.25); }
+
+/* Quick Actions */
+.quick-actions {
+    position: absolute;
+    top: 15px;
+    right: 60px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    padding: 8px 14px;
+    border-radius: 50px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
+    z-index: 450;
+}
+
+.action-btn {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f3f4f6;
+    color: #374151;
+    border-radius: 50%;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    font-size: 14px;
+}
+
+.action-btn:hover {
+    background: #1976d2;
+    color: #fff;
+    transform: scale(1.05);
+}
+
+.action-divider {
+    width: 1px;
+    height: 24px;
+    background: #e5e7eb;
+    margin: 0 4px;
+}
+
+.last-update-badge {
+    font-size: 12px;
+    font-weight: 600;
+    color: #6b7280;
+    background: #f3f4f6;
+    padding: 6px 12px;
+    border-radius: 20px;
+}
+
+/* Map Controls */
+.map-controls {
+    position: absolute;
+    top: 75px;
+    right: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    z-index: 400;
+}
+
+.map-control-btn {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    cursor: pointer;
+    color: #374151;
+    font-size: 16px;
+    transition: all 0.2s ease;
+}
+
+.map-control-btn:hover {
+    background: #1976d2;
+    color: #fff;
+}
+
+.map-control-btn.active {
+    background: #1976d2;
+    color: #fff;
+}
+
+.control-divider {
+    height: 1px;
+    background: #e5e7eb;
+    margin: 4px 0;
+}
+
+/* Map Legend */
+.map-legend {
+    position: absolute;
+    bottom: 15px;
+    left: 15px;
+    display: flex;
+    gap: 12px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    padding: 10px 16px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 400;
 }
 
 .legend-item {
     display: flex;
     align-items: center;
     gap: 6px;
+    font-size: 11px;
+    color: #374151;
 }
 
-.legend-text {
-    font-size: 12px;
-    font-family: inherit;
-    color: #555;
+.legend-icon {
+    width: 20px;
+    height: 20px;
 }
 
-.legend-item i.moving { color: #28a745; }
-.legend-item i.stopped { color: #dc3545; }
-.legend-item i.idling { color: #ffc107; }
-.legend-item i.offline { color: #6c757d; }
-
-/* Device Info Panel */
-.device-info-panel.compact {
+/* Device Panel */
+.device-panel {
     position: absolute;
-    bottom: 20px;
-    left: 20px;
+    bottom: 15px;
+    right: 15px;
     width: 320px;
-    max-width: calc(100vw - 40px);
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.13);
-    z-index: 1000;
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+    z-index: 500;
     overflow: hidden;
+    transition: transform 0.3s ease;
 }
 
-.compact-panel-header {
+.device-panel.hidden {
+    transform: translateY(120%);
+}
+
+.panel-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 10px 12px;
-    background: linear-gradient(135deg, #1e88e5 0%, #1976d2 100%);
-    color: white;
+    padding: 14px;
+    background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+    color: #fff;
 }
 
-.device-identity {
+.panel-device-info {
     display: flex;
-    flex-direction: column;
-    gap: 2px;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
     min-width: 0;
 }
 
-.device-identity .device-name {
-    font-size: 15px;
+.panel-device-icon {
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.panel-device-details {
+    flex: 1;
+    min-width: 0;
+}
+
+.panel-device-name {
+    display: block;
+    font-size: 14px;
     font-weight: 600;
-    margin: 0;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
-.device-identity .device-imei {
+.panel-device-imei {
+    display: block;
     font-size: 11px;
     opacity: 0.85;
     font-family: monospace;
 }
 
 .panel-close-btn {
-    background: rgba(255,255,255,0.2);
-    border: none;
-    border-radius: 50%;
-    width: 30px;
-    height: 30px;
+    width: 32px;
+    height: 32px;
     display: flex;
     align-items: center;
     justify-content: center;
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    border-radius: 8px;
+    color: #fff;
     cursor: pointer;
-    color: white;
     transition: background 0.2s;
-    font-size: 14px;
-    flex-shrink: 0;
 }
 
 .panel-close-btn:hover {
-    background: rgba(255,255,255,0.35);
+    background: rgba(255, 255, 255, 0.35);
 }
 
-.compact-panel-body {
-    padding: 10px 12px;
-    max-height: 320px;
+.panel-body {
+    padding: 14px;
+    max-height: 300px;
     overflow-y: auto;
 }
 
-.compact-panel-body .no-device-selected {
+.no-selection {
     text-align: center;
-    padding: 20px;
-    color: #6c757d;
+    padding: 30px;
+    color: #9ca3af;
 }
 
-.compact-panel-body .no-device-selected i {
-    opacity: 0.3;
+.no-selection i {
+    font-size: 32px;
     margin-bottom: 10px;
-    display: block;
+    opacity: 0.3;
 }
 
-.compact-panel-body .no-device-selected p {
+.no-selection p {
     margin: 0;
     font-size: 13px;
 }
 
-/* Map Controls */
-.map-controls {
-    position: absolute;
-    right: 16px;
-    top: 50px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    z-index: 900;
-}
-
-.map-control-btn {
-    width: 40px;
-    height: 40px;
-    background: #fff;
-    border: none;
-    border-radius: 10px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+/* Panel Content Styles */
+.status-row {
     display: flex;
     align-items: center;
-    justify-content: center;
-    font-size: 18px;
-    color: #1e88e5;
-    cursor: pointer;
-    transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+    justify-content: space-between;
+    margin-bottom: 12px;
 }
 
-.map-control-btn:hover, .map-control-btn.active {
-    background: #1e88e5;
-    color: #fff;
-    box-shadow: 0 4px 12px rgba(30,136,229,0.18);
+.status-badge {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
 }
 
-/* Dynamic Indicators Styles */
+.status-badge.online {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.status-badge.offline {
+    background: #f3f4f6;
+    color: #6b7280;
+}
+
+.speed-display {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, #f0f4ff 0%, #e8ecff 100%);
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #1976d2;
+}
+
+.speed-display i {
+    color: #60a5fa;
+}
+
+/* Dynamic Indicators */
 .dynamic-indicators {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-    gap: 6px;
-    padding: 8px 0;
-    border-top: 1px solid rgba(0,0,0,0.08);
-    border-bottom: 1px solid rgba(0,0,0,0.08);
-    margin: 8px 0;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    padding: 12px 0;
+    border-top: 1px solid #e5e7eb;
+    border-bottom: 1px solid #e5e7eb;
+    margin: 12px 0;
 }
 
 .dynamic-indicator {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 8px 10px;
-    border-radius: 8px;
-    background: rgba(0,0,0,0.04);
-    transition: all 0.2s ease;
+    gap: 10px;
+    padding: 10px;
+    border-radius: 10px;
+    background: #f9fafb;
 }
 
 .dynamic-indicator.active {
-    background: rgba(117, 86, 214, 0.1);
+    background: rgba(117, 86, 214, 0.08);
 }
 
 .dynamic-indicator.inactive {
@@ -334,184 +921,178 @@ html, body {
 }
 
 .indicator-icon {
-    width: 36px;
-    height: 36px;
-    min-width: 36px;
+    width: 34px;
+    height: 34px;
+    min-width: 34px;
     border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1rem;
+    font-size: 14px;
 }
 
-.indicator-icon.warning { background: rgba(255, 193, 7, 0.15); color: #d39e00; }
-.indicator-icon.success { background: rgba(40, 167, 69, 0.15); color: #28a745; }
-.indicator-icon.danger { background: rgba(220, 53, 69, 0.15); color: #dc3545; }
-.indicator-icon.info { background: rgba(23, 162, 184, 0.15); color: #17a2b8; }
+.indicator-icon.warning { background: rgba(251, 191, 36, 0.15); color: #d97706; }
+.indicator-icon.success { background: rgba(34, 197, 94, 0.15); color: #16a34a; }
+.indicator-icon.danger { background: rgba(239, 68, 68, 0.15); color: #dc2626; }
+.indicator-icon.info { background: rgba(59, 130, 246, 0.15); color: #2563eb; }
 .indicator-icon.primary { background: rgba(117, 86, 214, 0.15); color: #7556D6; }
-.indicator-icon.secondary { background: rgba(108, 117, 125, 0.15); color: #6c757d; }
+.indicator-icon.secondary { background: rgba(107, 114, 128, 0.15); color: #4b5563; }
 
 .indicator-info {
     display: flex;
     flex-direction: column;
     flex: 1;
-    overflow: hidden;
+    min-width: 0;
 }
 
 .indicator-label {
-    font-size: 0.65rem;
-    color: #6c757d;
+    font-size: 10px;
+    color: #6b7280;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
 }
 
 .indicator-value {
-    font-size: 0.95rem;
+    font-size: 13px;
     font-weight: 600;
-    color: #2d3748;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    color: #1f2937;
 }
 
-.speed-display {
+/* Last Position */
+.last-position {
     display: flex;
     align-items: center;
     gap: 8px;
-    background: rgba(117, 86, 214, 0.18);
-    padding: 6px 14px;
-    border-radius: 20px;
-    font-weight: 600;
-    color: #7556D6;
+    font-size: 12px;
+    color: #6b7280;
+    margin-bottom: 12px;
 }
 
-.speed-display i {
-    color: #a78bfa;
+.last-position i {
+    color: #9ca3af;
 }
 
-/* Scrollable panel body */
-.compact-panel-body::-webkit-scrollbar {
-    width: 5px;
-}
-
-.compact-panel-body::-webkit-scrollbar-track {
-    background: rgba(0,0,0,0.04);
-    border-radius: 3px;
-}
-
-.compact-panel-body::-webkit-scrollbar-thumb {
-    background: rgba(0,0,0,0.13);
-    border-radius: 3px;
-}
-
-/* Action Icons Styles */
+/* Action Icons */
 .action-icons {
     display: flex;
-    gap: 3px;
-    margin-top: 6px;
+    gap: 6px;
+    flex-wrap: wrap;
 }
 
 .action-icon-btn {
-    width: 24px !important;
-    height: 24px !important;
-    background: #f0f4ff;
+    width: 36px;
+    height: 36px;
+    background: #f3f4f6;
     border: none;
-    border-radius: 5px;
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 10px !important;
-    color: #7556D6;
+    font-size: 14px;
+    color: #1976d2;
     cursor: pointer;
     transition: all 0.2s ease;
-    padding: 0 !important;
-    min-width: 24px;
-    min-height: 24px;
 }
 
 .action-icon-btn:hover {
-    background: #7556D6;
-    color: white;
-    transform: translateY(-1px);
+    background: #1976d2;
+    color: #fff;
+    transform: translateY(-2px);
 }
 
-/* ========== RESPONSIVE ========== */
-@media (max-width: 991px) {
-    .monitor-container {
-        flex-direction: column;
-        height: calc(100vh - 50px);
-    }
-    .monitor-sidebar {
-        width: 100vw;
-        min-width: 0;
-        max-width: 100vw;
-        height: 220px;
-        min-height: 120px;
-        border-right: none;
-        border-bottom: 1px solid #e3eafc;
-        flex-direction: column;
-        overflow-y: auto;
-    }
-    .map-container {
-        min-height: 250px;
-        height: calc(100vh - 270px);
-    }
-    .device-info-panel.compact {
-        left: 10px;
-        right: 10px;
-        bottom: 12px;
-        width: auto;
-        max-width: 100vw;
-    }
-    .legend-bar {
-        padding: 6px 8px;
-        gap: 10px;
-    }
+/* Fullscreen Mode */
+.map-section.fullscreen-mode {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: 9999 !important;
+    border-radius: 0 !important;
 }
-@media (max-width: 600px) {
-    .monitor-sidebar {
-        height: 160px;
-        min-height: 80px;
+
+/* Leaflet fixes */
+.leaflet-top, .leaflet-bottom {
+    z-index: 400 !important;
+}
+
+/* Responsive */
+@media (max-width: 1100px) {
+    .monitor-content {
+        flex-direction: column;
+        height: auto;
     }
-    .map-container {
-        height: calc(100vh - 210px);
+    
+    .info-panel {
+        width: 100%;
+        height: auto;
+        max-height: 280px;
     }
-    .device-info-panel.compact {
-        left: 4px;
-        right: 4px;
-        bottom: 6px;
-        border-radius: 10px;
-    }
-    .compact-panel-body {
+    
+    .list-card {
         max-height: 180px;
     }
-    .legend-bar {
-        padding: 4px 6px;
+    
+    .map-section {
+        height: 500px;
+        min-height: 400px;
+        width: 100%;
+    }
+    
+    .device-panel {
+        left: 10px;
+        right: 10px;
+        width: auto;
+    }
+}
+
+@media (max-width: 768px) {
+    .monitor-content {
+        padding: 8px;
         gap: 8px;
-        font-size: 11px;
     }
+    
+    .info-panel {
+        max-height: 220px;
+    }
+    
+    .stats-row {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .floating-header {
+        padding: 6px 12px;
+    }
+    
+    .header-actions {
+        display: none;
+    }
+    
+    .map-legend {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    
     .map-controls {
-        right: 8px;
-        top: 12px;
+        right: 10px;
     }
-    .map-control-btn {
-        width: 36px;
-        height: 36px;
-        font-size: 16px;
+    
+    .device-panel {
+        bottom: 10px;
+        left: 8px;
+        right: 8px;
     }
 }
 </style>
 @endpush
 
 @push('scripts')
-<!-- Leaflet JS -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('Monitor page loaded');
+    console.log('Monitor page loaded - Modern Design');
     
     let map;
     let markers = {};
@@ -521,82 +1102,121 @@ document.addEventListener('DOMContentLoaded', function() {
     let selectedDeviceId = null;
     let autoFollow = true;
     let refreshInterval = null;
-    let expandedGroups = {}; // Stocker l'état des groupes ouverts/fermés
-    let isCurrentUserAdmin = false; // Déterminer si l'utilisateur courant est admin
-    const REFRESH_RATE = 3000; // 3 secondes pour le temps réel
+    let expandedGroups = {};
+    let isCurrentUserAdmin = false;
+    const REFRESH_RATE = 3000;
     
-    // Initialiser la carte
+    // Initialize
     initMap();
-    
-    // Charger le statut de l'utilisateur courant (admin ou non)
     loadCurrentUserStatus();
-    
-    // Charger les données
     loadGroups();
     loadDevices();
     loadPositions();
-    
-    // Démarrer le rafraîchissement temps réel
     startRealTimeUpdates();
-    
-    // Event listeners
-    document.getElementById('deviceSearch').addEventListener('input', debounce(filterDevices, 300));
-    document.getElementById('closePanel').addEventListener('click', closePanel);
-    document.getElementById('btnCenterAll').addEventListener('click', centerAllDevices);
-    document.getElementById('btnAutoFollow').addEventListener('click', toggleAutoFollow);
-    
-    // Filtres rapides
-    document.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-            this.classList.add('active');
-            filterDevices();
-        });
-    });
-    
-    // Initialiser la carte Leaflet
+    setupEventListeners();
+
+    // Initialize Map
     function initMap() {
         map = L.map('map', {
-            center: [14.6937, -17.4441], // Dakar par défaut
+            center: [14.6937, -17.4441],
             zoom: 12,
             zoomControl: false
         });
         
-        // Ajouter le layer OpenStreetMap
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors'
+            attribution: '© OpenStreetMap'
         }).addTo(map);
         
-        // Ajouter le contrôle de zoom en bas à droite
-        L.control.zoom({ position: 'bottomright' }).addTo(map);
+        // Force map resize after initialization with multiple attempts
+        setTimeout(() => {
+            map.invalidateSize();
+        }, 100);
+        
+        setTimeout(() => {
+            map.invalidateSize();
+        }, 500);
+        
+        setTimeout(() => {
+            map.invalidateSize();
+        }, 1000);
+        
+        console.log('Map initialized successfully');
     }
+
+    // Setup event listeners
+    function setupEventListeners() {
+        document.getElementById('deviceSearch').addEventListener('input', debounce(filterDevices, 300));
+        document.getElementById('closePanel').addEventListener('click', closePanel);
+        document.getElementById('btnCenterAll').addEventListener('click', centerAllDevices);
+        document.getElementById('btnAutoFollow').addEventListener('click', toggleAutoFollow);
+        document.getElementById('btnZoomIn').addEventListener('click', () => map.zoomIn());
+        document.getElementById('btnZoomOut').addEventListener('click', () => map.zoomOut());
+        document.getElementById('btnFullscreen').addEventListener('click', toggleFullscreen);
+        
+        // Filters
+        document.querySelectorAll('.filter-chip').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                filterDevices();
+            });
+        });
+    }
+
+    // Fullscreen
+    function toggleFullscreen() {
+        const mapSection = document.querySelector('.map-section');
+        if (!document.fullscreenElement) {
+            mapSection.requestFullscreen().then(() => {
+                mapSection.classList.add('fullscreen-mode');
+                document.getElementById('btnFullscreen').innerHTML = '<i class="fas fa-compress"></i>';
+                setTimeout(() => map.invalidateSize(), 100);
+            });
+        } else {
+            document.exitFullscreen().then(() => {
+                mapSection.classList.remove('fullscreen-mode');
+                document.getElementById('btnFullscreen').innerHTML = '<i class="fas fa-expand"></i>';
+                setTimeout(() => map.invalidateSize(), 100);
+            });
+        }
+    }
+
+    document.addEventListener('fullscreenchange', () => {
+        if (!document.fullscreenElement) {
+            document.querySelector('.map-section').classList.remove('fullscreen-mode');
+            document.getElementById('btnFullscreen').innerHTML = '<i class="fas fa-expand"></i>';
+            setTimeout(() => map.invalidateSize(), 100);
+        }
+    });
     
-    // Charger les groupes
+    // Load user status
+    async function loadCurrentUserStatus() {
+        try {
+            const response = await fetch('/api/user-status');
+            const data = await response.json();
+            isCurrentUserAdmin = data.isAdmin === true;
+        } catch (error) {
+            isCurrentUserAdmin = false;
+        }
+    }
+
+    // Load groups
     async function loadGroups() {
         try {
             const response = await fetch('/api/traccar/users');
             const data = await response.json();
             if (data.success) {
                 allUsers = data.users || [];
-            } else if (response.status === 403) {
-                console.warn('Accès refusé aux utilisateurs - permissions insuffisantes');
-                allUsers = [];
             }
         } catch (error) {
-            console.error('Erreur chargement utilisateurs:', error);
             allUsers = [];
         }
     }
     
-    // Charger les devices
+    // Load devices
     async function loadDevices() {
         try {
             const response = await fetch('/api/traccar/devices?all=true');
-            if (response.status === 403) {
-                console.warn('Accès refusé aux devices - permissions insuffisantes');
-                allDevices = [];
-                return;
-            }
             const data = await response.json();
             if (data.success) {
                 allDevices = data.devices || [];
@@ -604,19 +1224,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 buildDeviceTree();
             }
         } catch (error) {
-            console.error('Erreur chargement devices:', error);
             allDevices = [];
         }
     }
     
-    // Charger les positions
+    // Load positions
     async function loadPositions() {
         try {
             const response = await fetch('/api/traccar/positions');
-            if (response.status === 403) {
-                console.warn('Accès refusé aux positions - permissions insuffisantes');
-                return;
-            }
             const data = await response.json();
             if (data.success) {
                 const positionsArray = data.positions || [];
@@ -627,90 +1242,73 @@ document.addEventListener('DOMContentLoaded', function() {
                 updateMarkers();
                 updateLastRefreshTime();
                 
-                // Mettre à jour le panel si un device est sélectionné
                 if (selectedDeviceId) {
                     updateDevicePanel(selectedDeviceId);
                 }
             }
         } catch (error) {
-            console.error('Erreur chargement positions:', error);
+            console.error('Error loading positions:', error);
         }
     }
     
-    // Démarrer les mises à jour temps réel
+    // Real-time updates
     function startRealTimeUpdates() {
-        if (refreshInterval) {
-            clearInterval(refreshInterval);
-        }
-        
+        if (refreshInterval) clearInterval(refreshInterval);
         refreshInterval = setInterval(() => {
             loadPositions();
             loadDevices();
         }, REFRESH_RATE);
-        
-        console.log('Real-time updates started (every ' + (REFRESH_RATE/1000) + 's)');
     }
     
-    // Mettre à jour l'heure de dernière MAJ
+    // Update time
     function updateLastRefreshTime() {
         const now = new Date();
-        const lastUpdateEl = document.getElementById('lastUpdate');
-        if (lastUpdateEl) {
-            lastUpdateEl.textContent = now.toLocaleTimeString('fr-FR');
-        }
+        document.getElementById('lastUpdate').textContent = now.toLocaleTimeString('fr-FR');
     }
     
-    // Mettre à jour les compteurs
+    // Update counts
     function updateCounts() {
+        let moving = 0, stopped = 0, idling = 0, offline = 0;
+        
+        allDevices.forEach(device => {
+            const iconNum = getVehicleIconNumber(device);
+            if (iconNum === 0) offline++;
+            else if (iconNum === 1) stopped++;
+            else if (iconNum === 2) moving++;
+            else if (iconNum === 3) idling++;
+        });
+        
         const online = allDevices.filter(d => d.status === 'online').length;
-        const offline = allDevices.filter(d => d.status === 'offline').length;
         
-        const countAllEl = document.getElementById('countAll');
-        const countOnlineEl = document.getElementById('countOnline');
-        const countOfflineEl = document.getElementById('countOffline');
-        const displayedEl = document.getElementById('displayedDevices');
-        
-        if (countAllEl) countAllEl.textContent = allDevices.length;
-        if (countOnlineEl) countOnlineEl.textContent = online;
-        if (countOfflineEl) countOfflineEl.textContent = offline;
-        if (displayedEl) displayedEl.textContent = allDevices.length;
-    }
-    
-    
-    // Charger le statut de l'utilisateur courant
-    async function loadCurrentUserStatus() {
-        try {
-            const response = await fetch('/api/user-status');
-            const data = await response.json();
-            isCurrentUserAdmin = data.isAdmin === true;
-        } catch (error) {
-            console.error('Erreur lors du chargement du statut utilisateur:', error);
-            isCurrentUserAdmin = false;
-        }
+        document.getElementById('countMoving').textContent = moving;
+        document.getElementById('countStopped').textContent = stopped;
+        document.getElementById('countIdling').textContent = idling;
+        document.getElementById('countOffline').textContent = offline;
+        document.getElementById('countAll').textContent = allDevices.length;
+        document.getElementById('countOnline').textContent = online;
     }
 
-    // Construire l'arbre des devices par utilisateur
+    // Build device tree
     function buildDeviceTree() {
         const container = document.getElementById('deviceTree');
         const search = document.getElementById('deviceSearch').value.toLowerCase();
-        const activeFilter = document.querySelector('.filter-btn.active')?.dataset.filter || 'all';
+        const activeFilter = document.querySelector('.filter-chip.active')?.dataset.filter || 'all';
         
-        // Sauvegarder l'état actuel des groupes expandus (uniquement pour les admins)
-        const currentExpandedGroups = {};
+        // Save expanded state
         if (isCurrentUserAdmin) {
+            const currentExpanded = {};
             document.querySelectorAll('.group-node.expanded').forEach(node => {
                 const header = node.querySelector('.group-header');
                 if (header) {
-                    const groupName = header.querySelector('.group-name').textContent;
-                    currentExpandedGroups[groupName] = true;
+                    const name = header.querySelector('.group-name').textContent;
+                    currentExpanded[name] = true;
                 }
             });
-            expandedGroups = currentExpandedGroups;
+            expandedGroups = currentExpanded;
         }
         
-        // Filtrer les devices
+        // Filter devices
         let filteredDevices = allDevices.filter(device => {
-            // Récupérer le nom de l'utilisateur assigné
             const user = allUsers.find(u => u.id === device.userId);
             const userName = user ? user.name.toLowerCase() : 'non assigné';
             
@@ -728,7 +1326,6 @@ document.addEventListener('DOMContentLoaded', function() {
         
         let html = '';
         
-        // SI ADMIN: Grouper par utilisateur
         if (isCurrentUserAdmin) {
             const grouped = {};
             grouped['Non assigné'] = filteredDevices.filter(d => !d.userId);
@@ -752,52 +1349,59 @@ document.addEventListener('DOMContentLoaded', function() {
                                 <span class="group-count">${devices.length}</span>
                             </div>
                             <div class="group-devices">
-                                ${devices.map(device => {
-                                    const pos = positions[device.id];
-                                    const speed = pos ? Math.round(pos.speed * 1.852) : 0; // knots to km/h
-                                    return `
-                                        <div class="device-item ${selectedDeviceId === device.id ? 'selected' : ''}" 
-                                             data-id="${device.id}" 
-                                             onclick="selectDevice(${device.id})">
-                                            <span class="device-status ${device.status || 'unknown'}"></span>
-                                            <div class="device-info">
-                                                <div class="device-name">${device.name}</div>
-                                                <div class="device-speed">${device.status === 'online' ? speed + ' km/h' : 'Hors ligne'}</div>
-                                            </div>
-                                            <span class="device-category">${getCategoryIcon(device.category)}</span>
-                                        </div>
-                                    `;
-                                }).join('')}
+                                ${devices.map(device => renderDeviceItem(device)).join('')}
                             </div>
                         </div>
                     `;
                 }
             }
-        } 
-        // SINON (utilisateur simple): Afficher directement les devices sans groupement
-        else {
-            html = filteredDevices.map(device => {
-                const pos = positions[device.id];
-                const speed = pos ? Math.round(pos.speed * 1.852) : 0; // knots to km/h
-                return `
-                    <div class="device-item ${selectedDeviceId === device.id ? 'selected' : ''}" 
-                         data-id="${device.id}" 
-                         onclick="selectDevice(${device.id})">
-                        <span class="device-status ${device.status || 'unknown'}"></span>
-                        <div class="device-info">
-                            <div class="device-name">${device.name}</div>
-                            <div class="device-speed">${device.status === 'online' ? speed + ' km/h' : 'Hors ligne'}</div>
-                        </div>
-                        <span class="device-category">${getCategoryIcon(device.category)}</span>
-                    </div>
-                `;
-            }).join('');
+        } else {
+            html = filteredDevices.map(device => renderDeviceItem(device)).join('');
         }
         
-        container.innerHTML = html || '<div class="tree-empty">Aucun device trouvé</div>';
+        container.innerHTML = html || '<div class="tree-empty"><i class="fas fa-car"></i><p>Aucun véhicule trouvé</p></div>';
+    }
+
+    // Render device item
+    function renderDeviceItem(device) {
+        const pos = positions[device.id];
+        const speed = pos ? Math.round(pos.speed * 1.852) : 0;
+        const iconNum = getVehicleIconNumber(device);
+        const isMoving = speed > 1;
+        
+        return `
+            <div class="device-item ${selectedDeviceId === device.id ? 'selected' : ''}" 
+                 data-id="${device.id}" 
+                 onclick="selectDevice(${device.id})">
+                <div class="device-status-icon">
+                    <img src="/icons/automobile_${iconNum}.png" alt="status">
+                </div>
+                <div class="device-info">
+                    <div class="device-name">${device.name}</div>
+                    <div class="device-speed ${isMoving ? 'moving' : ''}">
+                        ${device.status === 'online' ? `<i class="fas fa-tachometer-alt"></i> ${speed} km/h` : '<i class="fas fa-power-off"></i> Hors ligne'}
+                    </div>
+                </div>
+                <span class="device-category">${getCategoryIcon(device.category)}</span>
+            </div>
+        `;
     }
     
-    // Mettre à jour les marqueurs sur la carte
+    // Get vehicle icon number
+    function getVehicleIconNumber(device) {
+        const pos = positions[device.id];
+        
+        if (device.status !== 'online') return 0;
+        
+        const speed = pos ? (pos.speed * 1.852) : 0;
+        const ignition = pos?.attributes?.ignition ?? false;
+        
+        if (speed > 1) return 2;
+        else if (ignition) return 3;
+        else return 1;
+    }
+    
+    // Update markers
     function updateMarkers() {
         allDevices.forEach(device => {
             const pos = positions[device.id];
@@ -806,64 +1410,29 @@ document.addEventListener('DOMContentLoaded', function() {
             const latLng = [pos.latitude, pos.longitude];
             
             if (markers[device.id]) {
-                // Mettre à jour la position du marqueur existant
                 markers[device.id].setLatLng(latLng);
-                
-                // Mettre à jour l'icône si le statut a changé
                 markers[device.id].setIcon(createMarkerIcon(device));
-                
-                // Mettre à jour le popup
                 markers[device.id].setPopupContent(createPopupContent(device, pos));
             } else {
-                // Créer un nouveau marqueur
                 const marker = L.marker(latLng, {
                     icon: createMarkerIcon(device)
                 }).addTo(map);
                 
                 marker.bindPopup(createPopupContent(device, pos));
-                
-                marker.on('click', () => {
-                    selectDevice(device.id);
-                });
-                
+                marker.on('click', () => selectDevice(device.id));
                 markers[device.id] = marker;
             }
         });
         
-        // Mettre à jour le tree view avec les nouvelles vitesses
         buildDeviceTree();
         
-        // Si auto-follow est activé et un device est sélectionné
         if (autoFollow && selectedDeviceId && positions[selectedDeviceId]) {
             const pos = positions[selectedDeviceId];
             map.panTo([pos.latitude, pos.longitude]);
         }
     }
     
-    // Déterminer l'icône du véhicule basée sur son statut
-    // 0 = offline, 1 = arrêté moteur éteint, 2 = en mouvement, 3 = moteur allumé mais arrêté (idling)
-    function getVehicleIconNumber(device) {
-        const pos = positions[device.id];
-        
-        // Vérifier si le device est offline
-        if (device.status !== 'online') {
-            return 0; // offline
-        }
-        
-        // Récupérer la vitesse et l'état d'allumage
-        const speed = pos ? (pos.speed * 1.852) : 0; // knots to km/h
-        const ignition = pos?.attributes?.ignition ?? false;
-        
-        if (speed > 1) {
-            return 2; // en mouvement
-        } else if (ignition) {
-            return 3; // moteur allumé mais arrêté (idling)
-        } else {
-            return 1; // arrêté moteur éteint
-        }
-    }
-    
-    // Créer l'icône du marqueur
+    // Create marker icon
     function createMarkerIcon(device) {
         const iconNumber = getVehicleIconNumber(device);
         const pos = positions[device.id];
@@ -890,20 +1459,13 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Créer le contenu du popup
+    // Create popup content
     function createPopupContent(device, pos) {
         const speed = pos ? Math.round(pos.speed * 1.852) : 0;
-        const course = pos ? Math.round(pos.course) : 0;
-        
-        return `
-            <div style="min-width: 20px;">
-                <h6 style="margin: 0 0 8px 0;">${device.name}</h6>
-                
-            </div>
-        `;
+        return `<div style="min-width: 120px;"><h6 style="margin: 0 0 5px 0; font-weight: 600;">${device.name}</h6><p style="margin: 0; font-size: 12px; color: #666;"><i class="fas fa-tachometer-alt"></i> ${speed} km/h</p></div>`;
     }
     
-    // Obtenir l'icône de catégorie
+    // Get category icon
     function getCategoryIcon(category) {
         const icons = {
             'car': '<i class="fas fa-car"></i>',
@@ -911,46 +1473,38 @@ document.addEventListener('DOMContentLoaded', function() {
             'motorcycle': '<i class="fas fa-motorcycle"></i>',
             'bus': '<i class="fas fa-bus"></i>',
             'person': '<i class="fas fa-user"></i>',
-            'boat': '<i class="fas fa-ship"></i>',
-            'bicycle': '<i class="fas fa-bicycle"></i>',
-            'animal': '<i class="fas fa-paw"></i>',
             'default': '<i class="fas fa-map-marker-alt"></i>'
         };
         return icons[category] || icons['default'];
     }
     
-    // Sélectionner un device
+    // Select device
     window.selectDevice = function(deviceId) {
         selectedDeviceId = deviceId;
         
-        // Mettre à jour la sélection dans le tree
         document.querySelectorAll('.device-item').forEach(item => {
             item.classList.remove('selected');
         });
         document.querySelector(`.device-item[data-id="${deviceId}"]`)?.classList.add('selected');
         
-        // Centrer la carte sur le device
         const pos = positions[deviceId];
         if (pos && pos.latitude && pos.longitude) {
             map.setView([pos.latitude, pos.longitude], 16);
-            
-            // Ouvrir le popup du marqueur
-            if (markers[deviceId]) {
-                markers[deviceId].openPopup();
-            }
+            if (markers[deviceId]) markers[deviceId].openPopup();
         }
         
-        // Mettre à jour le panel d'info
         updateDevicePanel(deviceId);
     };
     
-    // Mettre à jour le panel d'information du device
+    // Update device panel
     function updateDevicePanel(deviceId) {
         const device = allDevices.find(d => d.id === deviceId);
         const pos = positions[deviceId];
         
         if (!device) return;
         
+        const iconNum = getVehicleIconNumber(device);
+        document.getElementById('panelIcon').innerHTML = `<img src="/icons/automobile_${iconNum}.png" style="width: 24px; height: 24px;">`;
         document.getElementById('panelDeviceName').textContent = device.name;
         document.getElementById('panelDeviceImei').textContent = device.uniqueId || '-';
         
@@ -958,11 +1512,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const isOnline = device.status === 'online';
         const lastUpdate = pos?.fixTime ? new Date(pos.fixTime).toLocaleString('fr-FR') : '-';
         
-        // Récupérer les attributs configurés pour ce device
         const monitorAttrs = device.attributes?.monitorAttributes || [];
         const posAttrs = pos?.attributes || {};
-        
-        // Générer les indicateurs dynamiques basés sur les attributs configurés
         let dynamicIndicators = generateDynamicIndicators(monitorAttrs, posAttrs);
         
         document.getElementById('panelBody').innerHTML = `
@@ -1000,152 +1551,23 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
     }
     
-    // Générer les indicateurs dynamiques
+    // Generate dynamic indicators
     function generateDynamicIndicators(monitorAttrs, posAttrs) {
         if (!monitorAttrs || monitorAttrs.length === 0) return '';
         
-        // Configuration des attributs Traccar
         const attrConfig = {
-            ignition: { 
-                icon: 'fa-key', 
-                label: 'Moteur', 
-                color: 'warning',
-                getValue: (v) => v ? 'ON' : 'OFF',
-                isActive: (v) => v === true
-            },
-            batteryLevel: { 
-                icon: 'fa-battery-three-quarters', 
-                label: 'Batterie', 
-                color: 'success',
-                getValue: (v) => v !== undefined ? `${Math.round(v)}%` : '-',
-                isActive: (v) => v > 20
-            },
-            battery: { 
-                icon: 'fa-car-battery', 
-                label: 'Batterie V', 
-                color: 'info',
-                getValue: (v) => v !== undefined ? `${Number(v).toFixed(1)}V` : '-',
-                isActive: (v) => v > 11
-            },
-            fuel: { 
-                icon: 'fa-gas-pump', 
-                label: 'Carburant', 
-                color: 'danger',
-                getValue: (v) => v !== undefined ? `${Math.round(v)}%` : '-',
-                isActive: (v) => v > 15
-            },
-            alarm: { 
-                icon: 'fa-bell', 
-                label: 'Alarme', 
-                color: 'danger',
-                getValue: (v) => v || '-',
-                isActive: (v) => !!v
-            },
-            charge: { 
-                icon: 'fa-plug', 
-                label: 'Charge', 
-                color: 'primary',
-                getValue: (v) => v ? 'Oui' : 'Non',
-                isActive: (v) => v === true
-            },
-            blocked: { 
-                icon: 'fa-lock', 
-                label: 'Bloqué', 
-                color: 'secondary',
-                getValue: (v) => v ? 'Oui' : 'Non',
-                isActive: (v) => v === true
-            },
-            armed: { 
-                icon: 'fa-shield-alt', 
-                label: 'Armé', 
-                color: 'info',
-                getValue: (v) => v ? 'Oui' : 'Non',
-                isActive: (v) => v === true
-            },
-            door: { 
-                icon: 'fa-door-open', 
-                label: 'Porte', 
-                color: 'warning',
-                getValue: (v) => v ? 'Ouverte' : 'Fermée',
-                isActive: (v) => v === true
-            },
-            motion: { 
-                icon: 'fa-running', 
-                label: 'Mouvement', 
-                color: 'success',
-                getValue: (v) => v ? 'Oui' : 'Non',
-                isActive: (v) => v === true
-            },
-            temperature: { 
-                icon: 'fa-thermometer-half', 
-                label: 'Temp.', 
-                color: 'danger',
-                getValue: (v) => v !== undefined ? `${Number(v).toFixed(1)}°C` : '-',
-                isActive: () => true
-            },
-            humidity: { 
-                icon: 'fa-tint', 
-                label: 'Humidité', 
-                color: 'info',
-                getValue: (v) => v !== undefined ? `${Math.round(v)}%` : '-',
-                isActive: () => true
-            },
-            rpm: { 
-                icon: 'fa-tachometer-alt', 
-                label: 'RPM', 
-                color: 'primary',
-                getValue: (v) => v !== undefined ? v.toLocaleString() : '-',
-                isActive: (v) => v > 0
-            },
-            totalDistance: { 
-                icon: 'fa-road', 
-                label: 'Distance', 
-                color: 'secondary',
-                getValue: (v) => v !== undefined ? `${(v/1000).toFixed(1)} km` : '-',
-                isActive: () => true
-            },
-            distance: { 
-                icon: 'fa-route', 
-                label: 'Trajet', 
-                color: 'primary',
-                getValue: (v) => v !== undefined ? `${(v/1000).toFixed(2)} km` : '-',
-                isActive: () => true
-            },
-            hours: { 
-                icon: 'fa-hourglass-half', 
-                label: 'Heures', 
-                color: 'warning',
-                getValue: (v) => v !== undefined ? `${Math.round(v/3600000)}h` : '-',
-                isActive: () => true
-            },
-            sat: { 
-                icon: 'fa-satellite', 
-                label: 'Satellites', 
-                color: 'info',
-                getValue: (v) => v !== undefined ? v : '0',
-                isActive: (v) => v > 0
-            },
-            hdop: { 
-                icon: 'fa-crosshairs', 
-                label: 'Précision', 
-                color: 'success',
-                getValue: (v) => v !== undefined ? Number(v).toFixed(1) : '-',
-                isActive: (v) => v < 2
-            },
-            rssi: { 
-                icon: 'fa-signal', 
-                label: 'Signal', 
-                color: 'success',
-                getValue: (v) => v !== undefined ? `${v}%` : '-',
-                isActive: (v) => v > 30
-            },
-            power: { 
-                icon: 'fa-bolt', 
-                label: 'Alim.', 
-                color: 'warning',
-                getValue: (v) => v !== undefined ? `${Number(v).toFixed(1)}V` : '-',
-                isActive: (v) => v > 10
-            }
+            ignition: { icon: 'fa-key', label: 'Moteur', color: 'warning', getValue: (v) => v ? 'ON' : 'OFF', isActive: (v) => v === true },
+            batteryLevel: { icon: 'fa-battery-three-quarters', label: 'Batterie', color: 'success', getValue: (v) => v !== undefined ? `${Math.round(v)}%` : '-', isActive: (v) => v > 20 },
+            battery: { icon: 'fa-car-battery', label: 'Batterie V', color: 'info', getValue: (v) => v !== undefined ? `${Number(v).toFixed(1)}V` : '-', isActive: (v) => v > 11 },
+            fuel: { icon: 'fa-gas-pump', label: 'Carburant', color: 'danger', getValue: (v) => v !== undefined ? `${Math.round(v)}%` : '-', isActive: (v) => v > 15 },
+            alarm: { icon: 'fa-bell', label: 'Alarme', color: 'danger', getValue: (v) => v || '-', isActive: (v) => !!v },
+            charge: { icon: 'fa-plug', label: 'Charge', color: 'primary', getValue: (v) => v ? 'Oui' : 'Non', isActive: (v) => v === true },
+            blocked: { icon: 'fa-lock', label: 'Bloqué', color: 'secondary', getValue: (v) => v ? 'Oui' : 'Non', isActive: (v) => v === true },
+            door: { icon: 'fa-door-open', label: 'Porte', color: 'warning', getValue: (v) => v ? 'Ouverte' : 'Fermée', isActive: (v) => v === true },
+            motion: { icon: 'fa-running', label: 'Mouvement', color: 'success', getValue: (v) => v ? 'Oui' : 'Non', isActive: (v) => v === true },
+            temperature: { icon: 'fa-thermometer-half', label: 'Temp.', color: 'danger', getValue: (v) => v !== undefined ? `${Number(v).toFixed(1)}°C` : '-', isActive: () => true },
+            sat: { icon: 'fa-satellite', label: 'Satellites', color: 'info', getValue: (v) => v !== undefined ? v : '0', isActive: (v) => v > 0 },
+            power: { icon: 'fa-bolt', label: 'Alim.', color: 'warning', getValue: (v) => v !== undefined ? `${Number(v).toFixed(1)}V` : '-', isActive: (v) => v > 10 }
         };
         
         let indicators = '';
@@ -1158,7 +1580,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const displayValue = config.getValue(value);
             
             indicators += `
-                <div class="dynamic-indicator ${isActive ? 'active' : 'inactive'}" title="${config.label}">
+                <div class="dynamic-indicator ${isActive ? 'active' : 'inactive'}">
                     <div class="indicator-icon ${config.color}">
                         <i class="fas ${config.icon}"></i>
                     </div>
@@ -1173,106 +1595,73 @@ document.addEventListener('DOMContentLoaded', function() {
         return indicators;
     }
     
-    // Obtenir l'icône de direction
-    function getDirectionIcon(course) {
-        if (course >= 337.5 || course < 22.5) return '<i class="fas fa-arrow-up"></i>';
-        if (course >= 22.5 && course < 67.5) return '<i class="fas fa-arrow-up" style="transform: rotate(45deg)"></i>';
-        if (course >= 67.5 && course < 112.5) return '<i class="fas fa-arrow-right"></i>';
-        if (course >= 112.5 && course < 157.5) return '<i class="fas fa-arrow-down" style="transform: rotate(-45deg)"></i>';
-        if (course >= 157.5 && course < 202.5) return '<i class="fas fa-arrow-down"></i>';
-        if (course >= 202.5 && course < 247.5) return '<i class="fas fa-arrow-down" style="transform: rotate(45deg)"></i>';
-        if (course >= 247.5 && course < 292.5) return '<i class="fas fa-arrow-left"></i>';
-        if (course >= 292.5 && course < 337.5) return '<i class="fas fa-arrow-up" style="transform: rotate(-45deg)"></i>';
-        return '<i class="fas fa-arrow-up"></i>';
-    }
-    
-    // Fermer le panel
+    // Close panel
     function closePanel() {
         selectedDeviceId = null;
         document.querySelectorAll('.device-item').forEach(item => {
             item.classList.remove('selected');
         });
-        document.getElementById('panelDeviceName').textContent = 'Sélectionnez un device';
+        document.getElementById('panelDeviceName').textContent = 'Sélectionnez un véhicule';
         document.getElementById('panelDeviceImei').textContent = '-';
+        document.getElementById('panelIcon').innerHTML = '<i class="fas fa-car"></i>';
         document.getElementById('panelBody').innerHTML = `
-            <div class="no-device-selected">
-                <i class="fas fa-map-marker-alt fa-2x"></i>
-                <p>Cliquez sur un device</p>
+            <div class="no-selection">
+                <i class="fas fa-hand-pointer"></i>
+                <p>Cliquez sur un véhicule</p>
             </div>
         `;
     }
     
-    // Centrer sur tous les devices
+    // Center all devices
     function centerAllDevices() {
         const bounds = [];
         for (const deviceId in markers) {
             bounds.push(markers[deviceId].getLatLng());
         }
-        
         if (bounds.length > 0) {
             map.fitBounds(L.latLngBounds(bounds), { padding: [50, 50] });
         }
     }
     
-    // Centrer sur un device
-    window.centerOnDevice = function(deviceId) {
-        const pos = positions[deviceId];
-        if (pos && pos.latitude && pos.longitude) {
-            map.setView([pos.latitude, pos.longitude], 17);
-        }
-    };
-    
-    // Voir l'historique
-    window.viewHistory = function(deviceId) {
-        const device = allDevices.find(d => d.id === deviceId);
-        console.log('View history for device:', deviceId);
-        // Rediriger vers la page historique avec l'ID du device
-        window.location.href = `/history?id=${deviceId}`;
-    };
-    
-    // Envoyer une commande
-    window.sendCommand = function(deviceId) {
-        const device = allDevices.find(d => d.id === deviceId);
-        console.log('Send command to device:', deviceId);
-        alert(`Commande vers ${device?.name || 'device'} - Fonctionnalité à venir !`);
-    };
-    
-    // Voir les détails du device
-    window.viewDeviceDetails = function(deviceId) {
-        const device = allDevices.find(d => d.id === deviceId);
-        console.log('View details for device:', deviceId);
-        alert(`Détails de ${device?.name || 'device'} - Fonctionnalité à venir !`);
-    };
-    
-    // Voir les géozones
-    window.viewGeofences = function(deviceId) {
-        const device = allDevices.find(d => d.id === deviceId);
-        console.log('View geofences for device:', deviceId);
-        alert(`Géozones de ${device?.name || 'device'} - Fonctionnalité à venir !`);
-    };
-    
-    // Voir les alertes
-    window.viewAlerts = function(deviceId) {
-        const device = allDevices.find(d => d.id === deviceId);
-        console.log('View alerts for device:', deviceId);
-        alert(`Alertes de ${device?.name || 'device'} - Fonctionnalité à venir !`);
-    };
-    
-    // Toggle auto-follow
+    // Toggle auto follow
     function toggleAutoFollow() {
         autoFollow = !autoFollow;
         document.getElementById('btnAutoFollow').classList.toggle('active', autoFollow);
     }
     
-    // Toggle groupe
+    // Toggle group
     window.toggleGroup = function(header) {
         header.parentElement.classList.toggle('expanded');
     };
     
-    // Filtrer les devices
+    // Filter devices
     function filterDevices() {
         buildDeviceTree();
     }
+    
+    // Actions
+    window.viewHistory = function(deviceId) {
+        window.location.href = `/history?id=${deviceId}`;
+    };
+    
+    window.sendCommand = function(deviceId) {
+        const device = allDevices.find(d => d.id === deviceId);
+        alert(`Commande vers ${device?.name || 'device'} - Fonctionnalité à venir !`);
+    };
+    
+    window.viewDeviceDetails = function(deviceId) {
+        const device = allDevices.find(d => d.id === deviceId);
+        alert(`Détails de ${device?.name || 'device'} - Fonctionnalité à venir !`);
+    };
+    
+    window.viewGeofences = function(deviceId) {
+        window.location.href = '/geofence';
+    };
+    
+    window.viewAlerts = function(deviceId) {
+        const device = allDevices.find(d => d.id === deviceId);
+        alert(`Alertes de ${device?.name || 'device'} - Fonctionnalité à venir !`);
+    };
     
     // Debounce
     function debounce(func, wait) {
@@ -1283,21 +1672,22 @@ document.addEventListener('DOMContentLoaded', function() {
         };
     }
     
-    // Arrêter les mises à jour quand la page n'est pas visible
+    // Visibility change
     document.addEventListener('visibilitychange', function() {
         if (document.hidden) {
             if (refreshInterval) {
                 clearInterval(refreshInterval);
                 refreshInterval = null;
-                document.querySelector('.realtime-indicator').classList.remove('active');
+                document.getElementById('liveIndicator').classList.add('paused');
             }
         } else {
             loadPositions();
             startRealTimeUpdates();
-            document.querySelector('.realtime-indicator').classList.add('active');
+            document.getElementById('liveIndicator').classList.remove('paused');
         }
     });
 });
 </script>
 @endpush
+
 @endsection
