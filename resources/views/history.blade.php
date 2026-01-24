@@ -255,7 +255,7 @@
 
 /* Info Panel (Left) */
 .info-panel {
-    width: 300px;
+    width: auto;
     flex-shrink: 0;
     display: flex;
     flex-direction: column;
@@ -364,7 +364,7 @@
 .filter-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 2px;
+    gap: 4px;
 }
 
 .filter-group {
@@ -393,7 +393,7 @@
     border-radius: 8px;
     font-size: 12px;
     transition: all 0.2s ease;
-    width: 50%;
+    width: 100%;
 }
 
 .filter-input:focus {
