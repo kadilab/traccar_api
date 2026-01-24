@@ -5,82 +5,158 @@
 @section('content')
 
 <div class="history-container">
-    <!-- Header -->
-    <div class="history-header">
-        <div class="header-left">
-            <a href="{{ route('monitor') }}" class="btn-back">
-                <i class="fas fa-arrow-left"></i>
-            </a>
-            <div class="device-info">
-                <h1 id="deviceName">
-                    <i class="fas fa-car"></i>
-                    <span>{{ __('messages.common.loading') }}...</span>
-                </h1>
-                <p class="device-id" id="deviceIdentifier">ID: --</p>
+    <!-- Main Content -->
+    <div class="history-content">
+        <!-- Info Panel (Left) -->
+        <div class="info-panel">
+            <!-- Device Info Card -->
+            <div class="info-card device-card">
+                <div class="card-header-modern">
+                    <div class="card-icon device-icon">
+                        <i class="fas fa-car"></i>
+                    </div>
+                    <div class="card-title-group">
+                        <h3 class="card-title-modern" id="deviceName">{{ __('messages.common.loading') }}...</h3>
+                        <span class="card-subtitle" id="deviceIdentifier">--</span>
+                    </div>
+                </div>
             </div>
-        </div>
-        <div class="header-right">
-            <div class="status-badge" id="statusBadge">
-                <span class="status-dot"></span>
-                <span class="status-text">{{ __('messages.history.waiting') }}</span>
-            </div>
-        </div>
-    </div>
 
-    <!-- Main Content: Filters + Map Side by Side -->
-    <div class="main-content-row">
-        <!-- Filters Section (Left) -->
-        <div class="filters-section">
-            <div class="filter-card">
-                <h3 class="filter-title">
-                    <i class="fas fa-filter"></i> {{ __('messages.history.filters') }}
-                </h3>
-                <div class="filter-grid">
-                    <div class="filter-group">
-                        <label for="dateFrom">
-                            <i class="fas fa-calendar-alt"></i> {{ __('messages.history.date_from') }}
-                        </label>
-                        <input type="date" id="dateFrom" class="filter-input">
+            <!-- Date Filter Card -->
+            <div class="info-card filter-card">
+                <div class="card-header-modern">
+                    <div class="card-icon filter-icon">
+                        <i class="fas fa-calendar-alt"></i>
                     </div>
-                    <div class="filter-group">
-                        <label for="timeFrom">
-                            <i class="fas fa-clock"></i> {{ __('messages.history.time_from') }}
-                        </label>
-                        <input type="time" id="timeFrom" class="filter-input" value="00:00">
-                    </div>
-                    <div class="filter-group">
-                        <label for="dateTo">
-                            <i class="fas fa-calendar-alt"></i> {{ __('messages.history.date_to') }}
-                        </label>
-                        <input type="date" id="dateTo" class="filter-input">
-                    </div>
-                    <div class="filter-group">
-                        <label for="timeTo">
-                            <i class="fas fa-clock"></i> {{ __('messages.history.time_to') }}
-                        </label>
-                        <input type="time" id="timeTo" class="filter-input" value="23:59">
+                    <div class="card-title-group">
+                        <h3 class="card-title-modern">{{ __('messages.history.filters') }}</h3>
                     </div>
                 </div>
-                <div class="quick-filters">
-                    <button class="btn btn-secondary" id="btnToday">
-                        <i class="fas fa-calendar-day"></i> {{ __('messages.history.today') }}
-                    </button>
-                    <button class="btn btn-secondary" id="btnYesterday">
-                        <i class="fas fa-calendar-minus"></i> {{ __('messages.history.yesterday') }}
-                    </button>
-                    <button class="btn btn-secondary" id="btnWeek">
-                        <i class="fas fa-calendar-week"></i> {{ __('messages.history.last_7_days') }}
+                <div class="filter-form">
+                    <div class="filter-row">
+                        <div class="filter-group">
+                            <label><i class="fas fa-calendar"></i> {{ __('messages.history.date_from') }}</label>
+                            <input type="date" id="dateFrom" class="filter-input">
+                        </div>
+                        <div class="filter-group">
+                            <label><i class="fas fa-clock"></i> {{ __('messages.history.time_from') }}</label>
+                            <input type="time" id="timeFrom" class="filter-input" value="00:00">
+                        </div>
+                    </div>
+                    <div class="filter-row">
+                        <div class="filter-group">
+                            <label><i class="fas fa-calendar"></i> {{ __('messages.history.date_to') }}</label>
+                            <input type="date" id="dateTo" class="filter-input">
+                        </div>
+                        <div class="filter-group">
+                            <label><i class="fas fa-clock"></i> {{ __('messages.history.time_to') }}</label>
+                            <input type="time" id="timeTo" class="filter-input" value="23:59">
+                        </div>
+                    </div>
+                    <div class="quick-filters">
+                        <button class="quick-btn" id="btnToday">
+                            <i class="fas fa-calendar-day"></i> {{ __('messages.history.today') }}
+                        </button>
+                        <button class="quick-btn" id="btnYesterday">
+                            <i class="fas fa-calendar-minus"></i> {{ __('messages.history.yesterday') }}
+                        </button>
+                        <button class="quick-btn" id="btnWeek">
+                            <i class="fas fa-calendar-week"></i> 7 jours
+                        </button>
+                    </div>
+                    <button class="btn-load-history" id="btnLoadHistory">
+                        <i class="fas fa-search"></i> {{ __('messages.history.load_history') }}
                     </button>
                 </div>
-                <button class="btn btn-primary btn-load" id="btnLoadHistory">
-                    <i class="fas fa-search"></i> {{ __('messages.history.load_history') }}
-                </button>
+            </div>
+
+            <!-- Statistics Card -->
+            <div class="info-card stats-card">
+                <div class="card-header-modern">
+                    <div class="card-icon stats-icon">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                    <div class="card-title-group">
+                        <h3 class="card-title-modern">Statistiques</h3>
+                    </div>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-box distance-stat">
+                        <div class="stat-icon"><i class="fas fa-road"></i></div>
+                        <div class="stat-content">
+                            <span class="stat-value" id="totalDistance">0 km</span>
+                            <span class="stat-label">Distance</span>
+                        </div>
+                    </div>
+                    <div class="stat-box duration-stat">
+                        <div class="stat-icon"><i class="fas fa-hourglass-half"></i></div>
+                        <div class="stat-content">
+                            <span class="stat-value" id="totalDuration">0h 0m</span>
+                            <span class="stat-label">Durée</span>
+                        </div>
+                    </div>
+                    <div class="stat-box speed-stat">
+                        <div class="stat-icon"><i class="fas fa-tachometer-alt"></i></div>
+                        <div class="stat-content">
+                            <span class="stat-value" id="avgSpeed">0 km/h</span>
+                            <span class="stat-label">Moy.</span>
+                        </div>
+                    </div>
+                    <div class="stat-box maxspeed-stat">
+                        <div class="stat-icon"><i class="fas fa-bolt"></i></div>
+                        <div class="stat-content">
+                            <span class="stat-value" id="maxSpeed">0 km/h</span>
+                            <span class="stat-label">Max</span>
+                        </div>
+                    </div>
+                    <div class="stat-box points-stat">
+                        <div class="stat-icon"><i class="fas fa-map-marker-alt"></i></div>
+                        <div class="stat-content">
+                            <span class="stat-value" id="totalPoints">0</span>
+                            <span class="stat-label">Points</span>
+                        </div>
+                    </div>
+                    <div class="stat-box stops-stat">
+                        <div class="stat-icon"><i class="fas fa-flag"></i></div>
+                        <div class="stat-content">
+                            <span class="stat-value" id="totalStops">0</span>
+                            <span class="stat-label">Arrêts</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
         <!-- Map Section (Right) -->
         <div class="map-section">
             <div id="historyMap" class="history-map"></div>
+            
+            <!-- Floating Header -->
+            <div class="floating-header">
+                <a href="{{ route('monitor') }}" class="btn-back" title="Retour">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+                <div class="header-title">
+                    <span class="title-text">Historique des trajets</span>
+                </div>
+                <div class="status-badge" id="statusBadge">
+                    <span class="status-dot"></span>
+                    <span class="status-text">{{ __('messages.history.waiting') }}</span>
+                </div>
+            </div>
+            
+            <!-- Map Actions Overlay -->
+            <div class="map-actions-overlay">
+                <button class="map-action-btn" id="btnCenterRoute" title="Centrer sur le trajet">
+                    <i class="fas fa-expand-arrows-alt"></i>
+                </button>
+                <button class="map-action-btn active" id="btnToggleStops" title="Afficher/Masquer les arrêts">
+                    <i class="fas fa-flag"></i>
+                </button>
+                <button class="map-action-btn" id="btnExport" title="Exporter CSV">
+                    <i class="fas fa-download"></i>
+                </button>
+            </div>
             
             <!-- Map Controls -->
             <div class="map-controls">
@@ -94,137 +170,61 @@
                     <i class="fas fa-expand"></i>
                 </button>
             </div>
-            
+
+            <!-- Speed Gauge Overlay -->
+            <div class="speed-gauge-overlay">
+                <div class="speed-gauge">
+                    <span class="speed-value" id="speedGaugeValue">0</span>
+                    <span class="speed-unit">km/h</span>
+                </div>
+            </div>
+
             <!-- Playback Controls -->
-            <div class="playback-controls">
-                <div class="playback-buttons">
-                    <button class="playback-btn" id="btnRewind" title="{{ __('messages.history.rewind') }}">
-                        <i class="fas fa-backward"></i>
-                    </button>
-                    <button class="playback-btn" id="btnPlayPause" title="{{ __('messages.history.play_pause') }}">
-                        <i class="fas fa-play" id="playPauseIcon"></i>
-                    </button>
-                    <button class="playback-btn" id="btnForward" title="{{ __('messages.history.forward') }}">
-                        <i class="fas fa-forward"></i>
-                    </button>
-                    <button class="playback-btn" id="btnStop" title="{{ __('messages.history.stop') }}">
-                        <i class="fas fa-stop"></i>
-                    </button>
-                </div>
-                
-                <div class="speed-control">
-                    <label>Vitesse:</label>
-                    <select id="playbackSpeed" class="speed-select">
-                        <option value="0.5">0.5x</option>
-                        <option value="1" selected>1x</option>
-                        <option value="2">2x</option>
-                        <option value="5">5x</option>
-                        <option value="10">10x</option>
-                        <option value="20">20x</option>
-                    </select>
-                </div>
-                
-                <div class="current-info">
-                    <span id="currentTime">--:--:--</span>
-                    <span class="separator">|</span>
-                    <span id="currentSpeed">-- km/h</span>
-                </div>
-            </div>
+            <div class="playback-panel">
+                <!-- Single Row Layout -->
+                <div class="playback-row">
+                    <!-- Speed Buttons -->
+                    <div class="speed-control">
+                        <button class="speed-btn" data-speed="0.5">0.5x</button>
+                        <button class="speed-btn active" data-speed="1">1x</button>
+                        <button class="speed-btn" data-speed="2">2x</button>
+                        <button class="speed-btn" data-speed="5">5x</button>
+                        <button class="speed-btn" data-speed="10">10x</button>
+                    </div>
 
-            <!-- Timeline -->
-            <div class="timeline-section">
-                <div class="timeline-track">
-                    <input type="range" id="timelineSlider" min="0" max="100" value="0" class="timeline-slider">
-                </div>
-                <div class="timeline-labels">
-                    <span id="startTimeLabel">--:--</span>
-                    <span id="endTimeLabel">--:--</span>
-                </div>
-            </div>
-        </div>
-    </div>
+                    <!-- Playback Buttons -->
+                    <div class="playback-controls">
+                        <button class="playback-btn" id="btnRewind" title="Reculer">
+                            <i class="fas fa-backward"></i>
+                        </button>
+                        <button class="playback-btn play-btn" id="btnPlayPause" title="Lecture/Pause">
+                            <i class="fas fa-play" id="playPauseIcon"></i>
+                        </button>
+                        <button class="playback-btn" id="btnForward" title="Avancer">
+                            <i class="fas fa-forward"></i>
+                        </button>
+                        <button class="playback-btn" id="btnStop" title="Stop">
+                            <i class="fas fa-stop"></i>
+                        </button>
+                    </div>
 
-    <!-- Statistics Section -->
-    <div class="stats-section">
-        <div class="stat-card">
-            <div class="stat-icon distance">
-                <i class="fas fa-road"></i>
-            </div>
-            <div class="stat-info">
-                <span class="stat-value" id="totalDistance">0 km</span>
-                <span class="stat-label">Distance Totale</span>
-            </div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon duration">
-                <i class="fas fa-hourglass-half"></i>
-            </div>
-            <div class="stat-info">
-                <span class="stat-value" id="totalDuration">0h 0m</span>
-                <span class="stat-label">Durée Totale</span>
-            </div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon speed">
-                <i class="fas fa-tachometer-alt"></i>
-            </div>
-            <div class="stat-info">
-                <span class="stat-value" id="avgSpeed">0 km/h</span>
-                <span class="stat-label">Vitesse Moyenne</span>
-            </div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon maxspeed">
-                <i class="fas fa-bolt"></i>
-            </div>
-            <div class="stat-info">
-                <span class="stat-value" id="maxSpeed">0 km/h</span>
-                <span class="stat-label">Vitesse Max</span>
-            </div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon points">
-                <i class="fas fa-map-marker-alt"></i>
-            </div>
-            <div class="stat-info">
-                <span class="stat-value" id="totalPoints">0</span>
-                <span class="stat-label">Points GPS</span>
-            </div>
-        </div>
-    </div>
+                    <!-- Timeline -->
+                    <div class="timeline-section">
+                        <span class="time-label" id="startTimeLabel">00:00</span>
+                        <div class="timeline-track">
+                            <div class="timeline-progress" id="timelineProgress"></div>
+                            <input type="range" id="timelineSlider" min="0" max="100" value="0" class="timeline-slider">
+                        </div>
+                        <span class="time-label" id="endTimeLabel">00:00</span>
+                    </div>
 
-    <!-- Position List -->
-    <div class="positions-section">
-        <div class="positions-header">
-            <h3><i class="fas fa-list"></i> Liste des Positions</h3>
-            <button class="btn btn-sm btn-secondary" id="btnExport">
-                <i class="fas fa-download"></i> Exporter
-            </button>
-        </div>
-        <div class="positions-table-wrapper">
-            <table class="positions-table">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Date/Heure</th>
-                        <th>Latitude</th>
-                        <th>Longitude</th>
-                        <th>Vitesse</th>
-                        <th>Cap</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="positionsTableBody">
-                    <tr class="empty-row">
-                        <td colspan="7">
-                            <div class="empty-state">
-                                <i class="fas fa-route"></i>
-                                <p>Sélectionnez une période et chargez l'historique</p>
-                            </div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+                    <!-- Current Info -->
+                    <div class="current-info">
+                        <span class="info-time" id="currentTime">--:--:--</span>
+                        <span class="info-speed" id="currentSpeed">0 km/h</span>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -234,92 +234,418 @@
 @push('styles')
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <style>
-/* History Page Styles */
+/* History Page - Modern Design */
 .history-container {
-    padding: 10px;
+    padding: 0;
     padding-top: 60px;
-    max-width: 1600px;
-    margin: 0 auto;
+    max-width: 100%;
+    margin: 0;
+    min-height: calc(100vh - 60px);
+    position: relative;
 }
 
-/* Header */
-.history-header {
+/* Main Content Layout */
+.history-content {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background:  linear-gradient(100deg, #1e88e5 0%, #1976d2 100%);
-    padding: 10px 15px;
-    border-radius: 5px;
-    color: #fff;
-    margin-bottom: 20px;
-    box-shadow: 0 4px 15px rgba(117, 86, 214, 0.3);
+    gap: 15px;
+    height: calc(100vh - 60px);
+    min-height: 500px;
+    padding: 10px;
 }
 
-.header-left {
+/* Info Panel (Left) */
+.info-panel {
+    width: 300px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow-y: auto;
+    max-height: calc(100vh - 80px);
+}
+
+.info-panel::-webkit-scrollbar {
+    width: 6px;
+}
+
+.info-panel::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.info-panel::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+.info-card {
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(10px);
+    border-radius: 0px;
+    padding: 14px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.info-card:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Card Header Modern */
+.card-header-modern {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 10px;
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #f3f4f6;
 }
 
-.btn-back {
-    width: 45px;
-    height: 45px;
+.card-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(255, 255, 255, 0.2);
-    color: #fff;
-    border-radius: 5px;
-    text-decoration: none;
-    transition: all 0.3s ease;
-    font-size: 18px;
+    font-size: 16px;
+    flex-shrink: 0;
 }
 
-.btn-back:hover {
-    background: rgba(255, 255, 255, 0.3);
-    transform: translateX(-3px);
+.device-icon {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
     color: #fff;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }
 
-.device-info h1 {
+.filter-icon {
+    background: linear-gradient(135deg, #1976d2 0%, #7c3aed 100%);
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+}
+
+.stats-icon {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.card-title-group {
+    flex: 1;
+    min-width: 0;
+}
+
+.card-title-modern {
     margin: 0;
-    font-size: 24px;
+    font-size: 14px;
     font-weight: 700;
+    color: #1f2937;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.card-subtitle {
+    font-size: 11px;
+    color: #6b7280;
+    margin-top: 2px;
+    display: block;
+}
+
+/* Filter Form */
+.filter-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.filter-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.filter-group label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #6b7280;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.filter-group label i {
+    color: #1976d2;
+    font-size: 10px;
+}
+
+.filter-input {
+    padding: 8px 10px;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 12px;
+    transition: all 0.2s ease;
+    width: 50%;
+}
+
+.filter-input:focus {
+    outline: none;
+    border-color: #1976d2;
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+}
+
+.quick-filters {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.quick-btn {
+    flex: 1;
+    min-width: 80px;
+    padding: 8px 10px;
+    background: #f3f4f6;
+    border: none;
+    border-radius: 0px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #374151;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+
+.quick-btn:hover {
+    background: #e5e7eb;
+}
+
+.quick-btn.active {
+    background: #5007fa;
+    color: #fff;
+}
+
+.btn-load-history {
+    width: 100%;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, #1976d2 0%, #1c6cbc 100%);
+    border: none;
+    border-radius: 10px;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+}
+
+.btn-load-history:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(139, 92, 246, 0.4);
+}
+
+/* Stats Grid */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+}
+
+.stat-box {
+    background: #f9fafb;
+    border-radius: 10px;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.2s ease;
+}
+
+.stat-box:hover {
+    background: #f3f4f6;
+    transform: scale(1.02);
+}
+
+.stat-box .stat-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+}
+
+.distance-stat .stat-icon {
+    background: linear-gradient(135deg, #1976d2 0%, #7c3aed 100%);
+    color: #fff;
+}
+
+.duration-stat .stat-icon {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    color: #fff;
+}
+
+.speed-stat .stat-icon {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: #fff;
+}
+
+.maxspeed-stat .stat-icon {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: #fff;
+}
+
+.points-stat .stat-icon {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: #fff;
+}
+
+.stops-stat .stat-icon {
+    background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
+    color: #fff;
+}
+
+.stat-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.stat-box .stat-value {
+    display: block;
+    font-size: 14px;
+    font-weight: 700;
+    color: #1f2937;
+    line-height: 1.2;
+}
+
+.stat-box .stat-label {
+    font-size: 10px;
+    color: #9ca3af;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+/* Map Section */
+.map-section {
+    flex: 1;
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+}
+
+.history-map {
+    width: 100%;
+    flex: 1;
+    min-height: 400px;
+}
+
+/* Floating Header */
+.floating-header {
+    position: absolute;
+    top: 15px;
+    left: 50%;
+    transform: translateX(-50%);
     display: flex;
     align-items: center;
     gap: 12px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    padding: 8px 16px;
+    border-radius: 50px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    z-index: 450;
+    max-width: calc(100% - 200px);
 }
 
-.device-info h1 i {
-    font-size: 28px;
-}
-
-.device-id {
-    margin: 5px 0 0;
+.floating-header .btn-back {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f3f4f6;
+    color: #374151;
+    border-radius: 50%;
+    text-decoration: none;
+    transition: all 0.2s ease;
     font-size: 14px;
-    opacity: 0.9;
+    flex-shrink: 0;
+}
+
+.floating-header .btn-back:hover {
+    background: #1976d2;
+    color: #fff;
+}
+
+.header-title {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.title-text {
+    font-size: 14px;
+    font-weight: 700;
+    color: #1f2937;
 }
 
 .status-badge {
     display: flex;
     align-items: center;
-    gap: 8px;
-    background: rgba(255, 255, 255, 0.2);
-    padding: 10px 20px;
-    border-radius: 5px;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
     font-weight: 600;
+    flex-shrink: 0;
+    background: #f3f4f6;
+    color: #374151;
+}
+
+.status-badge.loading {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.status-badge.ready {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.status-badge.playing {
+    background: #fef3c7;
+    color: #92400e;
 }
 
 .status-dot {
-    width: 10px;
-    height: 10px;
-    background: #fbbf24;
+    width: 8px;
+    height: 8px;
+    background: #9ca3af;
     border-radius: 50%;
-    animation: pulse 2s infinite;
 }
 
 .status-badge.loading .status-dot {
     background: #3b82f6;
+    animation: pulse 1.5s infinite;
 }
 
 .status-badge.ready .status-dot {
@@ -327,168 +653,52 @@
 }
 
 .status-badge.playing .status-dot {
-    background: #10b981;
+    background: #f59e0b;
     animation: pulse 1s infinite;
 }
 
 @keyframes pulse {
     0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.5; transform: scale(1.2); }
+    50% { opacity: 0.5; transform: scale(1.3); }
 }
 
-/* Main Content Row - Filters Left + Map Right */
-.main-content-row {
-    display: flex;
-    gap: 20px;
-    margin-bottom: 20px;
-}
-
-/* Filters Section */
-.filters-section {
-    width: 320px;
-    flex-shrink: 0;
-}
-
-.filter-card {
-    background: #fff;
-    border-radius: 5px;
-    padding: 25px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-}
-
-.filter-title {
-    margin: 0 0 20px;
-    font-size: 18px;
-    font-weight: 700;
-    color: #1f2937;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.filter-title i {
-    color: #7556D6;
-}
-
-.filter-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    margin-bottom: 20px;
-}
-
-.filter-group {
+/* Map Actions Overlay */
+.map-actions-overlay {
+    position: absolute;
+    top: 15px;
+    left: 15px;
     display: flex;
     flex-direction: column;
     gap: 8px;
+    z-index: 400;
 }
 
-.filter-group label {
-    font-size: 13px;
-    font-weight: 600;
-    color: #374151;
+.map-action-btn {
+    width: 44px;
+    height: 44px;
     display: flex;
     align-items: center;
-    gap: 6px;
-}
-
-.filter-group label i {
-    color: #7556D6;
-}
-
-.filter-input {
-    padding: 12px 15px;
-    border: 2px solid #e5e7eb;
-    border-radius: 5px;
-    font-size: 14px;
-    transition: all 0.3s ease;
-    width: 100%;
-}
-
-.filter-input:focus {
-    outline: none;
-    border-color: #7556D6;
-    box-shadow: 0 0 0 3px rgba(117, 86, 214, 0.1);
-}
-
-.quick-filters {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-bottom: 20px;
-}
-
-.quick-filters .btn {
-    width: 100%;
     justify-content: center;
-}
-
-.btn-load {
-    width: 100%;
-    justify-content: center;
-    margin-top: auto;
-    padding: 15px 20px;
-}
-
-.btn {
-    padding: 12px 20px;
+    background: #fff;
     border: none;
-    border-radius: 5px;
-    font-weight: 600;
-    font-size: 14px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
     cursor: pointer;
-    transition: all 0.3s ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.btn-primary {
-    background: linear-gradient(135deg, #7556D6 0%, #5a3fb3 100%);
-    color: #fff;
-    box-shadow: 0 4px 12px rgba(117, 86, 214, 0.3);
-}
-
-.btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(117, 86, 214, 0.4);
-}
-
-.btn-secondary {
-    background: #f3f4f6;
     color: #374151;
+    font-size: 18px;
+    transition: all 0.2s ease;
+    text-decoration: none;
 }
 
-.btn-secondary:hover {
-    background: #e5e7eb;
+.map-action-btn:hover {
+    background: #1976d2;
+    color: #fff;
+    transform: scale(1.05);
 }
 
-.btn-sm {
-    padding: 8px 15px;
-    font-size: 13px;
-}
-
-/* Map Section */
-.map-section {
-    flex: 1;
-    background: #fff;
-    border-radius: 5px;
-    overflow: hidden;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-    display: flex;
-    flex-direction: column;
-    position: relative;
-}
-
-.history-map {
-    height: 400px;
-    width: 100%;
-    flex: 1;
-    position: relative;
-    z-index: 1;
+.map-action-btn.active {
+    background: #1976d2;
+    color: #fff;
 }
 
 /* Map Controls */
@@ -496,10 +706,10 @@
     position: absolute;
     top: 15px;
     right: 15px;
-    z-index: 400;
     display: flex;
     flex-direction: column;
     gap: 8px;
+    z-index: 400;
 }
 
 .map-control-btn {
@@ -508,459 +718,313 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: white;
-    border: 2px solid #ddd;
-    border-radius: 5px;
+    background: #fff;
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
     cursor: pointer;
-    transition: all 0.3s ease;
-    color: #333;
+    color: #374151;
     font-size: 16px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
 }
 
 .map-control-btn:hover {
-    background: #7556D6;
-    border-color: #7556D6;
-    color: white;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    background: #1976d2;
+    color: #fff;
 }
 
-.map-control-btn:active {
-    transform: scale(0.95);
+/* Speed Gauge Overlay */
+.speed-gauge-overlay {
+    position: absolute;
+    bottom: 70px;
+    left: 15px;
+    z-index: 400;
+}
+
+.speed-gauge {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 50%;
+    width: 70px;
+    height: 70px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 3px 15px rgba(0, 0, 0, 0.15);
+    border: 3px solid #1976d2;
+}
+
+.speed-value {
+    font-size: 22px;
+    font-weight: 700;
+    color: #1f2937;
+    line-height: 1;
+}
+
+.speed-unit {
+    font-size: 9px;
+    color: #6b7280;
+    font-weight: 600;
+}
+
+/* Playback Panel - Compact Single Row */
+.playback-panel {
+    background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+    padding: 8px 15px;
+}
+
+.playback-row {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+/* Speed Control */
+.speed-control {
+    display: flex;
+    gap: 3px;
+    flex-shrink: 0;
+}
+
+.speed-btn {
+    padding: 5px 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.8);
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.speed-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+}
+
+.speed-btn.active {
+    background: #1976d2;
+    border-color: transparent;
+    color: #fff;
 }
 
 /* Playback Controls */
 .playback-controls {
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 30px;
-    padding: 20px;
-    background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
-    color: #fff;
-    position: relative;
-    z-index: 10;
-}
-
-.playback-buttons {
-    display: flex;
-    gap: 10px;
+    gap: 5px;
+    flex-shrink: 0;
 }
 
 .playback-btn {
-    width: 50px;
-    height: 50px;
+    width: 32px;
+    height: 32px;
     display: flex;
     align-items: center;
     justify-content: center;
     background: rgba(255, 255, 255, 0.1);
-    border: 2px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     color: #fff;
     border-radius: 50%;
-    font-size: 18px;
+    font-size: 12px;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
 }
 
 .playback-btn:hover {
-    background: #7556D6;
-    border-color: #7556D6;
-    transform: scale(1.1);
+    background: #1976d2;
+    border-color: #1976d2;
 }
 
-.playback-btn.active {
-    background: #7556D6;
-    border-color: #7556D6;
-}
-
-#btnPlayPause {
-    width: 60px;
-    height: 60px;
-    font-size: 22px;
-    background: linear-gradient(135deg, #7556D6 0%, #5a3fb3 100%);
+.playback-btn.play-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 14px;
+    background: #1976d2;
     border-color: transparent;
 }
 
-#btnPlayPause:hover {
-    transform: scale(1.15);
+.playback-btn.play-btn:hover {
+    background: #1565c0;
+    transform: scale(1.05);
 }
 
-.speed-control {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.speed-control label {
-    font-size: 14px;
-    font-weight: 600;
-}
-
-.speed-select {
-    padding: 8px 15px;
-    background: rgba(255, 255, 255, 0.1);
-    border: 2px solid rgba(255, 255, 255, 0.2);
-    color: #fff;
-    border-radius: 5px;
-    font-size: 14px;
-    cursor: pointer;
-}
-
-.speed-select option {
-    background: #1f2937;
-    color: #fff;
-}
-
-.current-info {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    font-size: 16px;
-    font-weight: 600;
-}
-
-.separator {
-    opacity: 0.5;
-}
-
-/* Timeline */
+/* Timeline Section */
 .timeline-section {
-    padding: 20px 30px 25px;
-    background: #f9fafb;
-    border-top: 1px solid #e5e7eb;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 150px;
+}
+
+.time-label {
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.6);
+    font-family: monospace;
+    white-space: nowrap;
 }
 
 .timeline-track {
+    flex: 1;
     position: relative;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 3px;
+}
+
+.timeline-progress {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    background: #1976d2;
+    border-radius: 3px;
+    width: 0%;
+    transition: width 0.1s ease;
 }
 
 .timeline-slider {
+    position: absolute;
+    top: -5px;
+    left: 0;
     width: 100%;
-    height: 8px;
+    height: 16px;
     -webkit-appearance: none;
     appearance: none;
-    background: #e5e7eb;
-    border-radius: 4px;
+    background: transparent;
     cursor: pointer;
+    margin: 0;
 }
 
 .timeline-slider::-webkit-slider-thumb {
     -webkit-appearance: none;
-    appearance: none;
-    width: 20px;
-    height: 20px;
-    background: linear-gradient(135deg, #7556D6 0%, #5a3fb3 100%);
+    width: 14px;
+    height: 14px;
+    background: #fff;
     border-radius: 50%;
     cursor: pointer;
-    box-shadow: 0 2px 8px rgba(117, 86, 214, 0.4);
-    transition: transform 0.2s ease;
-}
-
-.timeline-slider::-webkit-slider-thumb:hover {
-    transform: scale(1.2);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
 }
 
 .timeline-slider::-moz-range-thumb {
-    width: 20px;
-    height: 20px;
-    background: linear-gradient(135deg, #7556D6 0%, #5a3fb3 100%);
+    width: 14px;
+    height: 14px;
+    background: #fff;
     border-radius: 50%;
     cursor: pointer;
     border: none;
 }
 
-.timeline-labels {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 10px;
-    font-size: 13px;
-    color: #6b7280;
-    font-weight: 600;
-}
-
-/* Statistics */
-.stats-section {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 15px;
-    margin-bottom: 20px;
-}
-
-.stat-card {
-    background: #fff;
-    border-radius: 5px;
-    padding: 20px;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-    transition: all 0.3s ease;
-}
-
-.stat-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
-}
-
-.stat-icon {
-    width: 55px;
-    height: 55px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 5px;
-    font-size: 22px;
-}
-
-.stat-icon.distance {
-    background: rgba(117, 86, 214, 0.1);
-    color: #7556D6;
-}
-
-.stat-icon.duration {
-    background: rgba(59, 130, 246, 0.1);
-    color: #3b82f6;
-}
-
-.stat-icon.speed {
-    background: rgba(16, 185, 129, 0.1);
-    color: #10b981;
-}
-
-.stat-icon.maxspeed {
-    background: rgba(245, 158, 11, 0.1);
-    color: #f59e0b;
-}
-
-.stat-icon.points {
-    background: rgba(239, 68, 68, 0.1);
-    color: #ef4444;
-}
-
-.stat-info {
-    display: flex;
-    flex-direction: column;
-}
-
-.stat-value {
-    font-size: 22px;
-    font-weight: 700;
-    color: #1f2937;
-}
-
-.stat-label {
-    font-size: 13px;
-    color: #6b7280;
-}
-
-/* Positions Table */
-.positions-section {
-    background: #fff;
-    border-radius: 5px;
-    overflow: hidden;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-}
-
-.positions-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px 25px;
-    background: #f9fafb;
-    border-bottom: 1px solid #e5e7eb;
-}
-
-.positions-header h3 {
-    margin: 0;
-    font-size: 16px;
-    font-weight: 700;
-    color: #1f2937;
+/* Current Info */
+.current-info {
     display: flex;
     align-items: center;
     gap: 10px;
+    flex-shrink: 0;
 }
 
-.positions-header h3 i {
-    color: #7556D6;
-}
-
-.positions-table-wrapper {
-    max-height: 400px;
-    overflow-y: auto;
-}
-
-.positions-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.positions-table th,
-.positions-table td {
-    padding: 14px 20px;
-    text-align: left;
-    border-bottom: 1px solid #e5e7eb;
-}
-
-.positions-table th {
-    background: #f9fafb;
+.info-time {
+    font-size: 11px;
     font-weight: 600;
-    font-size: 13px;
-    color: #374151;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    position: sticky;
-    top: 0;
-}
-
-.positions-table td {
-    font-size: 14px;
-    color: #4b5563;
-}
-
-.positions-table tbody tr:hover {
-    background: #f0f4ff;
-    cursor: pointer;
-}
-
-.positions-table tbody tr.active {
-    background: rgba(117, 86, 214, 0.1);
-}
-
-.empty-row td {
-    padding: 60px 20px;
-}
-
-.empty-state {
-    text-align: center;
-    color: #9ca3af;
-}
-
-.empty-state i {
-    font-size: 48px;
-    margin-bottom: 15px;
-    color: #d1d5db;
-}
-
-.empty-state p {
-    margin: 0;
-    font-size: 15px;
-}
-
-.btn-goto {
-    padding: 6px 12px;
-    background: #7556D6;
     color: #fff;
-    border: none;
-    border-radius: 6px;
-    font-size: 12px;
-    cursor: pointer;
-    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-family: monospace;
 }
 
-.btn-goto:hover {
-    background: #5a3fb3;
+.info-speed {
+    font-size: 11px;
+    font-weight: 700;
+    color: #10b981;
+    min-width: 55px;
 }
 
-/* Loading Overlay */
-.loading-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
-    display: none;
+/* Leaflet Controls z-index fix */
+.leaflet-top, .leaflet-bottom {
+    z-index: 400 !important;
 }
 
-.loading-overlay.active {
-    display: flex;
-}
-
-.loading-spinner {
-    background: #fff;
-    padding: 40px;
-    border-radius: 5px;
-    text-align: center;
-}
-
-.loading-spinner i {
-    font-size: 48px;
-    color: #7556D6;
-    animation: spin 1s linear infinite;
-}
-
-.loading-spinner p {
-    margin: 15px 0 0;
-    font-size: 16px;
-    color: #374151;
-}
-
-@keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
+/* Stop Marker Style */
+.stop-marker {
+    background: transparent !important;
 }
 
 /* Responsive */
-@media (max-width: 1024px) {
-    .main-content-row {
+@media (max-width: 1200px) {
+    .history-content {
         flex-direction: column;
+        height: auto;
     }
     
-    .filters-section {
+    .info-panel {
         width: 100%;
-    }
-    
-    .filter-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-    }
-    
-    .quick-filters {
         flex-direction: row;
         flex-wrap: wrap;
+        max-height: none;
+        overflow-y: visible;
+        order: 2;
     }
     
-    .quick-filters .btn {
+    .info-card {
         flex: 1;
-        min-width: 120px;
+        min-width: 290px;
+    }
+    
+    .map-section {
+        height: 500px;
+        order: 1;
     }
 }
 
 @media (max-width: 768px) {
-    .history-header {
-        flex-direction: column;
-        gap: 15px;
-        text-align: center;
-        margin-top: 30px;
-    }
-
-    .header-left {
-        flex-direction: column;
-    }
-
-    .playback-controls {
-        flex-direction: column;
-        gap: 15px;
-    }
-
-    .filter-grid {
-        grid-template-columns: 1fr;
+    .history-content {
+        padding: 8px;
+        gap: 10px;
     }
     
-    .quick-filters {
+    .info-panel {
         flex-direction: column;
     }
     
-    .quick-filters .btn {
+    .info-card {
+        min-width: 100%;
+    }
+    
+    .floating-header {
+        top: 10px;
+        padding: 6px 12px;
+        max-width: calc(100% - 100px);
+    }
+    
+    .title-text {
+        font-size: 12px;
+    }
+    
+    .playback-row {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .timeline-section {
+        order: 3;
         width: 100%;
+        margin-top: 5px;
     }
-
-    .stats-section {
-        grid-template-columns: repeat(2, 1fr);
+    
+    .speed-gauge-overlay {
+        bottom: 80px;
+    }
+    
+    .speed-gauge {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .speed-value {
+        font-size: 18px;
     }
 }
 </style>
@@ -983,14 +1047,18 @@ document.addEventListener('DOMContentLoaded', function() {
     // Variables
     let map;
     let positions = [];
+    let stops = []; // Points d'arrêt
     let polyline = null;
+    let trailPolyline = null; // Ligne de trajectoire qui suit le véhicule
     let currentMarker = null;
     let startMarker = null;
     let endMarker = null;
+    let stopMarkers = []; // Marqueurs des arrêts
     let playbackIndex = 0;
     let isPlaying = false;
     let playbackInterval = null;
     let playbackSpeed = 1;
+    let showStops = true;
 
     // Initialize map
     initMap();
@@ -1002,51 +1070,105 @@ document.addEventListener('DOMContentLoaded', function() {
     setTodayDates();
 
     // Event listeners
-    document.getElementById('btnToday').addEventListener('click', setTodayDates);
-    document.getElementById('btnYesterday').addEventListener('click', setYesterdayDates);
-    document.getElementById('btnWeek').addEventListener('click', setWeekDates);
+    document.getElementById('btnToday').addEventListener('click', () => {
+        setTodayDates();
+        setActiveQuickBtn('btnToday');
+    });
+    document.getElementById('btnYesterday').addEventListener('click', () => {
+        setYesterdayDates();
+        setActiveQuickBtn('btnYesterday');
+    });
+    document.getElementById('btnWeek').addEventListener('click', () => {
+        setWeekDates();
+        setActiveQuickBtn('btnWeek');
+    });
     document.getElementById('btnLoadHistory').addEventListener('click', loadHistory);
     document.getElementById('btnPlayPause').addEventListener('click', togglePlayPause);
     document.getElementById('btnStop').addEventListener('click', stopPlayback);
     document.getElementById('btnRewind').addEventListener('click', rewind);
     document.getElementById('btnForward').addEventListener('click', forward);
-    document.getElementById('playbackSpeed').addEventListener('change', updatePlaybackSpeed);
     document.getElementById('timelineSlider').addEventListener('input', seekTimeline);
+
+    // Speed buttons event listeners
+    document.querySelectorAll('.speed-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const speed = parseFloat(this.dataset.speed);
+            playbackSpeed = speed;
+            // Update active button
+            document.querySelectorAll('.speed-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            // Restart playback with new speed if playing
+            if (isPlaying) {
+                stopPlaybackInterval();
+                startPlayback();
+            }
+        });
+    });
     document.getElementById('btnExport').addEventListener('click', exportData);
+    document.getElementById('btnCenterRoute').addEventListener('click', centerOnRoute);
+    document.getElementById('btnToggleStops').addEventListener('click', toggleStopsVisibility);
+
+    function setActiveQuickBtn(btnId) {
+        document.querySelectorAll('.quick-btn').forEach(btn => btn.classList.remove('active'));
+        document.getElementById(btnId).classList.add('active');
+    }
 
     // Créer l'icône du véhicule
-    // 0 = offline, 1 = arrêté moteur éteint, 2 = en mouvement, 3 = moteur allumé mais arrêté (idling)
     function createVehicleIcon(iconNumber, rotation) {
         return L.divIcon({
             className: 'custom-marker current-marker',
-            html: `<div style="transform: rotate(${rotation}deg); width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+            html: `<div style="transform: rotate(${rotation}deg); width: 45px; height: 45px; display: flex; align-items: center; justify-content: center;">
                 <img src="/icons/automobile_${iconNumber}.png" 
-                     style="width: 40px; height: 40px; filter: drop-shadow(0 2px 6px rgba(117,86,214,0.5));" 
+                     style="width: 45px; height: 45px; filter: drop-shadow(0 3px 8px rgba(139,92,246,0.5));" 
                      alt="vehicle"/>
             </div>`,
-            iconSize: [40, 40],
-            iconAnchor: [20, 20]
+            iconSize: [45, 45],
+            iconAnchor: [22, 22]
+        });
+    }
+
+    // Créer l'icône d'arrêt (drapeau rouge)
+    function createStopIcon(stopNumber, duration) {
+        return L.divIcon({
+            className: 'stop-marker',
+            html: `<div style="position: relative;">
+                <div style="
+                    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+                    color: #fff;
+                    width: 28px;
+                    height: 28px;
+                    border-radius: 50% 50% 50% 0;
+                    transform: rotate(-45deg);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-weight: bold;
+                    font-size: 11px;
+                    border: 2px solid #fff;
+                    box-shadow: 0 2px 8px rgba(239,68,68,0.5);
+                ">
+                    <span style="transform: rotate(45deg);">${stopNumber}</span>
+                </div>
+            </div>`,
+            iconSize: [28, 28],
+            iconAnchor: [4, 28]
         });
     }
 
     // Initialize map
     function initMap() {
-        map = L.map('historyMap').setView([36.7538, 3.0588], 12);
+        map = L.map('historyMap', {
+            zoomControl: false
+        }).setView([14.6937, -17.4441], 12);
         
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
 
-        // Add zoom control event listeners
-        document.getElementById('btnZoomIn').addEventListener('click', function() {
-            map.zoomIn();
-        });
-
-        document.getElementById('btnZoomOut').addEventListener('click', function() {
-            map.zoomOut();
-        });
-
-        document.getElementById('btnFullscreen').addEventListener('click', function() {
+        // Zoom controls
+        document.getElementById('btnZoomIn').addEventListener('click', () => map.zoomIn());
+        document.getElementById('btnZoomOut').addEventListener('click', () => map.zoomOut());
+        document.getElementById('btnFullscreen').addEventListener('click', () => {
             if (!document.fullscreenElement) {
                 document.getElementById('historyMap').requestFullscreen();
             } else {
@@ -1061,7 +1183,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const response = await fetch(`/api/traccar/devices`);
             const data = await response.json();
             
-            // Handle API response format
             let devices = [];
             if (data.success && data.devices) {
                 devices = data.devices;
@@ -1072,15 +1193,15 @@ document.addEventListener('DOMContentLoaded', function() {
             const device = devices.find(d => d.id == id);
             
             if (device) {
-                document.querySelector('#deviceName span').textContent = device.name;
+                document.getElementById('deviceName').textContent = device.name;
                 document.getElementById('deviceIdentifier').textContent = `IMEI: ${device.uniqueId}`;
             } else {
-                document.querySelector('#deviceName span').textContent = 'Appareil inconnu';
+                document.getElementById('deviceName').textContent = 'Appareil inconnu';
                 document.getElementById('deviceIdentifier').textContent = `ID: ${id}`;
             }
         } catch (error) {
             console.error('Error loading device info:', error);
-            document.querySelector('#deviceName span').textContent = 'Erreur de chargement';
+            document.getElementById('deviceName').textContent = 'Erreur de chargement';
         }
     }
 
@@ -1128,7 +1249,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const response = await fetch(`/api/traccar/positions?deviceId=${deviceId}&from=${from}&to=${to}`);
             const data = await response.json();
 
-            // Handle API response format
             if (data.success && data.positions) {
                 positions = data.positions;
             } else if (Array.isArray(data)) {
@@ -1150,14 +1270,14 @@ document.addEventListener('DOMContentLoaded', function() {
             // Sort by time
             positions.sort((a, b) => new Date(a.fixTime) - new Date(b.fixTime));
 
+            // Detect stops
+            detectStops();
+
             // Draw route
             drawRoute();
             
             // Update statistics
             updateStatistics();
-            
-            // Update table
-            updatePositionsTable();
             
             // Update timeline
             updateTimeline();
@@ -1171,53 +1291,209 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // Detect stop points (vitesse < 2 km/h pendant plus de 2 minutes)
+    function detectStops() {
+        stops = [];
+        const STOP_SPEED_THRESHOLD = 2; // km/h
+        const STOP_DURATION_THRESHOLD = 120000; // 2 minutes en ms
+        
+        let stopStart = null;
+        let stopStartIndex = null;
+        
+        for (let i = 0; i < positions.length; i++) {
+            const pos = positions[i];
+            const speed = pos.speed * 1.852; // knots to km/h
+            const time = new Date(pos.fixTime).getTime();
+            
+            if (speed < STOP_SPEED_THRESHOLD) {
+                if (stopStart === null) {
+                    stopStart = time;
+                    stopStartIndex = i;
+                }
+            } else {
+                if (stopStart !== null) {
+                    const duration = time - stopStart;
+                    if (duration >= STOP_DURATION_THRESHOLD) {
+                        const middleIndex = Math.floor((stopStartIndex + i - 1) / 2);
+                        stops.push({
+                            index: middleIndex,
+                            position: positions[middleIndex],
+                            startTime: new Date(positions[stopStartIndex].fixTime),
+                            endTime: new Date(positions[i - 1].fixTime),
+                            duration: duration
+                        });
+                    }
+                    stopStart = null;
+                    stopStartIndex = null;
+                }
+            }
+        }
+        
+        // Check if still stopped at the end
+        if (stopStart !== null) {
+            const lastTime = new Date(positions[positions.length - 1].fixTime).getTime();
+            const duration = lastTime - stopStart;
+            if (duration >= STOP_DURATION_THRESHOLD) {
+                const middleIndex = Math.floor((stopStartIndex + positions.length - 1) / 2);
+                stops.push({
+                    index: middleIndex,
+                    position: positions[middleIndex],
+                    startTime: new Date(positions[stopStartIndex].fixTime),
+                    endTime: new Date(positions[positions.length - 1].fixTime),
+                    duration: duration
+                });
+            }
+        }
+        
+        document.getElementById('totalStops').textContent = stops.length;
+    }
+
     // Draw route on map
     function drawRoute() {
         // Clear existing
-        if (polyline) map.removeLayer(polyline);
-        if (currentMarker) map.removeLayer(currentMarker);
-        if (startMarker) map.removeLayer(startMarker);
-        if (endMarker) map.removeLayer(endMarker);
+        clearMap();
 
         const latLngs = positions.map(p => [p.latitude, p.longitude]);
 
-        // Draw polyline
+        // Draw full polyline (grey/faded)
         polyline = L.polyline(latLngs, {
-            color: '#7556D6',
+            color: '#d1d5db',
             weight: 4,
-            opacity: 0.8
+            opacity: 0.6
         }).addTo(map);
 
-        // Start marker
+        // Draw trail polyline (colored - will follow the vehicle)
+        trailPolyline = L.polyline([], {
+            color: '#1976d2',
+            weight: 5,
+            opacity: 0.9
+        }).addTo(map);
+
+        // Start marker (drapeau vert)
         const startIcon = L.divIcon({
             className: 'custom-marker start-marker',
-            html: '<div style="background: #10b981; color: #fff; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 3px solid #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.3);"><i class="fas fa-flag"></i></div>',
-            iconSize: [30, 30],
-            iconAnchor: [15, 15]
+            html: `<div style="
+                background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+                color: #fff;
+                width: 32px;
+                height: 32px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: bold;
+                border: 3px solid #fff;
+                box-shadow: 0 3px 10px rgba(16,185,129,0.5);
+            "><i class="fas fa-flag"></i></div>`,
+            iconSize: [32, 32],
+            iconAnchor: [16, 16]
         });
         startMarker = L.marker(latLngs[0], { icon: startIcon }).addTo(map);
-        startMarker.bindPopup(`<b>Départ</b><br>${formatDateTime(positions[0].fixTime)}`);
+        startMarker.bindPopup(`<b>🚀 Départ</b><br>${formatDateTime(positions[0].fixTime)}`);
 
-        // End marker
+        // End marker (drapeau à damier)
         const endIcon = L.divIcon({
             className: 'custom-marker end-marker',
-            html: '<div style="background: #ef4444; color: #fff; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 3px solid #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.3);"><i class="fas fa-flag-checkered"></i></div>',
-            iconSize: [30, 30],
-            iconAnchor: [15, 15]
+            html: `<div style="
+                background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+                color: #fff;
+                width: 32px;
+                height: 32px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: bold;
+                border: 3px solid #fff;
+                box-shadow: 0 3px 10px rgba(31,41,55,0.5);
+            "><i class="fas fa-flag-checkered"></i></div>`,
+            iconSize: [32, 32],
+            iconAnchor: [16, 16]
         });
         endMarker = L.marker(latLngs[latLngs.length - 1], { icon: endIcon }).addTo(map);
-        endMarker.bindPopup(`<b>Arrivée</b><br>${formatDateTime(positions[positions.length - 1].fixTime)}`);
+        endMarker.bindPopup(`<b>🏁 Arrivée</b><br>${formatDateTime(positions[positions.length - 1].fixTime)}`);
 
-        // Current position marker - use automobile icon with rotation
+        // Draw stop markers
+        drawStopMarkers();
+
+        // Current position marker
         const initialCourse = positions[0]?.course || 0;
-        const currentIcon = createVehicleIcon(2, initialCourse); // 2 = en mouvement (pour l'historique)
-        currentMarker = L.marker(latLngs[0], { icon: currentIcon }).addTo(map);
+        const currentIcon = createVehicleIcon(2, initialCourse);
+        currentMarker = L.marker(latLngs[0], { icon: currentIcon, zIndexOffset: 1000 }).addTo(map);
 
         // Fit bounds
         map.fitBounds(polyline.getBounds(), { padding: [50, 50] });
 
         playbackIndex = 0;
+        updateTrailPolyline();
         updateCurrentInfo();
+    }
+
+    // Draw stop markers
+    function drawStopMarkers() {
+        // Clear existing stop markers
+        stopMarkers.forEach(marker => map.removeLayer(marker));
+        stopMarkers = [];
+
+        if (!showStops) return;
+
+        stops.forEach((stop, index) => {
+            const icon = createStopIcon(index + 1, stop.duration);
+            const marker = L.marker([stop.position.latitude, stop.position.longitude], { 
+                icon: icon,
+                zIndexOffset: 500
+            }).addTo(map);
+            
+            const durationMinutes = Math.round(stop.duration / 60000);
+            marker.bindPopup(`
+                <div style="min-width: 150px;">
+                    <b style="color: #ef4444;">🚩 Arrêt #${index + 1}</b><br>
+                    <small><i class="fas fa-clock"></i> Durée: ${durationMinutes} min</small><br>
+                    <small><i class="fas fa-play"></i> ${formatTime(stop.startTime)}</small><br>
+                    <small><i class="fas fa-stop"></i> ${formatTime(stop.endTime)}</small>
+                </div>
+            `);
+            
+            stopMarkers.push(marker);
+        });
+    }
+
+    // Toggle stops visibility
+    function toggleStopsVisibility() {
+        showStops = !showStops;
+        const btn = document.getElementById('btnToggleStops');
+        btn.classList.toggle('active', showStops);
+        drawStopMarkers();
+    }
+
+    // Clear map
+    function clearMap() {
+        if (polyline) map.removeLayer(polyline);
+        if (trailPolyline) map.removeLayer(trailPolyline);
+        if (currentMarker) map.removeLayer(currentMarker);
+        if (startMarker) map.removeLayer(startMarker);
+        if (endMarker) map.removeLayer(endMarker);
+        stopMarkers.forEach(marker => map.removeLayer(marker));
+        stopMarkers = [];
+    }
+
+    // Update trail polyline (ligne qui suit le véhicule)
+    function updateTrailPolyline() {
+        if (!trailPolyline || positions.length === 0) return;
+        
+        const trailLatLngs = positions.slice(0, playbackIndex + 1).map(p => [p.latitude, p.longitude]);
+        trailPolyline.setLatLngs(trailLatLngs);
+        
+        // Update timeline progress
+        const progress = (playbackIndex / (positions.length - 1)) * 100;
+        document.getElementById('timelineProgress').style.width = `${progress}%`;
+    }
+
+    // Center on route
+    function centerOnRoute() {
+        if (polyline) {
+            map.fitBounds(polyline.getBounds(), { padding: [50, 50] });
+        }
     }
 
     // Update statistics
@@ -1228,13 +1504,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
         for (let i = 0; i < positions.length; i++) {
             const pos = positions[i];
-            
-            // Speed
-            const speed = pos.speed * 1.852; // knots to km/h
+            const speed = pos.speed * 1.852;
             speedSum += speed;
             if (speed > maxSpeed) maxSpeed = speed;
 
-            // Distance
             if (i > 0) {
                 const prev = positions[i - 1];
                 totalDistance += calculateDistance(
@@ -1246,23 +1519,22 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const avgSpeed = positions.length > 0 ? speedSum / positions.length : 0;
         
-        // Duration
         const startTime = new Date(positions[0].fixTime);
         const endTime = new Date(positions[positions.length - 1].fixTime);
         const durationMs = endTime - startTime;
         const hours = Math.floor(durationMs / 3600000);
         const minutes = Math.floor((durationMs % 3600000) / 60000);
 
-        document.getElementById('totalDistance').textContent = `${totalDistance.toFixed(2)} km`;
+        document.getElementById('totalDistance').textContent = `${totalDistance.toFixed(1)} km`;
         document.getElementById('totalDuration').textContent = `${hours}h ${minutes}m`;
-        document.getElementById('avgSpeed').textContent = `${avgSpeed.toFixed(1)} km/h`;
-        document.getElementById('maxSpeed').textContent = `${maxSpeed.toFixed(1)} km/h`;
+        document.getElementById('avgSpeed').textContent = `${avgSpeed.toFixed(0)} km/h`;
+        document.getElementById('maxSpeed').textContent = `${maxSpeed.toFixed(0)} km/h`;
         document.getElementById('totalPoints').textContent = positions.length;
     }
 
-    // Calculate distance between two points
+    // Calculate distance
     function calculateDistance(lat1, lon1, lat2, lon2) {
-        const R = 6371; // km
+        const R = 6371;
         const dLat = (lat2 - lat1) * Math.PI / 180;
         const dLon = (lon2 - lon1) * Math.PI / 180;
         const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
@@ -1270,39 +1542,6 @@ document.addEventListener('DOMContentLoaded', function() {
                   Math.sin(dLon / 2) * Math.sin(dLon / 2);
         const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         return R * c;
-    }
-
-    // Update positions table
-    function updatePositionsTable() {
-        const tbody = document.getElementById('positionsTableBody');
-        
-        if (positions.length === 0) {
-            tbody.innerHTML = `
-                <tr class="empty-row">
-                    <td colspan="7">
-                        <div class="empty-state">
-                            <i class="fas fa-route"></i>
-                            <p>Aucune position trouvée</p>
-                        </div>
-                    </td>
-                </tr>
-            `;
-            return;
-        }
-
-        tbody.innerHTML = positions.map((pos, index) => `
-            <tr data-index="${index}" onclick="goToPosition(${index})">
-                <td>${index + 1}</td>
-                <td>${formatDateTime(pos.fixTime)}</td>
-                <td>${pos.latitude.toFixed(6)}</td>
-                <td>${pos.longitude.toFixed(6)}</td>
-                <td>${(pos.speed * 1.852).toFixed(1)} km/h</td>
-                <td>${pos.course ? pos.course.toFixed(0) + '°' : '-'}</td>
-                <td><button class="btn-goto" onclick="event.stopPropagation(); goToPosition(${index})">
-                    <i class="fas fa-crosshairs"></i>
-                </button></td>
-            </tr>
-        `).join('');
     }
 
     // Update timeline
@@ -1377,14 +1616,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    function updatePlaybackSpeed() {
-        playbackSpeed = parseFloat(document.getElementById('playbackSpeed').value);
-        if (isPlaying) {
-            stopPlaybackInterval();
-            startPlayback();
-        }
-    }
-
     function seekTimeline() {
         playbackIndex = parseInt(document.getElementById('timelineSlider').value);
         updatePlaybackPosition();
@@ -1398,12 +1629,14 @@ document.addEventListener('DOMContentLoaded', function() {
         // Update marker position and icon with rotation
         if (currentMarker) {
             currentMarker.setLatLng([pos.latitude, pos.longitude]);
-            // Déterminer l'icône basée sur la vitesse
-            const speed = pos.speed * 1.852; // knots to km/h
-            const iconNumber = speed > 1 ? 2 : 1; // 2 = en mouvement, 1 = arrêté
+            const speed = pos.speed * 1.852;
+            const iconNumber = speed > 1 ? 2 : 1;
             const newIcon = createVehicleIcon(iconNumber, pos.course || 0);
             currentMarker.setIcon(newIcon);
         }
+
+        // Update trail polyline
+        updateTrailPolyline();
 
         // Update slider
         document.getElementById('timelineSlider').value = playbackIndex;
@@ -1411,28 +1644,22 @@ document.addEventListener('DOMContentLoaded', function() {
         // Update current info
         updateCurrentInfo();
 
-        // Highlight table row
-        document.querySelectorAll('.positions-table tbody tr').forEach((row, index) => {
-            row.classList.toggle('active', index === playbackIndex);
-        });
+        // Center map on vehicle during playback
+        if (isPlaying) {
+            map.panTo([pos.latitude, pos.longitude]);
+        }
     }
 
     function updateCurrentInfo() {
         if (positions.length === 0) return;
 
         const pos = positions[playbackIndex];
-        document.getElementById('currentTime').textContent = formatTime(pos.fixTime);
-        document.getElementById('currentSpeed').textContent = `${(pos.speed * 1.852).toFixed(1)} km/h`;
-    }
-
-    // Go to specific position
-    window.goToPosition = function(index) {
-        playbackIndex = index;
-        updatePlaybackPosition();
+        const speed = (pos.speed * 1.852).toFixed(0);
         
-        const pos = positions[index];
-        map.setView([pos.latitude, pos.longitude], 17);
-    };
+        document.getElementById('currentTime').textContent = formatTime(pos.fixTime);
+        document.getElementById('currentSpeed').textContent = `${speed} km/h`;
+        document.getElementById('speedGaugeValue').textContent = speed;
+    }
 
     // Export data
     function exportData() {
@@ -1464,7 +1691,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function formatTime(dateStr) {
         const date = new Date(dateStr);
-        return date.toLocaleTimeString('fr-FR');
+        return date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
     }
 
     function updateStatus(status, text) {
