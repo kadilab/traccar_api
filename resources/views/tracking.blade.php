@@ -1125,20 +1125,45 @@ document.addEventListener('DOMContentLoaded', function() {
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
 
-        // Custom car icon
-        const carIcon = L.divIcon({
+        // Custom car icon - default to offline (0)
+        const carIcon = createVehicleIcon(0, 0);
+
+        marker = L.marker([36.7538, 3.0588], { icon: carIcon }).addTo(map);
+    }
+    
+    // Déterminer l'icône du véhicule basée sur son statut
+    // 0 = offline, 1 = arrêté moteur éteint, 2 = en mouvement, 3 = moteur allumé mais arrêté (idling)
+    function getVehicleIconNumber() {
+        // Vérifier si le device est offline
+        if (!device || device.status !== 'online') {
+            return 0; // offline
+        }
+        
+        // Récupérer la vitesse et l'état d'allumage
+        const speed = position ? (position.speed * 1.852) : 0; // knots to km/h
+        const ignition = position?.attributes?.ignition ?? false;
+        
+        if (speed > 1) {
+            return 2; // en mouvement
+        } else if (ignition) {
+            return 3; // moteur allumé mais arrêté (idling)
+        } else {
+            return 1; // arrêté moteur éteint
+        }
+    }
+    
+    // Créer l'icône du véhicule
+    function createVehicleIcon(iconNumber, rotation) {
+        return L.divIcon({
             className: 'custom-car-marker',
-            html: `<div class="car-marker-container">
-                <div class="car-marker-pulse"></div>
-                <div class="car-marker-icon">
-                    <i class="fas fa-car"></i>
-                </div>
+            html: `<div class="car-marker-container" style="transform: rotate(${rotation}deg);">
+                <img src="/icons/automobile_${iconNumber}.png" 
+                     style="width: 50px; height: 50px; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.4));" 
+                     alt="vehicle"/>
             </div>`,
             iconSize: [50, 50],
             iconAnchor: [25, 25]
         });
-
-        marker = L.marker([36.7538, 3.0588], { icon: carIcon }).addTo(map);
     }
 
     // Load device data
@@ -1241,18 +1266,10 @@ document.addEventListener('DOMContentLoaded', function() {
         // Update marker position
         marker.setLatLng([lat, lng]);
         
-        // Recreate icon with new rotation
-        const carIcon = L.divIcon({
-            className: 'custom-car-marker',
-            html: `<div class="car-marker-container" style="transform: rotate(${position.course || 0}deg);">
-                <div class="car-marker-pulse"></div>
-                <div class="car-marker-icon">
-                    <i class="fas fa-car"></i>
-                </div>
-            </div>`,
-            iconSize: [50, 50],
-            iconAnchor: [25, 25]
-        });
+        // Recreate icon with new rotation and status-based icon
+        const iconNumber = getVehicleIconNumber();
+        const rotation = position.course || 0;
+        const carIcon = createVehicleIcon(iconNumber, rotation);
         marker.setIcon(carIcon);
         
         // Center map if auto-follow is enabled

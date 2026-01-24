@@ -1014,6 +1014,21 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('timelineSlider').addEventListener('input', seekTimeline);
     document.getElementById('btnExport').addEventListener('click', exportData);
 
+    // Créer l'icône du véhicule
+    // 0 = offline, 1 = arrêté moteur éteint, 2 = en mouvement, 3 = moteur allumé mais arrêté (idling)
+    function createVehicleIcon(iconNumber, rotation) {
+        return L.divIcon({
+            className: 'custom-marker current-marker',
+            html: `<div style="transform: rotate(${rotation}deg); width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                <img src="/icons/automobile_${iconNumber}.png" 
+                     style="width: 40px; height: 40px; filter: drop-shadow(0 2px 6px rgba(117,86,214,0.5));" 
+                     alt="vehicle"/>
+            </div>`,
+            iconSize: [40, 40],
+            iconAnchor: [20, 20]
+        });
+    }
+
     // Initialize map
     function initMap() {
         map = L.map('historyMap').setView([36.7538, 3.0588], 12);
@@ -1193,13 +1208,9 @@ document.addEventListener('DOMContentLoaded', function() {
         endMarker = L.marker(latLngs[latLngs.length - 1], { icon: endIcon }).addTo(map);
         endMarker.bindPopup(`<b>Arrivée</b><br>${formatDateTime(positions[positions.length - 1].fixTime)}`);
 
-        // Current position marker
-        const currentIcon = L.divIcon({
-            className: 'custom-marker current-marker',
-            html: '<div style="background: #7556D6; color: #fff; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 3px solid #fff; box-shadow: 0 2px 12px rgba(117,86,214,0.5);"><i class="fas fa-car"></i></div>',
-            iconSize: [35, 35],
-            iconAnchor: [17, 17]
-        });
+        // Current position marker - use automobile icon with rotation
+        const initialCourse = positions[0]?.course || 0;
+        const currentIcon = createVehicleIcon(2, initialCourse); // 2 = en mouvement (pour l'historique)
         currentMarker = L.marker(latLngs[0], { icon: currentIcon }).addTo(map);
 
         // Fit bounds
@@ -1384,9 +1395,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const pos = positions[playbackIndex];
         
-        // Update marker
+        // Update marker position and icon with rotation
         if (currentMarker) {
             currentMarker.setLatLng([pos.latitude, pos.longitude]);
+            // Déterminer l'icône basée sur la vitesse
+            const speed = pos.speed * 1.852; // knots to km/h
+            const iconNumber = speed > 1 ? 2 : 1; // 2 = en mouvement, 1 = arrêté
+            const newIcon = createVehicleIcon(iconNumber, pos.course || 0);
+            currentMarker.setIcon(newIcon);
         }
 
         // Update slider

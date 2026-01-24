@@ -840,31 +840,53 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
+    // Déterminer l'icône du véhicule basée sur son statut
+    // 0 = offline, 1 = arrêté moteur éteint, 2 = en mouvement, 3 = moteur allumé mais arrêté (idling)
+    function getVehicleIconNumber(device) {
+        const pos = positions[device.id];
+        
+        // Vérifier si le device est offline
+        if (device.status !== 'online') {
+            return 0; // offline
+        }
+        
+        // Récupérer la vitesse et l'état d'allumage
+        const speed = pos ? (pos.speed * 1.852) : 0; // knots to km/h
+        const ignition = pos?.attributes?.ignition ?? false;
+        
+        if (speed > 1) {
+            return 2; // en mouvement
+        } else if (ignition) {
+            return 3; // moteur allumé mais arrêté (idling)
+        } else {
+            return 1; // arrêté moteur éteint
+        }
+    }
+    
     // Créer l'icône du marqueur
     function createMarkerIcon(device) {
-        const color = device.status === 'online' ? '#28a745' : '#dc3545';
-        const icon = getCategoryIcon(device.category);
+        const iconNumber = getVehicleIconNumber(device);
+        const pos = positions[device.id];
+        const rotation = pos?.course || 0;
+        
         return L.divIcon({
             className: 'custom-marker',
             html: `
                 <div style="
-                    background: ${color};
-                    width: 36px;
-                    height: 36px;
-                    border-radius: 50%;
+                    width: 40px;
+                    height: 40px;
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    border: 3px solid white;
-                    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-                    font-size: 18px;
-                    ${device.status === 'online' ? 'animation: pulse-marker 2s infinite;' : ''}
+                    transform: rotate(${rotation}deg);
                 ">
-                    ${icon}
+                    <img src="/icons/automobile_${iconNumber}.png" 
+                         style="width: 40px; height: 40px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));" 
+                         alt="vehicle"/>
                 </div>
             `,
-            iconSize: [36, 36],
-            iconAnchor: [18, 18]
+            iconSize: [40, 40],
+            iconAnchor: [20, 20]
         });
     }
     
