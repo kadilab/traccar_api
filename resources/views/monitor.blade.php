@@ -673,27 +673,27 @@ body {
 /* Map Controls */
 .map-controls {
     position: absolute;
-    top: 75px;
+    top: 5px;
     right: 15px;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 2px;
     z-index: 400;
 }
 
 .map-control-btn {
-    width: 40px;
-    height: 40px;
+    width: 25px;
+    height: 25px;
     display: flex;
     align-items: center;
     justify-content: center;
     background: #fff;
     border: none;
-    border-radius: 10px;
+    border-radius: 5px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
     cursor: pointer;
     color: #374151;
-    font-size: 16px;
+    font-size: 12px;
     transition: all 0.2s ease;
 }
 
