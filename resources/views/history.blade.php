@@ -947,6 +947,47 @@
     z-index: 400 !important;
 }
 
+/* Fullscreen Mode */
+.map-section.fullscreen-mode {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: 9999 !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+}
+
+.map-section.fullscreen-mode .history-map {
+    height: calc(100vh - 56px) !important;
+}
+
+.map-section.fullscreen-mode .floating-header {
+    top: 10px;
+}
+
+.map-section.fullscreen-mode .map-actions-overlay {
+    top: 10px;
+}
+
+.map-section.fullscreen-mode .map-controls {
+    top: 10px;
+}
+
+.map-section.fullscreen-mode .speed-gauge-overlay {
+    bottom: 70px;
+}
+
+.map-section.fullscreen-mode .playback-panel {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
 /* Stop Marker Style */
 .stop-marker {
     background: transparent !important;
@@ -1168,14 +1209,37 @@ document.addEventListener('DOMContentLoaded', function() {
         // Zoom controls
         document.getElementById('btnZoomIn').addEventListener('click', () => map.zoomIn());
         document.getElementById('btnZoomOut').addEventListener('click', () => map.zoomOut());
-        document.getElementById('btnFullscreen').addEventListener('click', () => {
-            if (!document.fullscreenElement) {
-                document.getElementById('historyMap').requestFullscreen();
-            } else {
-                document.exitFullscreen();
-            }
-        });
+        document.getElementById('btnFullscreen').addEventListener('click', toggleFullscreen);
     }
+
+    // Fullscreen toggle
+    function toggleFullscreen() {
+        const mapSection = document.querySelector('.map-section');
+        if (!document.fullscreenElement) {
+            mapSection.requestFullscreen().then(() => {
+                mapSection.classList.add('fullscreen-mode');
+                document.getElementById('btnFullscreen').innerHTML = '<i class="fas fa-compress"></i>';
+                // Resize map after fullscreen
+                setTimeout(() => map.invalidateSize(), 100);
+            });
+        } else {
+            document.exitFullscreen().then(() => {
+                mapSection.classList.remove('fullscreen-mode');
+                document.getElementById('btnFullscreen').innerHTML = '<i class="fas fa-expand"></i>';
+                setTimeout(() => map.invalidateSize(), 100);
+            });
+        }
+    }
+
+    // Handle ESC key for fullscreen
+    document.addEventListener('fullscreenchange', () => {
+        const mapSection = document.querySelector('.map-section');
+        if (!document.fullscreenElement) {
+            mapSection.classList.remove('fullscreen-mode');
+            document.getElementById('btnFullscreen').innerHTML = '<i class="fas fa-expand"></i>';
+            setTimeout(() => map.invalidateSize(), 100);
+        }
+    });
 
     // Load device info
     async function loadDeviceInfo(id) {
