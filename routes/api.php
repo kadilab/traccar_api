@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Route;
 
 // ==================== TRACCAR API ROUTES ====================
 
-Route::prefix('traccar')->group(function () {
+Route::prefix('traccar')->middleware('throttle.api:60,1')->group(function () {
 
     // Health
     Route::get('/health', [TraccarController::class, 'health']);
@@ -36,15 +36,15 @@ Route::prefix('traccar')->group(function () {
     // Groups - Lecture accessible à tous
     Route::get('/groups', [TraccarController::class, 'getGroups']);
     
-    // Groups - Création/Modification/Suppression réservées aux admins
-    Route::middleware('admin.api')->group(function () {
+    // Groups - Création/Modification/Suppression réservées aux admins et managers
+    Route::middleware('manager.api')->group(function () {
         Route::post('/groups', [TraccarController::class, 'createGroup']);
         Route::put('/groups/{id}', [TraccarController::class, 'updateGroup']);
         Route::delete('/groups/{id}', [TraccarController::class, 'deleteGroup']);
     });
 
-    // Users - Tout réservé aux admins
-    Route::middleware('admin.api')->group(function () {
+    // Users - Accessible aux admins et managers
+    Route::middleware('manager.api')->group(function () {
         Route::get('/users', [TraccarController::class, 'getUsers']);
         Route::post('/users', [TraccarController::class, 'createUser']);
         Route::put('/users/{id}', [TraccarController::class, 'updateUser']);
@@ -66,6 +66,7 @@ Route::prefix('traccar')->group(function () {
     });
 
     // Events - Accessible à tous
+    Route::get('/events/recent', [TraccarController::class, 'getRecentEvents']);
     Route::get('/events/{id}', [TraccarController::class, 'getEvent']);
 
     // Reports - Accessible à tous
@@ -89,15 +90,17 @@ Route::prefix('traccar')->group(function () {
     Route::put('/geofences/{id}', [TraccarController::class, 'updateGeofence']);
     Route::delete('/geofences/{id}', [TraccarController::class, 'deleteGeofence']);
 
-    // Commands - Tout réservé aux admins
+    // Commands - Envoi accessible à tous (Traccar gère les autorisations sur le device)
+    Route::get('/commands/send', [TraccarController::class, 'getCommandsSend']);
+    Route::post('/commands/send', [TraccarController::class, 'sendCommand']);
+    Route::get('/commands/types', [TraccarController::class, 'getCommandTypes']);
+    
+    // Commands - Gestion des commandes sauvegardées réservée aux admins
     Route::middleware('admin.api')->group(function () {
         Route::get('/commands', [TraccarController::class, 'getCommands']);
         Route::post('/commands', [TraccarController::class, 'createCommand']);
         Route::put('/commands/{id}', [TraccarController::class, 'updateCommand']);
         Route::delete('/commands/{id}', [TraccarController::class, 'deleteCommand']);
-        Route::get('/commands/send', [TraccarController::class, 'getCommandsSend']);
-        Route::post('/commands/send', [TraccarController::class, 'sendCommand']);
-        Route::get('/commands/types', [TraccarController::class, 'getCommandTypes']);
     });
 
     // Statistics - Réservé aux admins
@@ -105,9 +108,9 @@ Route::prefix('traccar')->group(function () {
         Route::get('/statistics', [TraccarController::class, 'getStatistics']);
     });
 
-    // Calendars - Réservé aux admins
+    // Calendars - Lecture accessible à tous, modification réservée aux admins
+    Route::get('/calendars', [TraccarController::class, 'getCalendars']);
     Route::middleware('admin.api')->group(function () {
-        Route::get('/calendars', [TraccarController::class, 'getCalendars']);
         Route::post('/calendars', [TraccarController::class, 'createCalendar']);
         Route::put('/calendars/{id}', [TraccarController::class, 'updateCalendar']);
         Route::delete('/calendars/{id}', [TraccarController::class, 'deleteCalendar']);
@@ -121,8 +124,8 @@ Route::prefix('traccar')->group(function () {
         Route::delete('/attributes/computed/{id}', [TraccarController::class, 'deleteAttribute']);
     });
 
-    // Drivers - Réservé aux admins
-    Route::middleware('admin.api')->group(function () {
+    // Drivers - Réservé aux admins et managers
+    Route::middleware('manager.api')->group(function () {
         Route::get('/drivers', [TraccarController::class, 'getDrivers']);
         Route::post('/drivers', [TraccarController::class, 'createDriver']);
         Route::put('/drivers/{id}', [TraccarController::class, 'updateDriver']);

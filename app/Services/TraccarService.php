@@ -4,18 +4,44 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Auth;
 
 class TraccarService
 {
     private string $traccarUrl;
-    private string $username;
-    private string $password;
+    private ?string $username = null;
+    private ?string $password = null;
 
     public function __construct()
     {
         $this->traccarUrl = config('traccar.url');
-        $this->username = config('traccar.username');
-        $this->password = config('traccar.password');
+        $this->loadUserCredentials();
+    }
+
+    /**
+     * Charger les identifiants de l'utilisateur connecté depuis la session
+     */
+    private function loadUserCredentials(): void
+    {
+        // Récupérer les credentials stockés lors du login
+        $credentials = Session::get('traccar_credentials');
+        
+        if ($credentials) {
+            try {
+                $decrypted = decrypt($credentials);
+                $this->username = $decrypted['email'] ?? null;
+                $this->password = $decrypted['password'] ?? null;
+            } catch (\Exception $e) {
+                \Log::warning('Impossible de décrypter les credentials Traccar: ' . $e->getMessage());
+            }
+        }
+        
+        // Fallback vers les credentials du .env si pas d'utilisateur connecté
+        if (!$this->username || !$this->password) {
+            $this->username = config('traccar.username');
+            $this->password = config('traccar.password');
+        }
     }
 
     /**
@@ -23,7 +49,17 @@ class TraccarService
      */
     private function apiRequest(string $method, string $endpoint, array $data = [], array $query = [])
     {
-        $http = Http::withBasicAuth($this->username, $this->password);
+        // Utiliser la session Traccar si disponible
+        $sessionId = Session::get('traccar_session_id');
+        
+        if ($sessionId) {
+            // Utiliser le cookie de session Traccar
+            $domain = parse_url($this->traccarUrl, PHP_URL_HOST);
+            $http = Http::withCookies(['JSESSIONID' => $sessionId], $domain);
+        } else {
+            // Fallback vers Basic Auth
+            $http = Http::withBasicAuth($this->username, $this->password);
+        }
 
         $url = $this->traccarUrl . $endpoint;
 
@@ -129,8 +165,12 @@ class TraccarService
      */
     public function getDashboardStats(): array
     {
+        // Clé de cache unique par utilisateur
+        $userId = Auth::id() ?? 'guest';
+        $cacheKey = 'dashboard_stats_' . $userId;
+        
         // Mise en cache des statistiques pour 1 minute
-        return Cache::remember('dashboard_stats', 60, function () {
+        return Cache::remember($cacheKey, 60, function () {
             $devices = $this->getDevices();
             $positions = $this->getPositions();
             $geofences = $this->getGeofences();
@@ -225,7 +265,9 @@ class TraccarService
      */
     public function refreshDashboardStats(): array
     {
-        Cache::forget('dashboard_stats');
+        $userId = Auth::id() ?? 'guest';
+        $cacheKey = 'dashboard_stats_' . $userId;
+        Cache::forget($cacheKey);
         return $this->getDashboardStats();
     }
 }

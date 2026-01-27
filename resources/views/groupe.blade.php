@@ -815,11 +815,12 @@ document.addEventListener('DOMContentLoaded', function() {
         const selected = Array.from(document.querySelectorAll('.group-checkbox:checked')).map(cb => cb.value);
         
         if (selected.length === 0) {
-            alert('Veuillez sélectionner au moins un groupe.');
+            showWarning('Veuillez sélectionner au moins un groupe.');
             return;
         }
         
-        if (!confirm(`Êtes-vous sûr de vouloir supprimer ${selected.length} groupe(s) ?`)) return;
+        const confirmed = await showConfirm(`Êtes-vous sûr de vouloir supprimer ${selected.length} groupe(s) ?`, 'Confirmation de suppression');
+        if (!confirmed) return;
         
         for (const id of selected) {
             try {
@@ -830,6 +831,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         loadGroups();
+        showToast('Groupes supprimés avec succès', 'success');
     }
 
     // Exporter les groupes
@@ -961,7 +963,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     window.deleteGroup = async function(id) {
         const group = allGroups.find(g => g.id === id);
-        if (!confirm(`Êtes-vous sûr de vouloir supprimer le groupe "${group?.name}" ?`)) return;
+        const confirmed = await showDeleteConfirm(group?.name || 'ce groupe');
+        if (!confirmed) return;
         
         try {
             const response = await fetch(`/api/traccar/groups/${id}`, { method: 'DELETE' });
@@ -969,12 +972,13 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (data.success || response.ok) {
                 loadGroups();
+                showToast('Groupe supprimé avec succès', 'success');
             } else {
-                alert('Erreur lors de la suppression: ' + (data.message || 'Erreur inconnue'));
+                showError('Erreur lors de la suppression: ' + (data.message || 'Erreur inconnue'));
             }
         } catch (error) {
             console.error('Erreur:', error);
-            alert('Erreur de connexion');
+            showError('Erreur de connexion');
         }
     };
 

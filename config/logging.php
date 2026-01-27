@@ -127,6 +127,15 @@ return [
             'path' => storage_path('logs/laravel.log'),
         ],
 
+        // Canal de sécurité pour l'audit des actions sensibles
+        'security' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/security.log'),
+            'level' => 'info',
+            'days' => 90, // Garder 90 jours de logs de sécurité
+            'replace_placeholders' => true,
+        ],
+
     ],
 
 ];

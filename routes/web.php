@@ -3,6 +3,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\TraccarController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DriverController;
 use App\Http\Controllers\LanguageController;
 
 use Illuminate\Support\Facades\Route;
@@ -61,6 +62,11 @@ Route::middleware('auth')->group(function () {
         return view('events');
     })->name('events');
 
+    // Commandes - gestion des commandes (accessible à tous)
+    Route::get('/commandes', function () {
+        return view('commandes');
+    })->name('commandes');
+
     // Profile - profil utilisateur (accessible à tous)
     Route::get('/profile', function () {
         return view('profile');
@@ -75,6 +81,7 @@ Route::middleware('auth')->group(function () {
         // Dashboard avec statistiques (admin seulement)
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
         Route::get('/dashboard/stats', [DashboardController::class, 'getStats'])->name('dashboard.stats');
+        Route::get('/dashboard/server-status', [DashboardController::class, 'getServerStatusApi'])->name('dashboard.server-status');
         Route::post('/dashboard/refresh', [DashboardController::class, 'refreshStats'])->name('dashboard.refresh');
         
         // Groupe - gestion des groupes (admin seulement)
@@ -106,11 +113,6 @@ Route::middleware('auth')->group(function () {
             return view('reports');
         })->name('reports');
 
-        // Commandes - gestion des commandes
-        Route::get('/commandes', function () {
-            return view('commandes');
-        })->name('commandes');
-
         // POI - Points d'intérêt
         Route::get('/poi', function () {
             return view('poi');
@@ -125,6 +127,19 @@ Route::middleware('auth')->group(function () {
         Route::get('/fleet', function () {
             return view('fleet');
         })->name('fleet');
+        
+        // ============================================
+        // DRIVERS - Gestion des conducteurs
+        // ============================================
+        Route::get('/drivers', [DriverController::class, 'index'])->name('drivers.index');
+        Route::get('/drivers/list', [DriverController::class, 'list'])->name('drivers.api.list');
+        Route::post('/drivers', [DriverController::class, 'store'])->name('drivers.api.store');
+        Route::get('/drivers/{id}', [DriverController::class, 'show'])->name('drivers.show');
+        Route::put('/drivers/{id}', [DriverController::class, 'update'])->name('drivers.update');
+        Route::delete('/drivers/{id}', [DriverController::class, 'destroy'])->name('drivers.destroy');
+        Route::get('/drivers/{id}/devices', [DriverController::class, 'getDeviceLinks'])->name('drivers.devices');
+        Route::post('/drivers/assign', [DriverController::class, 'linkDevice'])->name('drivers.api.assign');
+        Route::post('/drivers/unassign', [DriverController::class, 'unlinkDevice'])->name('drivers.api.unassign');
     });
 });
 

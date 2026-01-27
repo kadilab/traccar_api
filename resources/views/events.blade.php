@@ -672,7 +672,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const dateTo = document.getElementById('eventDateTo').value;
         
         if (!dateFrom || !dateTo) {
-            alert('Veuillez sélectionner une période');
+            showWarning('Veuillez sélectionner une période');
             return;
         }
 
@@ -795,7 +795,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (document.getElementById('channelFirebase').checked) channels.push('firebase');
 
             if (!type) {
-                alert('Veuillez sélectionner un type de notification');
+                showWarning('Veuillez sélectionner un type de notification');
                 return;
             }
 
@@ -828,13 +828,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 bootstrap.Modal.getInstance(document.getElementById('notificationModal')).hide();
                 await loadNotifications();
                 renderTypesList();
-                alert(id ? 'Notification modifiée !' : 'Notification créée !');
+                showSuccess(id ? 'Notification modifiée !' : 'Notification créée !');
             } else {
-                alert('Erreur: ' + (data.message || 'Erreur inconnue'));
+                showError('Erreur: ' + (data.message || 'Erreur inconnue'));
             }
         } catch (error) {
             console.error('Erreur:', error);
-            alert('Erreur lors de l\'enregistrement');
+            showError('Erreur lors de l\'enregistrement');
         } finally {
             btn.innerHTML = originalContent;
             btn.disabled = false;
@@ -865,7 +865,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Supprimer une notification
     window.deleteNotification = async function(id) {
-        if (!confirm('Êtes-vous sûr de vouloir supprimer cette notification ?')) return;
+        const confirmed = await showDeleteConfirm('cette notification');
+        if (!confirmed) return;
 
         try {
             const response = await fetch(`/api/traccar/notifications/${id}`, { method: 'DELETE' });
@@ -874,12 +875,13 @@ document.addEventListener('DOMContentLoaded', function() {
             if (data.success) {
                 await loadNotifications();
                 renderTypesList();
+                showToast('Notification supprimée avec succès', 'success');
             } else {
-                alert('Erreur lors de la suppression');
+                showError('Erreur lors de la suppression');
             }
         } catch (error) {
             console.error('Erreur:', error);
-            alert('Erreur de connexion');
+            showError('Erreur de connexion');
         }
     };
 

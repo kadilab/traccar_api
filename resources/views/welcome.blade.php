@@ -225,7 +225,9 @@
         <div class="bg-primary text-white rounded p-5 shadow">
             <h2 class="fw-bold mb-3">Demandez votre essai gratuit ou un devis personnalisé</h2>
             <p class="mb-4">Notre équipe vous accompagne pour trouver la solution la plus adaptée à vos besoins professionnels.</p>
+            @if(!\App\Models\User::where('administrator', true)->exists())
             <a href="{{ route('register') }}" class="btn btn-light btn-lg me-2">Créer un compte</a>
+            @endif
             <a href="{{ route('login') }}" class="btn btn-outline-light btn-lg">Connexion</a>
         </div>
     </section>

@@ -1859,12 +1859,12 @@ document.addEventListener('DOMContentLoaded', function() {
         const area = document.getElementById('geofenceArea').value;
         
         if (!name) {
-            alert('Veuillez entrer un nom');
+            showWarning('Veuillez entrer un nom');
             return;
         }
         
         if (!area) {
-            alert('Veuillez dessiner une zone sur la carte');
+            showWarning('Veuillez dessiner une zone sur la carte');
             return;
         }
         
@@ -1889,12 +1889,13 @@ document.addEventListener('DOMContentLoaded', function() {
             if (response.ok) {
                 hideForm();
                 loadGeofences();
+                showToast('Géobarrière sauvegardée avec succès', 'success');
             } else {
-                alert('Erreur lors de la sauvegarde');
+                showError('Erreur lors de la sauvegarde');
             }
         } catch (error) {
             console.error('Error saving geofence:', error);
-            alert('Erreur lors de la sauvegarde');
+            showError('Erreur lors de la sauvegarde');
         }
     }
 
@@ -1958,12 +1959,13 @@ document.addEventListener('DOMContentLoaded', function() {
             if (response.ok) {
                 document.getElementById('deleteModal').style.display = 'none';
                 loadGeofences();
+                showToast('Géobarrière supprimée avec succès', 'success');
             } else {
-                alert('Erreur lors de la suppression');
+                showError('Erreur lors de la suppression');
             }
         } catch (error) {
             console.error('Error deleting geofence:', error);
-            alert('Erreur lors de la suppression');
+            showError('Erreur lors de la suppression');
         }
     }
 

@@ -572,6 +572,72 @@ class TraccarController extends Controller
         return $this->formatResponse($response, 'event');
     }
 
+    /**
+     * Get recent events for all user devices (last 24 hours)
+     * GET /events/recent
+     */
+    public function getRecentEvents(Request $request): JsonResponse
+    {
+        try {
+            // Get all user devices first
+            $devicesResponse = $this->apiRequest('GET', 'devices');
+            
+            if (!isset($devicesResponse['data']) || !is_array($devicesResponse['data'])) {
+                return response()->json([
+                    'success' => true,
+                    'events' => [],
+                    'count' => 0
+                ]);
+            }
+            
+            $devices = $devicesResponse['data'];
+            $allEvents = [];
+            
+            // Get events from last 24 hours
+            $from = now()->subHours(24)->toIso8601String();
+            $to = now()->toIso8601String();
+            
+            // Limit to first 10 devices to avoid timeout
+            $devicesToCheck = array_slice($devices, 0, 10);
+            
+            foreach ($devicesToCheck as $device) {
+                $eventsResponse = $this->apiRequest('GET', 'reports/events', [], [
+                    'deviceId' => $device['id'],
+                    'from' => $from,
+                    'to' => $to
+                ]);
+                
+                if (isset($eventsResponse['data']) && is_array($eventsResponse['data'])) {
+                    foreach ($eventsResponse['data'] as $event) {
+                        $event['deviceName'] = $device['name'] ?? 'Unknown';
+                        $allEvents[] = $event;
+                    }
+                }
+            }
+            
+            // Sort by date descending
+            usort($allEvents, function($a, $b) {
+                return strtotime($b['eventTime'] ?? $b['serverTime'] ?? 0) - strtotime($a['eventTime'] ?? $a['serverTime'] ?? 0);
+            });
+            
+            // Limit to 50 most recent events
+            $allEvents = array_slice($allEvents, 0, 50);
+            
+            return response()->json([
+                'success' => true,
+                'events' => $allEvents,
+                'count' => count($allEvents)
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+                'events' => [],
+                'count' => 0
+            ]);
+        }
+    }
+
     // ==================== REPORTS ====================
 
     /**

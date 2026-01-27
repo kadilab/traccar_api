@@ -7,6 +7,8 @@
     <title>@yield('title', 'Traccar TF')</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- SweetAlert2 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     @if(app()->getLocale() === 'ar')
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
     @endif
@@ -171,6 +173,18 @@
                 <i class="fas fa-bell"></i>
                 {{ __('messages.nav.events') }}
             </a>
+            <a href="{{ route('commandes') }}" class="nav-item {{ request()->routeIs('commandes') ? 'active' : '' }}">
+                <i class="fas fa-terminal"></i>
+                Commandes
+            </a>
+            
+            {{-- Gestion utilisateurs pour admins et managers --}}
+            @if(Auth::user()->administrator ?? false || Auth::user()->isManager())
+            <a href="{{ route('account') }}" class="nav-item {{ request()->routeIs('account') ? 'active' : '' }}">
+                <i class="fas fa-users"></i>
+                {{ __('messages.nav.account') }}
+            </a>
+            @endif
             
             {{-- Pages supplémentaires réservées aux administrateurs --}}
             @if(Auth::user()->administrator ?? false)
@@ -178,9 +192,9 @@
                 <i class="fas fa-layer-group"></i>
                 {{ __('messages.nav.groupe') }}
             </a>
-            <a href="{{ route('account') }}" class="nav-item {{ request()->routeIs('account') ? 'active' : '' }}">
-                <i class="fas fa-users"></i>
-                {{ __('messages.nav.account') }}
+            <a href="{{ route('drivers.index') }}" class="nav-item {{ request()->routeIs('drivers.*') ? 'active' : '' }}">
+                <i class="fas fa-id-card"></i>
+                Conducteurs
             </a>
             <a href="{{ route('attribute') }}" class="nav-item {{ request()->routeIs('attribute', 'attributes') ? 'active' : '' }}">
                 <i class="fas fa-sliders-h"></i>
@@ -324,10 +338,10 @@
                 }
             });
 
-            // Load notifications count
+            // Load notifications count (recent events from last 24h)
             async function loadNotificationsCount() {
                 try {
-                    const response = await fetch('/api/notifications/count');
+                    const response = await fetch('/api/traccar/events/recent');
                     const data = await response.json();
                     const count = data.count || 0;
                     const badge = document.getElementById('notificationBadge');
@@ -356,6 +370,134 @@
             setInterval(loadNotificationsCount, 30000);
         });
     </script>
+    
+    <!-- SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <!-- Global SweetAlert2 Helper Functions -->
+    <script>
+        // Configure SweetAlert2 defaults
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer);
+                toast.addEventListener('mouseleave', Swal.resumeTimer);
+            }
+        });
+
+        // Global helper functions
+        window.showSuccess = function(message, title = 'Succès') {
+            return Swal.fire({
+                icon: 'success',
+                title: title,
+                text: message,
+                confirmButtonColor: '#7556D6'
+            });
+        };
+
+        window.showError = function(message, title = 'Erreur') {
+            return Swal.fire({
+                icon: 'error',
+                title: title,
+                text: message,
+                confirmButtonColor: '#dc3545'
+            });
+        };
+
+        window.showWarning = function(message, title = 'Attention') {
+            return Swal.fire({
+                icon: 'warning',
+                title: title,
+                text: message,
+                confirmButtonColor: '#ffc107',
+                confirmButtonText: 'OK'
+            });
+        };
+
+        window.showInfo = function(message, title = 'Information') {
+            return Swal.fire({
+                icon: 'info',
+                title: title,
+                text: message,
+                confirmButtonColor: '#1e88e5'
+            });
+        };
+
+        window.showToast = function(message, type = 'success') {
+            Toast.fire({
+                icon: type,
+                title: message
+            });
+        };
+
+        window.showConfirm = function(message, title = 'Confirmation', confirmText = 'Oui, confirmer', cancelText = 'Annuler') {
+            return Swal.fire({
+                title: title,
+                text: message,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#7556D6',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: confirmText,
+                cancelButtonText: cancelText,
+                reverseButtons: true
+            });
+        };
+
+        window.showDeleteConfirm = function(itemName = 'cet élément') {
+            return Swal.fire({
+                title: 'Êtes-vous sûr ?',
+                html: `Vous êtes sur le point de supprimer <strong>${itemName}</strong>.<br>Cette action est irréversible !`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: '<i class="fas fa-trash me-1"></i> Oui, supprimer',
+                cancelButtonText: 'Annuler',
+                reverseButtons: true
+            });
+        };
+
+        window.showLoading = function(message = 'Chargement en cours...') {
+            Swal.fire({
+                title: message,
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                showConfirmButton: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+        };
+
+        window.hideLoading = function() {
+            Swal.close();
+        };
+
+        window.showInputPrompt = function(title, inputPlaceholder = '', inputValue = '') {
+            return Swal.fire({
+                title: title,
+                input: 'text',
+                inputPlaceholder: inputPlaceholder,
+                inputValue: inputValue,
+                showCancelButton: true,
+                confirmButtonColor: '#7556D6',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Valider',
+                cancelButtonText: 'Annuler',
+                inputValidator: (value) => {
+                    if (!value) {
+                        return 'Veuillez entrer une valeur';
+                    }
+                }
+            });
+        };
+    </script>
+    
     @stack('scripts')
 </body>
 </html>

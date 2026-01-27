@@ -493,12 +493,12 @@
             <div class="modal fade" id="linkGeofenceModal" tabindex="-1" aria-labelledby="linkGeofenceModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-lg">
                     <div class="modal-content">
-                        <div class="modal-header">
+                        <div class="modal-header bg-success text-white">
                             <h5 class="modal-title" id="linkGeofenceModalLabel">
-                                <i class="fas fa-link me-2"></i>
-                                Associer des Geofences
+                                <i class="fas fa-draw-polygon me-2"></i>
+                                Géofences du véhicule
                             </h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
                             <div class="device-info-header mb-3">
@@ -511,17 +511,30 @@
                                 </div>
                             </div>
                             
-                            <div class="geofences-list-container">
-                                <div class="mb-3">
-                                    <input type="text" id="searchGeofence" class="form-control" placeholder="Rechercher une geofence...">
-                                </div>
-                                
-                                <div class="geofences-list" id="geofencesList">
-                                    <div class="text-center py-4">
-                                        <div class="spinner-border text-primary" role="status">
-                                            <span class="visually-hidden">Chargement...</span>
-                                        </div>
+                            <!-- Géofences assignées -->
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">
+                                    <i class="fas fa-check-circle me-1 text-success"></i>Géofences assignées
+                                </label>
+                                <div class="geofence-assigned-list" id="assignedGeofencesList">
+                                    <div class="text-center py-3 text-muted">
+                                        <i class="fas fa-spinner fa-spin"></i> Chargement...
                                     </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Assigner une nouvelle géofence -->
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">
+                                    <i class="fas fa-plus-circle me-1 text-primary"></i>Assigner une géofence
+                                </label>
+                                <div class="input-group">
+                                    <select class="form-select" id="availableGeofenceSelect">
+                                        <option value="">Sélectionnez une géofence...</option>
+                                    </select>
+                                    <button class="btn btn-primary" type="button" id="btnAssignGeofence">
+                                        <i class="fas fa-plus"></i> Assigner
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -530,10 +543,9 @@
                                 <i class="fas fa-times me-1"></i>
                                 Fermer
                             </button>
-                            <button type="button" class="btn btn-primary" id="btnSaveGeofenceLinks">
-                                <i class="fas fa-save me-1"></i>
-                                Enregistrer
-                            </button>
+                            <a href="/geofence" class="btn btn-outline-success">
+                                <i class="fas fa-external-link-alt me-1"></i>Gérer les géofences
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -1755,11 +1767,12 @@ document.addEventListener('DOMContentLoaded', function() {
         window.location.href = `/tracking?id=${id}`;
     };
 
-    window.deleteDevice = function(id) {
+    window.deleteDevice = async function(id) {
         const device = allDevices.find(d => d.id === id);
         if (!device) return;
         
-        if (confirm(`Êtes-vous sûr de vouloir supprimer "${device.name}" ?`)) {
+        const confirmed = await showDeleteConfirm(device.name);
+        if (confirmed) {
             // Trigger the delete action - assuming there's a deleteDevice function
             const deleteBtn = document.querySelector(`#devicesTable tbody tr[data-id="${id}"] .btn-icon.btn-delete`);
             if (deleteBtn) deleteBtn.click();
@@ -1770,7 +1783,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const device = allDevices.find(d => d.id === id);
         if (!device) {
             console.error('Device not found:', id);
-            alert('Device non trouvé');
+            showError('Device non trouvé');
             return;
         }
         
@@ -1845,7 +1858,8 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     window.deleteDevice = async function(id) {
-        if (!confirm('Êtes-vous sûr de vouloir supprimer ce device ?')) return;
+        const confirmed = await showDeleteConfirm('ce device');
+        if (!confirmed) return;
         
         try {
             const response = await fetch(`/api/traccar/devices/${id}`, { method: 'DELETE' });
@@ -1853,12 +1867,13 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (data.success) {
                 loadDevices();
+                showToast('Device supprimé avec succès', 'success');
             } else {
-                alert('Erreur lors de la suppression');
+                showError('Erreur lors de la suppression');
             }
         } catch (error) {
             console.error('Erreur:', error);
-            alert('Erreur de connexion');
+            showError('Erreur de connexion');
         }
     };
 
@@ -2000,12 +2015,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                     console.log('Utilisateur assigné avec succès au device');
                 } else {
-                    alert(data.message || 'Erreur lors de l\'assignation');
+                    showError(data.message || 'Erreur lors de l\'assignation');
                 }
             }
         } catch (error) {
             console.error('Erreur:', error);
-            alert('Erreur de connexion au serveur');
+            showError('Erreur de connexion au serveur');
         }
     };
 
@@ -2061,17 +2076,14 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (!device) return;
         
-        // Afficher les infos du device avec le nombre de geofences liées
-        const linkedCount = device.geofenceIds ? device.geofenceIds.length : 0;
+        // Afficher les infos du device
         document.getElementById('linkDeviceName').textContent = device.name || 'Device';
-        document.getElementById('linkDeviceImei').innerHTML = `${device.uniqueId || '-'} <span class="badge bg-primary ms-2">${linkedCount} geofence(s) liée(s)</span>`;
+        document.getElementById('linkDeviceImei').textContent = device.uniqueId || '-';
         
         // Afficher loading
-        document.getElementById('geofencesList').innerHTML = `
-            <div class="text-center py-4">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Chargement...</span>
-                </div>
+        document.getElementById('assignedGeofencesList').innerHTML = `
+            <div class="text-center py-3 text-muted">
+                <i class="fas fa-spinner fa-spin"></i> Chargement...
             </div>
         `;
         
@@ -2079,137 +2091,156 @@ document.addEventListener('DOMContentLoaded', function() {
         const modal = new bootstrap.Modal(document.getElementById('linkGeofenceModal'));
         modal.show();
         
-        // Charger les données
-        await loadGeofences();
-        await loadDeviceGeofenceLinks(deviceId);
-        
-        // Afficher la liste
-        renderGeofencesList();
+        // Charger et afficher les géofences
+        await loadAndRenderDeviceGeofences(deviceId);
     };
 
-    // Afficher la liste des geofences avec checkboxes
-    function renderGeofencesList() {
-        const container = document.getElementById('geofencesList');
-        const searchTerm = document.getElementById('searchGeofence').value.toLowerCase();
+    // Charger et afficher les géofences du device
+    async function loadAndRenderDeviceGeofences(deviceId) {
+        const assignedContainer = document.getElementById('assignedGeofencesList');
+        const availableSelect = document.getElementById('availableGeofenceSelect');
         
-        let filteredGeofences = allGeofences;
-        if (searchTerm) {
-            filteredGeofences = allGeofences.filter(g => 
-                g.name?.toLowerCase().includes(searchTerm)
-            );
-        }
-        
-        if (filteredGeofences.length === 0) {
-            container.innerHTML = `
-                <div class="text-center py-4 text-muted">
-                    <i class="fas fa-draw-polygon fa-3x mb-3"></i>
-                    <p>Aucune geofence disponible</p>
+        try {
+            // Charger toutes les géofences
+            await loadGeofences();
+            
+            // Charger les liens device-geofence
+            await loadDeviceGeofenceLinks(deviceId);
+            
+            // Séparer les géofences assignées et disponibles
+            const assignedGeofences = allGeofences.filter(g => deviceGeofenceLinks.includes(g.id));
+            const availableGeofences = allGeofences.filter(g => !deviceGeofenceLinks.includes(g.id));
+            
+            // Afficher les géofences assignées
+            if (assignedGeofences.length === 0) {
+                assignedContainer.innerHTML = `
+                    <div class="geofence-empty-state">
+                        <i class="fas fa-draw-polygon"></i>
+                        <p>Aucune géofence assignée</p>
+                    </div>
+                `;
+            } else {
+                assignedContainer.innerHTML = assignedGeofences.map(geofence => `
+                    <div class="geofence-assigned-item" data-geofence-id="${geofence.id}">
+                        <div class="geofence-assigned-info">
+                            <div class="geofence-assigned-icon">
+                                <i class="fas fa-draw-polygon"></i>
+                            </div>
+                            <div class="geofence-assigned-details">
+                                <span class="geofence-assigned-name">${geofence.name}</span>
+                                <span class="geofence-assigned-desc">${geofence.description || 'Pas de description'}</span>
+                            </div>
+                        </div>
+                        <button class="btn btn-sm btn-outline-danger" onclick="unassignDeviceGeofence(${deviceId}, ${geofence.id})">
+                            <i class="fas fa-unlink me-1"></i>Retirer
+                        </button>
+                    </div>
+                `).join('');
+            }
+            
+            // Remplir le dropdown des géofences disponibles
+            availableSelect.innerHTML = '<option value="">Sélectionnez une géofence...</option>';
+            availableGeofences.forEach(geofence => {
+                const option = document.createElement('option');
+                option.value = geofence.id;
+                option.textContent = geofence.name;
+                availableSelect.appendChild(option);
+            });
+            
+        } catch (error) {
+            console.error('Erreur chargement géofences:', error);
+            assignedContainer.innerHTML = `
+                <div class="geofence-empty-state text-danger">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <p>Erreur de chargement</p>
                 </div>
             `;
+        }
+    }
+
+    // Assigner une géofence au device
+    document.getElementById('btnAssignGeofence').addEventListener('click', async function() {
+        const geofenceId = parseInt(document.getElementById('availableGeofenceSelect').value);
+        
+        if (!geofenceId) {
+            showWarning('Veuillez sélectionner une géofence');
             return;
         }
         
-        container.innerHTML = filteredGeofences.map(geofence => {
-            const isLinked = deviceGeofenceLinks.includes(geofence.id);
-            return `
-                <div class="geofence-item ${isLinked ? 'linked' : ''}" data-id="${geofence.id}">
-                    <label class="geofence-label">
-                        <input type="checkbox" class="geofence-checkbox" value="${geofence.id}" ${isLinked ? 'checked' : ''}>
-                        <div class="geofence-info">
-                            <i class="fas fa-draw-polygon"></i>
-                            <span class="geofence-name">${geofence.name}</span>
-                        </div>
-                        <span class="link-status">
-                            ${isLinked ? '<i class="fas fa-link text-success"></i>' : '<i class="fas fa-unlink text-muted"></i>'}
-                        </span>
-                    </label>
-                </div>
-            `;
-        }).join('');
-        
-        // Ajouter les listeners pour mise à jour visuelle
-        container.querySelectorAll('.geofence-checkbox').forEach(checkbox => {
-            checkbox.addEventListener('change', function() {
-                const item = this.closest('.geofence-item');
-                const statusIcon = item.querySelector('.link-status');
-                if (this.checked) {
-                    item.classList.add('linked');
-                    statusIcon.innerHTML = '<i class="fas fa-link text-success"></i>';
-                } else {
-                    item.classList.remove('linked');
-                    statusIcon.innerHTML = '<i class="fas fa-unlink text-muted"></i>';
-                }
-            });
-        });
-    }
-
-    // Sauvegarder les liens device-geofence
-    document.getElementById('btnSaveGeofenceLinks').addEventListener('click', async function() {
         const btn = this;
         const originalContent = btn.innerHTML;
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Enregistrement...';
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
         btn.disabled = true;
         
         try {
-            const selectedGeofences = Array.from(document.querySelectorAll('.geofence-checkbox:checked'))
-                .map(cb => parseInt(cb.value));
+            const response = await fetch('/api/traccar/permissions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+                },
+                body: JSON.stringify({
+                    deviceId: currentLinkDeviceId,
+                    geofenceId: geofenceId
+                })
+            });
             
-            // Trouver les geofences à ajouter et à supprimer
-            const toAdd = selectedGeofences.filter(id => !deviceGeofenceLinks.includes(id));
-            const toRemove = deviceGeofenceLinks.filter(id => !selectedGeofences.includes(id));
-            
-            // Ajouter les nouveaux liens
-            for (const geofenceId of toAdd) {
-                await fetch('/api/traccar/permissions', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        deviceId: currentLinkDeviceId,
-                        geofenceId: geofenceId
-                    })
-                });
+            if (response.ok) {
+                // Recharger la liste
+                await loadAndRenderDeviceGeofences(currentLinkDeviceId);
+                // Rafraîchir les devices pour mettre à jour le compteur
+                await loadDevices();
+                showToast('Géofence assignée avec succès', 'success');
+            } else {
+                const data = await response.json();
+                showError('Erreur: ' + (data.message || 'Impossible d\'assigner la géofence'));
             }
-            
-            // Supprimer les liens retirés
-            for (const geofenceId of toRemove) {
-                await fetch('/api/traccar/permissions', {
-                    method: 'DELETE',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        deviceId: currentLinkDeviceId,
-                        geofenceId: geofenceId
-                    })
-                });
-            }
-            
-            // Fermer le modal
-            bootstrap.Modal.getInstance(document.getElementById('linkGeofenceModal')).hide();
-            
-            // Rafraîchir les données pour mettre à jour l'affichage
-            await loadDevices();
-            
-            // Notification de succès
-            const addedCount = toAdd.length;
-            const removedCount = toRemove.length;
-            let message = 'Associations mises à jour avec succès !';
-            if (addedCount > 0 || removedCount > 0) {
-                message = '';
-                if (addedCount > 0) message += `${addedCount} geofence(s) ajoutée(s). `;
-                if (removedCount > 0) message += `${removedCount} geofence(s) retirée(s).`;
-            }
-            alert(message);
-            
         } catch (error) {
             console.error('Erreur:', error);
-            alert('Erreur lors de la mise à jour des associations');
+            showError('Erreur lors de l\'assignation de la géofence');
         } finally {
             btn.innerHTML = originalContent;
             btn.disabled = false;
         }
     });
 
-    // Recherche dans les geofences
-    document.getElementById('searchGeofence').addEventListener('input', renderGeofencesList);
+    // Désassigner une géofence du device
+    window.unassignDeviceGeofence = async function(deviceId, geofenceId) {
+        const confirmed = await showConfirm('Voulez-vous vraiment retirer cette géofence du véhicule ?', 'Confirmation');
+        if (!confirmed) {
+            return;
+        }
+        
+        try {
+            const response = await fetch('/api/traccar/permissions', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+                },
+                body: JSON.stringify({
+                    deviceId: deviceId,
+                    geofenceId: geofenceId
+                })
+            });
+            
+            if (response.ok) {
+                // Recharger la liste
+                await loadAndRenderDeviceGeofences(deviceId);
+                // Rafraîchir les devices pour mettre à jour le compteur
+                await loadDevices();
+                showToast('Géofence retirée avec succès', 'success');
+            } else {
+                const data = await response.json();
+                showError('Erreur: ' + (data.message || 'Impossible de retirer la géofence'));
+            }
+        } catch (error) {
+            console.error('Erreur:', error);
+            showError('Erreur lors du retrait de la géofence');
+        }
+    };
 
     window.loadDevices = loadDevices;
 });
@@ -2656,56 +2687,94 @@ document.addEventListener('DOMContentLoaded', function() {
     gap: 8px;
 }
 
-.geofence-item {
+/* Geofence Assigned List Styles */
+.geofence-assigned-list {
+    max-height: 300px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 5px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+.geofence-assigned-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px;
+    background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
     border: 1px solid #e0e0e0;
     border-radius: 8px;
     transition: all 0.2s ease;
 }
 
-.geofence-item:hover {
-    border-color: #7556D6;
-    background: #fafafa;
-}
-
-.geofence-item.linked {
+.geofence-assigned-item:hover {
     border-color: #28a745;
-    background: linear-gradient(135deg, #f0fff4 0%, #dcffe4 100%);
+    box-shadow: 0 2px 4px rgba(40, 167, 69, 0.1);
 }
 
-.geofence-label {
+.geofence-assigned-info {
     display: flex;
     align-items: center;
-    padding: 12px 15px;
-    cursor: pointer;
-    margin: 0;
     gap: 12px;
-}
-
-.geofence-label input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
-    cursor: pointer;
-}
-
-.geofence-info {
     flex: 1;
+}
+
+.geofence-assigned-icon {
+    width: 36px;
+    height: 36px;
     display: flex;
     align-items: center;
-    gap: 10px;
+    justify-content: center;
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+    border-radius: 8px;
+    font-size: 14px;
 }
 
-.geofence-info i {
-    color: #7556D6;
-    font-size: 1.1rem;
+.geofence-assigned-details {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
 }
 
-.geofence-name {
-    font-weight: 500;
+.geofence-assigned-name {
+    font-weight: 600;
     color: #333;
+    font-size: 14px;
 }
 
-.link-status {
-    font-size: 1rem;
+.geofence-assigned-desc {
+    font-size: 12px;
+    color: #6c757d;
+}
+
+.geofence-empty-state {
+    text-align: center;
+    padding: 30px 15px;
+    color: #6c757d;
+}
+
+.geofence-empty-state i {
+    font-size: 40px;
+    margin-bottom: 10px;
+    opacity: 0.5;
+}
+
+.geofence-empty-state p {
+    margin: 0;
+    font-size: 14px;
+}
+
+.geofence-empty-state.text-danger {
+    color: #dc3545 !important;
+}
+
+.geofence-empty-state.text-danger i {
+    color: #dc3545;
 }
 
 /* Device Details Modal Styles */

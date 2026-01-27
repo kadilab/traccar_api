@@ -1081,8 +1081,9 @@
         modal.show();
     }
 
-    function deleteVehicle(id) {
-        if (confirm('Êtes-vous sûr de vouloir supprimer ce véhicule ?')) {
+    async function deleteVehicle(id) {
+        const confirmed = await showDeleteConfirm('ce véhicule');
+        if (confirmed) {
             // API call pour supprimer
             console.log('Delete vehicle:', id);
         }

@@ -313,7 +313,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const expression = document.getElementById('addAttributeExpression').value;
         
         if (!description || !attribute || !type || !expression) {
-            alert('Tous les champs sont obligatoires');
+            showWarning('Tous les champs sont obligatoires');
             return;
         }
         
@@ -335,16 +335,16 @@ document.addEventListener('DOMContentLoaded', function() {
             const data = await response.json();
             
             if (data.success) {
-                alert('Attribut ajouté avec succès');
+                showSuccess('Attribut ajouté avec succès');
                 document.getElementById('addAttributeForm').reset();
                 bootstrap.Modal.getInstance(document.getElementById('addAttributeModal')).hide();
                 await loadAttributes();
             } else {
-                alert('Erreur: ' + (data.message || 'Erreur lors de l\'ajout'));
+                showError('Erreur: ' + (data.message || 'Erreur lors de l\'ajout'));
             }
         } catch (error) {
             console.error('Erreur:', error);
-            alert('Erreur lors de l\'ajout de l\'attribut');
+            showError('Erreur lors de l\'ajout de l\'attribut');
         }
     }
 
@@ -389,23 +389,24 @@ document.addEventListener('DOMContentLoaded', function() {
             const data = await response.json();
             
             if (data.success) {
-                alert('Attribut mis à jour avec succès');
+                showSuccess('Attribut mis à jour avec succès');
                 bootstrap.Modal.getInstance(document.getElementById('editAttributeModal')).hide();
                 await loadAttributes();
             } else {
-                alert('Erreur: ' + (data.message || 'Erreur lors de la mise à jour'));
+                showError('Erreur: ' + (data.message || 'Erreur lors de la mise à jour'));
             }
         } catch (error) {
             console.error('Erreur:', error);
-            alert('Erreur lors de la mise à jour');
+            showError('Erreur lors de la mise à jour');
         }
     }
 
     // Supprimer un attribut
-    window.deleteAttribute = function(id) {
-        if (!confirm('Êtes-vous sûr de vouloir supprimer cet attribut ?')) return;
+    window.deleteAttribute = async function(id) {
+        const confirmed = await showDeleteConfirm('cet attribut');
+        if (!confirmed) return;
         
-        deleteAttributeConfirmed(id);
+        await deleteAttributeConfirmed(id);
     };
 
     // Confirmer la suppression
@@ -419,14 +420,14 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             
             if (response.ok) {
-                alert('Attribut supprimé avec succès');
+                showToast('Attribut supprimé avec succès', 'success');
                 await loadAttributes();
             } else {
-                alert('Erreur lors de la suppression');
+                showError('Erreur lors de la suppression');
             }
         } catch (error) {
             console.error('Erreur:', error);
-            alert('Erreur lors de la suppression');
+            showError('Erreur lors de la suppression');
         }
     }
 
@@ -435,11 +436,12 @@ document.addEventListener('DOMContentLoaded', function() {
         const selected = Array.from(document.querySelectorAll('.attribute-checkbox:checked')).map(cb => cb.value);
         
         if (selected.length === 0) {
-            alert('Sélectionnez au moins un attribut');
+            showWarning('Sélectionnez au moins un attribut');
             return;
         }
         
-        if (!confirm(`Êtes-vous sûr de vouloir supprimer ${selected.length} attribut(s) ?`)) return;
+        const confirmed = await showConfirm(`Êtes-vous sûr de vouloir supprimer ${selected.length} attribut(s) ?`, 'Confirmation de suppression');
+        if (!confirmed) return;
         
         for (const id of selected) {
             await deleteAttributeConfirmed(id);
@@ -451,13 +453,20 @@ document.addEventListener('DOMContentLoaded', function() {
         const attr = allAttributes.find(a => a.id === id);
         if (!attr) return;
         
-        alert(`
-ID: ${attr.id}
-Description: ${attr.description}
-Attribut: ${attr.attribute}
-Type: ${attr.type}
-Expression: ${attr.expression}
-        `);
+        Swal.fire({
+            title: 'Détails de l\'attribut',
+            html: `
+                <div class="text-start">
+                    <p><strong>ID:</strong> ${attr.id}</p>
+                    <p><strong>Description:</strong> ${attr.description}</p>
+                    <p><strong>Attribut:</strong> ${attr.attribute}</p>
+                    <p><strong>Type:</strong> ${attr.type}</p>
+                    <p><strong>Expression:</strong> <code>${attr.expression}</code></p>
+                </div>
+            `,
+            icon: 'info',
+            confirmButtonColor: '#7556D6'
+        });
     };
 
     // Basculer la sélection de tous les attributs

@@ -1009,20 +1009,23 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     window.deleteUser = async function(id) {
-        if (!confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')) return;
+        const user = allUsers.find(u => u.id === id);
+        const result = await showDeleteConfirm(user?.name || 'cet utilisateur');
+        if (!result.isConfirmed) return;
         
         try {
             const response = await fetch(`/api/traccar/users/${id}`, { method: 'DELETE' });
             const data = await response.json();
             
             if (data.success) {
+                showToast('Utilisateur supprimé avec succès', 'success');
                 loadUsers();
             } else {
-                alert('Erreur lors de la suppression');
+                showError('Erreur lors de la suppression');
             }
         } catch (error) {
             console.error('Erreur:', error);
-            alert('Erreur de connexion');
+            showError('Erreur de connexion au serveur');
         }
     };
 
@@ -1275,7 +1278,7 @@ async function addLinkedItem(type, selectElement) {
     
     // Vérifier que l'élément n'est pas déjà lié
     if (linkedItems[type].includes(parseInt(itemId))) {
-        alert('Cet élément est déjà lié.');
+        showWarning('Cet élément est déjà lié.');
         selectElement.value = '';
         return;
     }

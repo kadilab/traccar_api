@@ -38,16 +38,29 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Session Idle Timeout
+    |--------------------------------------------------------------------------
+    |
+    | The session will expire after this many minutes of inactivity.
+    | This is handled by the CheckUserActive middleware.
+    |
+    */
+
+    'idle_timeout' => (int) env('SESSION_IDLE_TIMEOUT', 60),
+
+    /*
+    |--------------------------------------------------------------------------
     | Session Encryption
     |--------------------------------------------------------------------------
     |
     | This option allows you to easily specify that all of your session data
     | should be encrypted before it's stored. All encryption is performed
     | automatically by Laravel and you may use the session like normal.
+    | SECURITY: Recommended to enable for production
     |
     */
 
-    'encrypt' => env('SESSION_ENCRYPT', false),
+    'encrypt' => env('SESSION_ENCRYPT', true),
 
     /*
     |--------------------------------------------------------------------------

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Services\SecurityAuditService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -35,8 +36,18 @@ class AuthController extends Controller
             // Vérifier si l'utilisateur est désactivé
             if ($user->disabled) {
                 Auth::logout();
+                SecurityAuditService::logLoginFailed($credentials['email'], 'account_disabled');
                 throw ValidationException::withMessages([
                     'email' => ['Ce compte a été désactivé. Veuillez contacter l\'administrateur.'],
+                ]);
+            }
+            
+            // Vérifier si le compte est expiré
+            if ($user->isExpired()) {
+                Auth::logout();
+                SecurityAuditService::logLoginFailed($credentials['email'], 'account_expired');
+                throw ValidationException::withMessages([
+                    'email' => ['Ce compte a expiré. Veuillez contacter l\'administrateur.'],
                 ]);
             }
             
@@ -51,11 +62,16 @@ class AuthController extends Controller
             // Créer une session Traccar et stocker le cookie
             $this->createTraccarSession($request, $credentials['email'], $credentials['password']);
 
+            // Logger la connexion réussie
+            SecurityAuditService::logLogin($user->id, $user->email);
+
             // Rediriger vers dashboard si admin, sinon vers monitor
             $redirect = $user->administrator ? '/dashboard' : '/monitor';
             return redirect()->intended($redirect);
         }
 
+        SecurityAuditService::logLoginFailed($credentials['email'], 'invalid_credentials');
+        
         throw ValidationException::withMessages([
             'email' => ['Les identifiants fournis sont incorrects.'],
         ]);
@@ -96,8 +112,15 @@ class AuthController extends Controller
      */
     public function logout(Request $request)
     {
+        $userId = auth()->id();
+        
         // Supprimer la session Traccar
         $this->deleteTraccarSession($request);
+        
+        // Logger la déconnexion
+        if ($userId) {
+            SecurityAuditService::logLogout($userId);
+        }
         
         Auth::logout();
 
@@ -126,20 +149,38 @@ class AuthController extends Controller
 
     /**
      * Afficher la page d'inscription
+     * Cette page n'est accessible que si aucun administrateur n'existe (première installation)
      */
     public function showRegister()
     {
+        // Vérifier si un administrateur existe déjà
+        $adminExists = User::where('administrator', true)->exists();
+        
+        if ($adminExists) {
+            // Si un admin existe, rediriger vers login avec un message
+            return redirect()->route('login')
+                ->with('info', 'L\'installation a déjà été effectuée. Connectez-vous ou contactez l\'administrateur pour créer un compte.');
+        }
+        
         return view('auth.register');
     }
 
     /**
-     * Traiter l'inscription
+     * Traiter l'inscription (création du premier administrateur)
      */
     public function register(Request $request)
     {
+        // Vérifier si un administrateur existe déjà
+        $adminExists = User::where('administrator', true)->exists();
+        
+        if ($adminExists) {
+            return redirect()->route('login')
+                ->with('error', 'L\'inscription n\'est pas autorisée. Contactez l\'administrateur.');
+        }
+        
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:traccar.users,email'],
+            'name' => ['required', 'string', 'min:2', 'max:255'],
+            'email' => ['required', 'string', 'email:rfc', 'max:255', 'unique:traccar.users,email'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ]);
 
@@ -147,17 +188,44 @@ class AuthController extends Controller
         $hasher = new \App\Services\TraccarHasher();
         $hashResult = $hasher->make($validated['password']);
 
+        // Créer le premier utilisateur comme administrateur
         $user = User::create([
-            'name' => $validated['name'],
+            'name' => htmlspecialchars($validated['name'], ENT_QUOTES, 'UTF-8'),
             'email' => $validated['email'],
             'hashedpassword' => $hashResult['hash'],
             'salt' => $hashResult['salt'],
+            'administrator' => true, // Premier utilisateur = administrateur
+            'userlimit' => -1, // Pas de limite d'utilisateurs
+            'devicelimit' => -1, // Pas de limite d'appareils
             'attributes' => '{}', // Traccar exige un JSON vide
         ]);
 
+        // Logger la création de l'administrateur
+        SecurityAuditService::logUserCreated($user->id, $user->email, 'initial_admin_setup');
+
         Auth::login($user);
 
-        // Les nouveaux utilisateurs ne sont pas admin, rediriger vers monitor
-        return redirect('/monitor');
+        // Créer la session Traccar pour l'admin
+        $this->createTraccarSession($request, $validated['email'], $validated['password']);
+
+        // Stocker les credentials cryptés
+        $request->session()->put('traccar_credentials', encrypt([
+            'email' => $validated['email'],
+            'password' => $validated['password'],
+        ]));
+
+        // Rediriger vers le dashboard admin
+        return redirect('/dashboard')
+            ->with('success', 'Bienvenue ! Votre compte administrateur a été créé avec succès.');
+    }
+    
+    /**
+     * Vérifier si un admin existe (API endpoint pour le frontend)
+     */
+    public function checkAdminExists()
+    {
+        return response()->json([
+            'exists' => User::where('administrator', true)->exists()
+        ]);
     }
 }

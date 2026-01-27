@@ -158,6 +158,63 @@
                     <span class="speed-unit">km/h</span>
                 </div>
             </div>
+            
+            <!-- Command Button -->
+            <div class="command-btn-overlay">
+                <button class="command-floating-btn" id="btnOpenCommand" title="Envoyer une commande">
+                    <i class="fas fa-terminal"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Command Modal -->
+<div class="modal fade" id="commandModal" tabindex="-1" aria-labelledby="commandModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="commandModalLabel">
+                    <i class="fas fa-terminal me-2"></i>Envoyer une commande
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label fw-bold">
+                        <i class="fas fa-car me-1"></i>Appareil
+                    </label>
+                    <div class="form-control bg-light" id="commandDeviceName">-</div>
+                    <input type="hidden" id="commandDeviceId">
+                </div>
+                <div class="mb-3">
+                    <label for="commandType" class="form-label fw-bold">
+                        <i class="fas fa-list me-1"></i>Type de commande
+                    </label>
+                    <select class="form-select" id="commandType" onchange="onCommandTypeChange()">
+                        <option value="">Chargement des commandes...</option>
+                    </select>
+                </div>
+                <div class="mb-3" id="commandDataGroup" style="display: none;">
+                    <label for="commandData" class="form-label fw-bold">
+                        <i class="fas fa-code me-1"></i>Données de la commande
+                    </label>
+                    <textarea class="form-control" id="commandData" rows="3" placeholder="Entrez les données de la commande..."></textarea>
+                    <div class="form-text">Pour les commandes personnalisées, entrez la commande brute ici.</div>
+                </div>
+                <div class="alert alert-info mb-0" id="commandDescription">
+                    <i class="fas fa-info-circle me-1"></i>
+                    <span>Sélectionnez un type de commande pour voir sa description.</span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>Annuler
+                </button>
+                <button type="button" class="btn btn-primary" id="btnSendCommand" onclick="executeCommand()">
+                    <i class="fas fa-paper-plane me-1"></i>Envoyer
+                </button>
+            </div>
         </div>
     </div>
 </div>
@@ -1090,6 +1147,101 @@
 [dir="rtl"] .header-left {
     flex-direction: row-reverse;
 }
+
+/* Command Button Overlay */
+.command-btn-overlay {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    z-index: 400;
+}
+
+.command-floating-btn {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+    color: #fff;
+    border: none;
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+    cursor: pointer;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.command-floating-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(139, 92, 246, 0.5);
+}
+
+/* Command Modal Styles */
+#commandModal .modal-content {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+#commandModal .modal-header {
+    border-radius: 12px 12px 0 0;
+    border-bottom: none;
+}
+
+#commandModal .modal-body {
+    padding: 24px;
+}
+
+#commandModal .form-select,
+#commandModal .form-control {
+    border-radius: 8px;
+    border: 2px solid #e5e7eb;
+    padding: 10px 14px;
+}
+
+#commandModal .form-select:focus,
+#commandModal .form-control:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+#commandModal .btn {
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-weight: 600;
+}
+
+#commandModal .alert {
+    border-radius: 8px;
+    border: none;
+}
+
+@media (max-width: 768px) {
+    .command-btn-overlay {
+        bottom: 15px;
+        right: 130px;
+    }
+    
+    .command-floating-btn {
+        width: 48px;
+        height: 48px;
+        font-size: 18px;
+    }
+}
+
+@media (max-width: 480px) {
+    .command-btn-overlay {
+        bottom: 10px;
+        right: 100px;
+    }
+    
+    .command-floating-btn {
+        width: 42px;
+        height: 42px;
+        font-size: 16px;
+    }
+}
 </style>
 @endpush
 
@@ -1102,7 +1254,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const deviceId = urlParams.get('id');
     
     if (!deviceId) {
-        alert('{{ __("messages.device.no_devices") }}');
+        showWarning('{{ __("messages.device.no_devices") }}');
         window.location.href = '{{ route("device") }}';
         return;
     }
@@ -1349,6 +1501,218 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('deviceName').textContent = message;
     }
 
+    // Command types descriptions
+    const commandDescriptions = {
+        'custom': 'Envoyer une commande personnalisée brute à l\'appareil.',
+        'positionPeriodic': 'Définir l\'intervalle de mise à jour de position.',
+        'positionStop': 'Arrêter les mises à jour de position.',
+        'engineStop': 'Couper le moteur du véhicule à distance.',
+        'engineResume': 'Réactiver le moteur du véhicule.',
+        'alarmArm': 'Activer l\'alarme du véhicule.',
+        'alarmDisarm': 'Désactiver l\'alarme du véhicule.',
+        'setTimezone': 'Configurer le fuseau horaire de l\'appareil.',
+        'requestPhoto': 'Demander une photo depuis la caméra de l\'appareil.',
+        'rebootDevice': 'Redémarrer l\'appareil GPS.',
+        'sendSms': 'Envoyer un SMS via l\'appareil.',
+        'sendUssd': 'Envoyer une commande USSD.',
+        'sosNumber': 'Configurer le numéro SOS.',
+        'silenceTime': 'Définir une période de silence.',
+        'setPhonebook': 'Configurer le répertoire téléphonique.',
+        'voiceMessage': 'Envoyer un message vocal.',
+        'outputControl': 'Contrôler les sorties de l\'appareil.',
+        'voiceMonitoring': 'Activer la surveillance vocale.',
+        'setAgps': 'Configurer l\'AGPS.',
+        'setIndicator': 'Configurer l\'indicateur LED.',
+        'configuration': 'Envoyer une configuration à l\'appareil.',
+        'getVersion': 'Obtenir la version du firmware.',
+        'firmwareUpdate': 'Mettre à jour le firmware.',
+        'setConnection': 'Configurer la connexion serveur.',
+        'setOdometer': 'Réinitialiser/configurer l\'odomètre.',
+        'getModemStatus': 'Obtenir le statut du modem.',
+        'getDeviceStatus': 'Obtenir le statut de l\'appareil.',
+        'setSpeedLimit': 'Définir la limite de vitesse.',
+        'modePowerSaving': 'Activer le mode économie d\'énergie.',
+        'modeDeepSleep': 'Activer le mode veille profonde.',
+        'movementAlarm': 'Configurer l\'alarme de mouvement.',
+        'setDriverId': 'Définir l\'ID du conducteur.'
+    };
+    
+    // Format command type for display
+    function formatCommandType(type) {
+        const formats = {
+            'custom': 'Commande personnalisée',
+            'positionPeriodic': 'Position périodique',
+            'positionStop': 'Arrêter le positionnement',
+            'engineStop': 'Arrêter le moteur',
+            'engineResume': 'Redémarrer le moteur',
+            'alarmArm': 'Activer l\'alarme',
+            'alarmDisarm': 'Désactiver l\'alarme',
+            'setTimezone': 'Définir fuseau horaire',
+            'requestPhoto': 'Demander une photo',
+            'rebootDevice': 'Redémarrer l\'appareil',
+            'sendSms': 'Envoyer SMS',
+            'sendUssd': 'Commande USSD',
+            'sosNumber': 'Numéro SOS',
+            'silenceTime': 'Période de silence',
+            'setPhonebook': 'Répertoire téléphonique',
+            'voiceMessage': 'Message vocal',
+            'outputControl': 'Contrôle des sorties',
+            'voiceMonitoring': 'Surveillance vocale',
+            'setAgps': 'Configurer AGPS',
+            'setIndicator': 'Configurer indicateur',
+            'configuration': 'Configuration',
+            'getVersion': 'Version firmware',
+            'firmwareUpdate': 'Mise à jour firmware',
+            'setConnection': 'Configurer connexion',
+            'setOdometer': 'Configurer odomètre',
+            'getModemStatus': 'Statut modem',
+            'getDeviceStatus': 'Statut appareil',
+            'setSpeedLimit': 'Limite de vitesse',
+            'modePowerSaving': 'Mode économie énergie',
+            'modeDeepSleep': 'Mode veille profonde',
+            'movementAlarm': 'Alarme mouvement',
+            'setDriverId': 'ID conducteur'
+        };
+        return formats[type] || type;
+    }
+    
+    // Open command modal
+    function openCommandModal() {
+        if (!device) return;
+        
+        document.getElementById('commandDeviceId').value = deviceId;
+        document.getElementById('commandDeviceName').textContent = device.name || 'Appareil #' + deviceId;
+        document.getElementById('commandType').innerHTML = '<option value="">Chargement...</option>';
+        document.getElementById('commandDataGroup').style.display = 'none';
+        document.getElementById('commandData').value = '';
+        document.getElementById('commandDescription').innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Chargement des commandes disponibles...';
+        
+        // Open modal
+        const modal = new bootstrap.Modal(document.getElementById('commandModal'));
+        modal.show();
+        
+        // Load available command types for this device
+        loadCommandTypes();
+    }
+    
+    // Load command types for device
+    async function loadCommandTypes() {
+        try {
+            const response = await fetch(`/api/traccar/commands/types?deviceId=${deviceId}`);
+            const data = await response.json();
+            
+            const select = document.getElementById('commandType');
+            select.innerHTML = '<option value="">-- Sélectionnez une commande --</option>';
+            
+            if (data.success && data.types) {
+                data.types.forEach(type => {
+                    const option = document.createElement('option');
+                    option.value = type.type;
+                    option.textContent = formatCommandType(type.type);
+                    select.appendChild(option);
+                });
+                
+                document.getElementById('commandDescription').innerHTML = 
+                    '<i class="fas fa-info-circle me-1"></i> Sélectionnez une commande pour voir sa description.';
+            } else {
+                select.innerHTML = '<option value="">Aucune commande disponible</option>';
+                document.getElementById('commandDescription').innerHTML = 
+                    '<i class="fas fa-exclamation-triangle me-1"></i> Aucune commande disponible pour cet appareil.';
+            }
+        } catch (error) {
+            console.error('Error loading command types:', error);
+            document.getElementById('commandType').innerHTML = '<option value="">Erreur de chargement</option>';
+            document.getElementById('commandDescription').innerHTML = 
+                '<i class="fas fa-exclamation-circle me-1"></i> Erreur lors du chargement des commandes.';
+        }
+    }
+    
+    // Handle command type change
+    window.onCommandTypeChange = function() {
+        const type = document.getElementById('commandType').value;
+        const dataGroup = document.getElementById('commandDataGroup');
+        const description = document.getElementById('commandDescription');
+        
+        if (type === 'custom') {
+            dataGroup.style.display = 'block';
+        } else {
+            dataGroup.style.display = 'none';
+        }
+        
+        if (type && commandDescriptions[type]) {
+            description.innerHTML = '<i class="fas fa-info-circle me-1"></i> ' + commandDescriptions[type];
+            description.className = 'alert alert-info mb-0';
+        } else if (type) {
+            description.innerHTML = '<i class="fas fa-info-circle me-1"></i> Commande: ' + formatCommandType(type);
+            description.className = 'alert alert-info mb-0';
+        } else {
+            description.innerHTML = '<i class="fas fa-info-circle me-1"></i> Sélectionnez une commande pour voir sa description.';
+        }
+    };
+    
+    // Execute command
+    window.executeCommand = async function() {
+        const cmdDeviceId = document.getElementById('commandDeviceId').value;
+        const type = document.getElementById('commandType').value;
+        const data = document.getElementById('commandData').value;
+        
+        if (!type) {
+            showWarning('Veuillez sélectionner un type de commande.');
+            return;
+        }
+        
+        const btn = document.getElementById('btnSendCommand');
+        const originalHtml = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Envoi...';
+        btn.disabled = true;
+        
+        try {
+            const commandData = {
+                deviceId: parseInt(cmdDeviceId),
+                type: type
+            };
+            
+            // Add custom data if present
+            if (type === 'custom' && data) {
+                commandData.data = data;
+            }
+            
+            const response = await fetch('/api/traccar/commands/send', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify(commandData)
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                document.getElementById('commandDescription').innerHTML = 
+                    '<i class="fas fa-check-circle me-1"></i> Commande envoyée avec succès!';
+                document.getElementById('commandDescription').className = 'alert alert-success mb-0';
+                
+                // Close modal after success
+                setTimeout(() => {
+                    bootstrap.Modal.getInstance(document.getElementById('commandModal')).hide();
+                }, 1500);
+            } else {
+                document.getElementById('commandDescription').innerHTML = 
+                    '<i class="fas fa-exclamation-circle me-1"></i> Erreur: ' + (result.message || 'Échec de l\'envoi');
+                document.getElementById('commandDescription').className = 'alert alert-danger mb-0';
+            }
+        } catch (error) {
+            console.error('Error sending command:', error);
+            document.getElementById('commandDescription').innerHTML = 
+                '<i class="fas fa-exclamation-circle me-1"></i> Erreur de connexion au serveur.';
+            document.getElementById('commandDescription').className = 'alert alert-danger mb-0';
+        } finally {
+            btn.innerHTML = originalHtml;
+            btn.disabled = false;
+        }
+    };
+
     // Event listeners
     document.getElementById('btnCenterMap').addEventListener('click', function() {
         if (position && map) {
@@ -1389,6 +1753,11 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
             mapSection.requestFullscreen();
         }
+    });
+    
+    // Command button event listener
+    document.getElementById('btnOpenCommand').addEventListener('click', function() {
+        openCommandModal();
     });
 
     // Pause updates when page is hidden

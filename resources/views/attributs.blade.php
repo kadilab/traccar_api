@@ -546,8 +546,9 @@ function saveAttribute() {
 }
 
 // Delete attribute
-function deleteAttribute(id) {
-    if (!confirm('Êtes-vous sûr de vouloir supprimer cet attribut ?')) return;
+async function deleteAttribute(id) {
+    const confirmed = await showDeleteConfirm('cet attribut');
+    if (!confirmed) return;
     
     fetch(`/api/traccar/attributes/computed/${id}`, {
         method: 'DELETE',

@@ -1080,7 +1080,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const deviceId = urlParams.get('id');
     
     if (!deviceId) {
-        alert('Aucun appareil sélectionné');
+        showWarning('Aucun appareil sélectionné');
         window.location.href = '{{ route("monitor") }}';
         return;
     }
@@ -1300,7 +1300,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const timeTo = document.getElementById('timeTo').value;
 
         if (!dateFrom || !dateTo) {
-            alert('Veuillez sélectionner une période');
+            showWarning('Veuillez sélectionner une période');
             return;
         }
 
@@ -1319,13 +1319,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 positions = data;
             } else {
                 console.error('Invalid response format:', data);
-                alert('Erreur: Format de réponse invalide');
+                showError('Erreur: Format de réponse invalide');
                 updateStatus('ready', 'Erreur');
                 return;
             }
 
             if (!positions || positions.length === 0) {
-                alert('Aucune position trouvée pour cette période');
+                showInfo('Aucune position trouvée pour cette période');
                 updateStatus('ready', 'Aucune donnée');
                 positions = [];
                 return;
@@ -1350,7 +1350,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         } catch (error) {
             console.error('Error loading history:', error);
-            alert('Erreur lors du chargement de l\'historique');
+            showError('Erreur lors du chargement de l\'historique');
             updateStatus('ready', 'Erreur');
         }
     }
@@ -1728,7 +1728,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Export data
     function exportData() {
         if (positions.length === 0) {
-            alert('Aucune donnée à exporter');
+            showWarning('Aucune donnée à exporter');
             return;
         }
 

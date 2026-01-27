@@ -163,6 +163,119 @@
                         <p>Cliquez sur un véhicule</p>
                     </div>
                 </div>
+                <div class="panel-actions" id="panelActions" style="display: none;">
+                    <div class="action-icons" id="actionIcons">
+                        <!-- Action buttons will be injected here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Command Modal -->
+<div class="modal fade" id="commandModal" tabindex="-1" aria-labelledby="commandModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="commandModalLabel">
+                    <i class="fas fa-terminal me-2"></i>Envoyer une commande
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label fw-bold">
+                        <i class="fas fa-car me-1"></i>Appareil
+                    </label>
+                    <div class="form-control bg-light" id="commandDeviceName">-</div>
+                    <input type="hidden" id="commandDeviceId">
+                </div>
+                <div class="mb-3">
+                    <label for="commandType" class="form-label fw-bold">
+                        <i class="fas fa-list me-1"></i>Type de commande
+                    </label>
+                    <select class="form-select" id="commandType" onchange="onCommandTypeChange()">
+                        <option value="">Chargement des commandes...</option>
+                    </select>
+                </div>
+                <div class="mb-3" id="commandDataGroup" style="display: none;">
+                    <label for="commandData" class="form-label fw-bold">
+                        <i class="fas fa-code me-1"></i>Données de la commande
+                    </label>
+                    <textarea class="form-control" id="commandData" rows="3" placeholder="Entrez les données de la commande..."></textarea>
+                    <div class="form-text">Pour les commandes personnalisées, entrez la commande brute ici.</div>
+                </div>
+                <div class="alert alert-info mb-0" id="commandDescription">
+                    <i class="fas fa-info-circle me-1"></i>
+                    <span>Sélectionnez un type de commande pour voir sa description.</span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>Annuler
+                </button>
+                <button type="button" class="btn btn-primary" id="btnSendCommand" onclick="executeCommand()">
+                    <i class="fas fa-paper-plane me-1"></i>Envoyer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Geofence Modal -->
+<div class="modal fade" id="geofenceModal" tabindex="-1" aria-labelledby="geofenceModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="geofenceModalLabel">
+                    <i class="fas fa-draw-polygon me-2"></i>Géofences du véhicule
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label fw-bold">
+                        <i class="fas fa-car me-1"></i>Appareil
+                    </label>
+                    <div class="form-control bg-light" id="geofenceDeviceName">-</div>
+                    <input type="hidden" id="geofenceDeviceId">
+                </div>
+                
+                <!-- Géofences assignées -->
+                <div class="mb-4">
+                    <label class="form-label fw-bold">
+                        <i class="fas fa-check-circle me-1 text-success"></i>Géofences assignées
+                    </label>
+                    <div id="assignedGeofences" class="geofence-list">
+                        <div class="text-center text-muted py-3">
+                            <i class="fas fa-spinner fa-spin"></i> Chargement...
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Assigner une nouvelle géofence -->
+                <div class="mb-3">
+                    <label class="form-label fw-bold">
+                        <i class="fas fa-plus-circle me-1 text-primary"></i>Assigner une géofence
+                    </label>
+                    <div class="input-group">
+                        <select class="form-select" id="availableGeofences">
+                            <option value="">Sélectionnez une géofence...</option>
+                        </select>
+                        <button class="btn btn-primary" type="button" onclick="assignGeofence()">
+                            <i class="fas fa-plus"></i> Assigner
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>Fermer
+                </button>
+                <a href="/geofence" class="btn btn-outline-success">
+                    <i class="fas fa-external-link-alt me-1"></i>Gérer les géofences
+                </a>
             </div>
         </div>
     </div>
@@ -176,6 +289,94 @@ html {
     height: 100% !important;
     margin: 0 !important;
     padding: 0 !important;
+}
+
+/* Geofence List Styles */
+.geofence-list {
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background: #f9fafb;
+}
+
+.geofence-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    border-bottom: 1px solid #e5e7eb;
+    transition: background 0.2s;
+}
+
+.geofence-item:last-child {
+    border-bottom: none;
+}
+
+.geofence-item:hover {
+    background: #f3f4f6;
+}
+
+.geofence-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.geofence-icon {
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 14px;
+}
+
+.geofence-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.geofence-name {
+    font-weight: 600;
+    font-size: 14px;
+    color: #1f2937;
+}
+
+.geofence-desc {
+    font-size: 12px;
+    color: #6b7280;
+}
+
+.geofence-unassign-btn {
+    padding: 6px 12px;
+    background: #fee2e2;
+    border: none;
+    border-radius: 6px;
+    color: #dc2626;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.geofence-unassign-btn:hover {
+    background: #dc2626;
+    color: white;
+}
+
+.geofence-empty {
+    text-align: center;
+    padding: 20px;
+    color: #9ca3af;
+}
+
+.geofence-empty i {
+    font-size: 24px;
+    margin-bottom: 8px;
+    display: block;
 }
 
 body {
@@ -716,7 +917,7 @@ body {
 /* Map Legend */
 .map-legend {
     position: absolute;
-    bottom: 15px;
+    bottom: 50px;
     left: 15px;
     display: flex;
     gap: 12px;
@@ -744,7 +945,7 @@ body {
 /* Device Panel */
 .device-panel {
     position: absolute;
-    bottom: 15px;
+    bottom: 50px;
     right: 15px;
     width: 320px;
     background: #fff;
@@ -753,6 +954,9 @@ body {
     z-index: 500;
     overflow: hidden;
     transition: transform 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    max-height: 450px;
 }
 
 .device-panel.hidden {
@@ -829,8 +1033,16 @@ body {
 
 .panel-body {
     padding: 14px;
-    max-height: 300px;
+    max-height: 250px;
     overflow-y: auto;
+    flex: 1;
+}
+
+.panel-actions {
+    padding: 12px 14px;
+    border-top: 1px solid #e5e7eb;
+    background: #f9fafb;
+    border-radius: 0 0 14px 14px;
 }
 
 .no-selection {
@@ -1084,6 +1296,63 @@ body {
         left: 8px;
         right: 8px;
     }
+}
+
+/* Command Modal Styles */
+#commandModal .modal-content {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+#commandModal .modal-header {
+    border-radius: 12px 12px 0 0;
+    border-bottom: none;
+}
+
+#commandModal .modal-body {
+    padding: 24px;
+}
+
+#commandModal .form-select,
+#commandModal .form-control {
+    border-radius: 8px;
+    border: 2px solid #e5e7eb;
+    padding: 10px 14px;
+}
+
+#commandModal .form-select:focus,
+#commandModal .form-control:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+#commandModal .btn {
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-weight: 600;
+}
+
+#commandModal .alert {
+    border-radius: 8px;
+    border: none;
+}
+
+.command-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.command-success {
+    color: #10b981;
+    font-weight: 600;
+}
+
+.command-error {
+    color: #ef4444;
+    font-weight: 600;
 }
 </style>
 @endpush
@@ -1531,23 +1800,26 @@ document.addEventListener('DOMContentLoaded', function() {
                 <i class="fas fa-clock"></i>
                 <span>${lastUpdate}</span>
             </div>
-            <div class="action-icons">
-                <button class="action-icon-btn" onclick="viewHistory(${deviceId})" title="Historique">
-                    <i class="fas fa-history"></i>
-                </button>
-                <button class="action-icon-btn" onclick="sendCommand(${deviceId})" title="Commande">
-                    <i class="fas fa-terminal"></i>
-                </button>
-                <button class="action-icon-btn" onclick="viewDeviceDetails(${deviceId})" title="Détails">
-                    <i class="fas fa-info-circle"></i>
-                </button>
-                <button class="action-icon-btn" onclick="viewGeofences(${deviceId})" title="Géozones">
-                    <i class="fas fa-draw-polygon"></i>
-                </button>
-                <button class="action-icon-btn" onclick="viewAlerts(${deviceId})" title="Alertes">
-                    <i class="fas fa-bell"></i>
-                </button>
-            </div>
+        `;
+        
+        // Update action buttons (fixed section)
+        document.getElementById('panelActions').style.display = 'block';
+        document.getElementById('actionIcons').innerHTML = `
+            <button class="action-icon-btn" onclick="viewHistory(${deviceId})" title="Historique">
+                <i class="fas fa-history"></i>
+            </button>
+            <button class="action-icon-btn" onclick="sendCommand(${deviceId})" title="Commande">
+                <i class="fas fa-terminal"></i>
+            </button>
+            <button class="action-icon-btn" onclick="viewDeviceDetails(${deviceId})" title="Détails">
+                <i class="fas fa-info-circle"></i>
+            </button>
+            <button class="action-icon-btn" onclick="viewGeofences(${deviceId})" title="Géozones">
+                <i class="fas fa-draw-polygon"></i>
+            </button>
+            <button class="action-icon-btn" onclick="viewAlerts(${deviceId})" title="Alertes">
+                <i class="fas fa-bell"></i>
+            </button>
         `;
     }
     
@@ -1610,6 +1882,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <p>Cliquez sur un véhicule</p>
             </div>
         `;
+        document.getElementById('panelActions').style.display = 'none';
     }
     
     // Center all devices
@@ -1644,23 +1917,416 @@ document.addEventListener('DOMContentLoaded', function() {
         window.location.href = `/history?id=${deviceId}`;
     };
     
+    // Command types descriptions
+    const commandDescriptions = {
+        'custom': 'Envoyer une commande personnalisée brute à l\'appareil.',
+        'positionPeriodic': 'Définir l\'intervalle de mise à jour de position.',
+        'positionStop': 'Arrêter les mises à jour de position.',
+        'engineStop': 'Couper le moteur du véhicule à distance.',
+        'engineResume': 'Réactiver le moteur du véhicule.',
+        'alarmArm': 'Activer l\'alarme du véhicule.',
+        'alarmDisarm': 'Désactiver l\'alarme du véhicule.',
+        'setTimezone': 'Configurer le fuseau horaire de l\'appareil.',
+        'requestPhoto': 'Demander une photo depuis la caméra de l\'appareil.',
+        'rebootDevice': 'Redémarrer l\'appareil GPS.',
+        'sendSms': 'Envoyer un SMS via l\'appareil.',
+        'sendUssd': 'Envoyer une commande USSD.',
+        'sosNumber': 'Configurer le numéro SOS.',
+        'silenceTime': 'Définir une période de silence.',
+        'setPhonebook': 'Configurer le répertoire téléphonique.',
+        'voiceMessage': 'Envoyer un message vocal.',
+        'outputControl': 'Contrôler les sorties de l\'appareil.',
+        'voiceMonitoring': 'Activer la surveillance vocale.',
+        'setAgps': 'Configurer l\'AGPS.',
+        'setIndicator': 'Configurer l\'indicateur LED.',
+        'configuration': 'Envoyer une configuration à l\'appareil.',
+        'getVersion': 'Obtenir la version du firmware.',
+        'firmwareUpdate': 'Mettre à jour le firmware.',
+        'setConnection': 'Configurer la connexion serveur.',
+        'setOdometer': 'Réinitialiser/configurer l\'odomètre.',
+        'getModemStatus': 'Obtenir le statut du modem.',
+        'getDeviceStatus': 'Obtenir le statut de l\'appareil.',
+        'setSpeedLimit': 'Définir la limite de vitesse.',
+        'modePowerSaving': 'Activer le mode économie d\'énergie.',
+        'modeDeepSleep': 'Activer le mode veille profonde.',
+        'movementAlarm': 'Configurer l\'alarme de mouvement.',
+        'setDriverId': 'Définir l\'ID du conducteur.'
+    };
+    
+    // Open command modal
     window.sendCommand = function(deviceId) {
         const device = allDevices.find(d => d.id === deviceId);
-        alert(`Commande vers ${device?.name || 'device'} - Fonctionnalité à venir !`);
+        if (!device) return;
+        
+        document.getElementById('commandDeviceId').value = deviceId;
+        document.getElementById('commandDeviceName').textContent = device.name || 'Appareil #' + deviceId;
+        document.getElementById('commandType').innerHTML = '<option value="">Chargement...</option>';
+        document.getElementById('commandDataGroup').style.display = 'none';
+        document.getElementById('commandData').value = '';
+        document.getElementById('commandDescription').innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Chargement des commandes disponibles...';
+        
+        // Open modal
+        const modal = new bootstrap.Modal(document.getElementById('commandModal'));
+        modal.show();
+        
+        // Load available command types for this device
+        loadCommandTypes(deviceId);
+    };
+    
+    // Load command types for device
+    async function loadCommandTypes(deviceId) {
+        try {
+            const response = await fetch(`/api/traccar/commands/types?deviceId=${deviceId}`);
+            const data = await response.json();
+            
+            const select = document.getElementById('commandType');
+            select.innerHTML = '<option value="">-- Sélectionnez une commande --</option>';
+            
+            if (data.success && data.types) {
+                data.types.forEach(type => {
+                    const option = document.createElement('option');
+                    option.value = type.type;
+                    option.textContent = formatCommandType(type.type);
+                    select.appendChild(option);
+                });
+                
+                document.getElementById('commandDescription').innerHTML = 
+                    '<i class="fas fa-info-circle me-1"></i> Sélectionnez une commande pour voir sa description.';
+            } else {
+                select.innerHTML = '<option value="">Aucune commande disponible</option>';
+                document.getElementById('commandDescription').innerHTML = 
+                    '<i class="fas fa-exclamation-triangle me-1"></i> Aucune commande disponible pour cet appareil.';
+            }
+        } catch (error) {
+            console.error('Error loading command types:', error);
+            document.getElementById('commandType').innerHTML = '<option value="">Erreur de chargement</option>';
+            document.getElementById('commandDescription').innerHTML = 
+                '<i class="fas fa-exclamation-circle me-1"></i> Erreur lors du chargement des commandes.';
+        }
+    }
+    
+    // Format command type for display
+    function formatCommandType(type) {
+        const formats = {
+            'custom': 'Commande personnalisée',
+            'positionPeriodic': 'Position périodique',
+            'positionStop': 'Arrêter le positionnement',
+            'engineStop': 'Arrêter le moteur',
+            'engineResume': 'Redémarrer le moteur',
+            'alarmArm': 'Activer l\'alarme',
+            'alarmDisarm': 'Désactiver l\'alarme',
+            'setTimezone': 'Définir fuseau horaire',
+            'requestPhoto': 'Demander une photo',
+            'rebootDevice': 'Redémarrer l\'appareil',
+            'sendSms': 'Envoyer SMS',
+            'sendUssd': 'Commande USSD',
+            'sosNumber': 'Numéro SOS',
+            'silenceTime': 'Période de silence',
+            'setPhonebook': 'Répertoire téléphonique',
+            'voiceMessage': 'Message vocal',
+            'outputControl': 'Contrôle des sorties',
+            'voiceMonitoring': 'Surveillance vocale',
+            'setAgps': 'Configurer AGPS',
+            'setIndicator': 'Configurer indicateur',
+            'configuration': 'Configuration',
+            'getVersion': 'Version firmware',
+            'firmwareUpdate': 'Mise à jour firmware',
+            'setConnection': 'Configurer connexion',
+            'setOdometer': 'Configurer odomètre',
+            'getModemStatus': 'Statut modem',
+            'getDeviceStatus': 'Statut appareil',
+            'setSpeedLimit': 'Limite de vitesse',
+            'modePowerSaving': 'Mode économie énergie',
+            'modeDeepSleep': 'Mode veille profonde',
+            'movementAlarm': 'Alarme mouvement',
+            'setDriverId': 'ID conducteur'
+        };
+        return formats[type] || type;
+    }
+    
+    // Handle command type change
+    window.onCommandTypeChange = function() {
+        const type = document.getElementById('commandType').value;
+        const dataGroup = document.getElementById('commandDataGroup');
+        const description = document.getElementById('commandDescription');
+        
+        if (type === 'custom') {
+            dataGroup.style.display = 'block';
+        } else {
+            dataGroup.style.display = 'none';
+        }
+        
+        if (type && commandDescriptions[type]) {
+            description.innerHTML = '<i class="fas fa-info-circle me-1"></i> ' + commandDescriptions[type];
+            description.className = 'alert alert-info mb-0';
+        } else if (type) {
+            description.innerHTML = '<i class="fas fa-info-circle me-1"></i> Commande: ' + formatCommandType(type);
+            description.className = 'alert alert-info mb-0';
+        } else {
+            description.innerHTML = '<i class="fas fa-info-circle me-1"></i> Sélectionnez une commande pour voir sa description.';
+        }
+    };
+    
+    // Execute command
+    window.executeCommand = async function() {
+        const deviceId = document.getElementById('commandDeviceId').value;
+        const type = document.getElementById('commandType').value;
+        const data = document.getElementById('commandData').value;
+        
+        if (!type) {
+            showWarning('Veuillez sélectionner un type de commande.');
+            return;
+        }
+        
+        const btn = document.getElementById('btnSendCommand');
+        const originalHtml = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Envoi...';
+        btn.disabled = true;
+        
+        try {
+            const commandData = {
+                deviceId: parseInt(deviceId),
+                type: type
+            };
+            
+            // Add custom data if present
+            if (type === 'custom' && data) {
+                commandData.data = data;
+            }
+            
+            const response = await fetch('/api/traccar/commands/send', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify(commandData)
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                document.getElementById('commandDescription').innerHTML = 
+                    '<i class="fas fa-check-circle me-1"></i> Commande envoyée avec succès!';
+                document.getElementById('commandDescription').className = 'alert alert-success mb-0';
+                
+                // Close modal after success
+                setTimeout(() => {
+                    bootstrap.Modal.getInstance(document.getElementById('commandModal')).hide();
+                }, 1500);
+            } else {
+                document.getElementById('commandDescription').innerHTML = 
+                    '<i class="fas fa-exclamation-circle me-1"></i> Erreur: ' + (result.message || 'Échec de l\'envoi');
+                document.getElementById('commandDescription').className = 'alert alert-danger mb-0';
+            }
+        } catch (error) {
+            console.error('Error sending command:', error);
+            document.getElementById('commandDescription').innerHTML = 
+                '<i class="fas fa-exclamation-circle me-1"></i> Erreur de connexion au serveur.';
+            document.getElementById('commandDescription').className = 'alert alert-danger mb-0';
+        } finally {
+            btn.innerHTML = originalHtml;
+            btn.disabled = false;
+        }
     };
     
     window.viewDeviceDetails = function(deviceId) {
         const device = allDevices.find(d => d.id === deviceId);
-        alert(`Détails de ${device?.name || 'device'} - Fonctionnalité à venir !`);
+        showInfo(`Détails de ${device?.name || 'device'} - Fonctionnalité à venir !`);
     };
     
     window.viewGeofences = function(deviceId) {
-        window.location.href = '/geofence';
+        const device = allDevices.find(d => d.id === deviceId);
+        if (!device) return;
+        
+        document.getElementById('geofenceDeviceName').textContent = device.name;
+        document.getElementById('geofenceDeviceId').value = deviceId;
+        
+        // Load assigned geofences and available geofences
+        loadDeviceGeofences(deviceId);
+        
+        const modal = new bootstrap.Modal(document.getElementById('geofenceModal'));
+        modal.show();
+    };
+    
+    // Load geofences for a device
+    async function loadDeviceGeofences(deviceId) {
+        const assignedContainer = document.getElementById('assignedGeofences');
+        const availableSelect = document.getElementById('availableGeofences');
+        
+        assignedContainer.innerHTML = '<div class="text-center text-muted py-3"><i class="fas fa-spinner fa-spin"></i> Chargement...</div>';
+        
+        try {
+            // Fetch all geofences
+            const geofencesResponse = await fetch('/api/traccar/geofences', {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+                }
+            });
+            const geofencesData = await geofencesResponse.json();
+            const allGeofences = geofencesData.geofences || [];
+            
+            // Fetch permissions to know which geofences are assigned to this device
+            const permissionsResponse = await fetch(`/api/traccar/permissions?deviceId=${deviceId}`, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+                }
+            });
+            const permissionsData = await permissionsResponse.json();
+            
+            // Extract assigned geofence IDs from permissions
+            let assignedGeofenceIds = [];
+            if (permissionsData.success && permissionsData.permissions) {
+                assignedGeofenceIds = permissionsData.permissions
+                    .filter(p => p.deviceId === deviceId && p.geofenceId)
+                    .map(p => p.geofenceId);
+            }
+            
+            // Also check geofences that have deviceId in their response
+            const deviceGeofencesResponse = await fetch(`/api/traccar/geofences?deviceId=${deviceId}`, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+                }
+            });
+            const deviceGeofencesData = await deviceGeofencesResponse.json();
+            const deviceGeofences = deviceGeofencesData.geofences || [];
+            const deviceGeofenceIds = deviceGeofences.map(g => g.id);
+            
+            // Combine both methods to get assigned geofences
+            assignedGeofenceIds = [...new Set([...assignedGeofenceIds, ...deviceGeofenceIds])];
+            
+            // Separate assigned and available geofences
+            const assignedGeofences = allGeofences.filter(g => assignedGeofenceIds.includes(g.id));
+            const availableGeofences = allGeofences.filter(g => !assignedGeofenceIds.includes(g.id));
+            
+            // Render assigned geofences
+            if (assignedGeofences.length === 0) {
+                assignedContainer.innerHTML = `
+                    <div class="geofence-empty">
+                        <i class="fas fa-draw-polygon"></i>
+                        <p>Aucune géofence assignée</p>
+                    </div>
+                `;
+            } else {
+                assignedContainer.innerHTML = assignedGeofences.map(geofence => `
+                    <div class="geofence-item" data-geofence-id="${geofence.id}">
+                        <div class="geofence-info">
+                            <div class="geofence-icon">
+                                <i class="fas fa-draw-polygon"></i>
+                            </div>
+                            <div class="geofence-details">
+                                <span class="geofence-name">${geofence.name}</span>
+                                <span class="geofence-desc">${geofence.description || 'Pas de description'}</span>
+                            </div>
+                        </div>
+                        <button class="geofence-unassign-btn" onclick="unassignGeofence(${deviceId}, ${geofence.id})">
+                            <i class="fas fa-unlink me-1"></i>Retirer
+                        </button>
+                    </div>
+                `).join('');
+            }
+            
+            // Populate available geofences dropdown
+            availableSelect.innerHTML = '<option value="">Sélectionnez une géofence...</option>';
+            availableGeofences.forEach(geofence => {
+                const option = document.createElement('option');
+                option.value = geofence.id;
+                option.textContent = geofence.name;
+                availableSelect.appendChild(option);
+            });
+            
+        } catch (error) {
+            console.error('Error loading geofences:', error);
+            assignedContainer.innerHTML = `
+                <div class="geofence-empty text-danger">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <p>Erreur de chargement</p>
+                </div>
+            `;
+        }
+    }
+    
+    // Assign geofence to device
+    window.assignGeofence = async function() {
+        const deviceId = parseInt(document.getElementById('geofenceDeviceId').value);
+        const geofenceId = parseInt(document.getElementById('availableGeofences').value);
+        
+        if (!geofenceId) {
+            showWarning('Veuillez sélectionner une géofence');
+            return;
+        }
+        
+        try {
+            const response = await fetch('/api/traccar/permissions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+                },
+                body: JSON.stringify({
+                    deviceId: deviceId,
+                    geofenceId: geofenceId
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+                // Reload the geofences list
+                loadDeviceGeofences(deviceId);
+                showToast('Géofence assignée avec succès', 'success');
+            } else {
+                showError('Erreur: ' + (data.message || 'Impossible d\'assigner la géofence'));
+            }
+        } catch (error) {
+            console.error('Error assigning geofence:', error);
+            showError('Erreur lors de l\'assignation de la géofence');
+        }
+    };
+    
+    // Unassign geofence from device
+    window.unassignGeofence = async function(deviceId, geofenceId) {
+        const confirmed = await showConfirm('Voulez-vous vraiment retirer cette géofence du véhicule ?', 'Confirmation');
+        if (!confirmed) {
+            return;
+        }
+        
+        try {
+            const response = await fetch('/api/traccar/permissions', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+                },
+                body: JSON.stringify({
+                    deviceId: deviceId,
+                    geofenceId: geofenceId
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+                // Reload the geofences list
+                loadDeviceGeofences(deviceId);
+                showToast('Géofence retirée avec succès', 'success');
+            } else {
+                showError('Erreur: ' + (data.message || 'Impossible de retirer la géofence'));
+            }
+        } catch (error) {
+            console.error('Error unassigning geofence:', error);
+            showError('Erreur lors du retrait de la géofence');
+        }
     };
     
     window.viewAlerts = function(deviceId) {
         const device = allDevices.find(d => d.id === deviceId);
-        alert(`Alertes de ${device?.name || 'device'} - Fonctionnalité à venir !`);
+        showInfo(`Alertes de ${device?.name || 'device'} - Fonctionnalité à venir !`);
     };
     
     // Debounce
