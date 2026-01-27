@@ -619,7 +619,7 @@
                             <i class="fas fa-chart-pie"></i> Statistiques d'Activité
                         </h3>
                         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 20px;">
-                            <div style="background: linear-gradient(135deg, #7556D6 0%, #5a3fb3 100%); color: white; padding: 20px; border-radius: 10px; text-align: center;">
+                            <div style="background: linear-gradient(135deg, #1e88e5 0%, #1976d2 100%); color: white; padding: 20px; border-radius: 10px; text-align: center;">
                                 <div style="font-size: 28px; font-weight: 700; margin-bottom: 5px;">12</div>
                                 <div style="font-size: 12px; opacity: 0.9;">Connexions</div>
                             </div>
@@ -997,15 +997,15 @@
 
 @push('styles')
 <style>
-/* Profile Page Styles - Enhanced Design */
+/* Profile Page Styles - Adapted to App Theme */
 
 /* Sidebar Profile Section */
 .sidebar-profile {
     padding: 25px 20px;
     text-align: center;
-    background: linear-gradient(135deg, #7556D6 0%, #5a3fb3 100%);
+    background: linear-gradient(135deg, #1e88e5 0%, #1976d2 100%);
     color: #fff;
-    border-bottom: 2px solid #4a2a8a;
+    border-bottom: 2px solid #1565c0;
     position: relative;
     overflow: hidden;
 }
@@ -1089,7 +1089,7 @@
     gap: 10px;
     padding: 14px 16px;
     margin: 0 8px;
-    color: #6b7280;
+    color: #64748b;
     text-decoration: none;
     transition: all 0.3s ease;
     border-radius: 8px;
@@ -1103,15 +1103,15 @@
     top: 50%;
     width: 3px;
     height: 0;
-    background: #7556D6;
+    background: #1976d2;
     transform: translateY(-50%);
     border-radius: 0 3px 3px 0;
     transition: height 0.3s ease;
 }
 
 .sidebar-nav .nav-link:hover {
-    background: #f0f4ff;
-    color: #7556D6;
+    background: #e3f2fd;
+    color: #1976d2;
     transform: translateX(4px);
 }
 
@@ -1120,8 +1120,8 @@
 }
 
 .sidebar-nav .nav-link.active {
-    background: linear-gradient(135deg, #f0f4ff 0%, #ede9fe 100%);
-    color: #7556D6;
+    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+    color: #1976d2;
     font-weight: 600;
 }
 
@@ -1140,7 +1140,7 @@
     background: #fff;
     border-radius: 12px;
     overflow: visible;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     scroll-padding-top: 120px;
 }
 
@@ -1149,8 +1149,9 @@
     justify-content: space-between;
     align-items: center;
     padding: 24px 30px;
-    background: linear-gradient(135deg, #7556D6 0%, #5a3fb3 100%);
+    background: linear-gradient(135deg, #1e88e5 0%, #1976d2 100%);
     color: #fff;
+    border-radius: 12px 12px 0 0;
 }
 
 .card-header-custom h3 {
@@ -1222,8 +1223,8 @@
 .tab-header {
     margin: 0 -30px 30px -30px;
     padding: 30px 30px 25px 30px;
-    background: linear-gradient(135deg, #f0f4ff 0%, #ede9fe 100%);
-    border-bottom: 2px solid #7556D6;
+    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+    border-bottom: 2px solid #1976d2;
     border-radius: 8px 8px 0 0;
 }
 
@@ -1231,7 +1232,7 @@
     margin: 0 0 8px;
     font-size: 26px;
     font-weight: 700;
-    color: #7556D6;
+    color: #1976d2;
     display: flex;
     align-items: center;
     gap: 12px;
@@ -1243,15 +1244,15 @@
 
 .tab-subtitle {
     margin: 0;
-    color: #6b7280;
+    color: #64748b;
     font-size: 14px;
     font-weight: 500;
 }
 
 /* Card Sections */
 .card-section {
-    background: #f9fafb;
-    border: 1px solid #e5e7eb;
+    background: #f8f9fa;
+    border: 1px solid #e0e0e0;
     border-radius: 10px;
     padding: 24px;
     margin: 0 30px 24px 30px;
@@ -1275,7 +1276,7 @@
     margin: 0 0 18px;
     font-size: 15px;
     font-weight: 700;
-    color: #1f2937;
+    color: #1a1a2e;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     display: flex;
@@ -1287,7 +1288,7 @@
     content: '';
     width: 4px;
     height: 4px;
-    background: #7556D6;
+    background: #1976d2;
     border-radius: 50%;
 }
 
@@ -1297,7 +1298,7 @@
     align-items: center;
     margin-bottom: 20px;
     padding-bottom: 15px;
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid #e0e0e0;
 }
 
 .section-header > div {
@@ -1353,9 +1354,9 @@
 .form-control:focus,
 .form-select:focus {
     outline: none;
-    border-color: #7556D6;
-    box-shadow: 0 0 0 3px rgba(117, 86, 214, 0.1);
-    background: #fafbff;
+    border-color: #1976d2;
+    box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.1);
+    background: #f8f9fa;
 }
 
 .form-control:disabled {
@@ -1393,7 +1394,7 @@
 }
 
 .password-toggle:hover {
-    color: #7556D6;
+    color: #1976d2;
 }
 
 /* Password Strength */
@@ -1409,7 +1410,7 @@
 
 .strength-label {
     font-size: 12px;
-    color: #6b7280;
+    color: #64748b;
     font-weight: 600;
     white-space: nowrap;
 }
@@ -1417,7 +1418,7 @@
 .strength-bar {
     flex: 1;
     height: 6px;
-    background: #e5e7eb;
+    background: #e0e0e0;
     border-radius: 10px;
     overflow: hidden;
 }
@@ -1425,7 +1426,7 @@
 .strength-indicator {
     height: 100%;
     border-radius: 10px;
-    background: #e5e7eb;
+    background: #e0e0e0;
     transition: all 0.4s ease;
     width: 0%;
 }
@@ -1445,15 +1446,15 @@
     padding: 16px;
     background: #fff;
     border-radius: 8px;
-    border: 1px solid #e5e7eb;
+    border: 1px solid #e0e0e0;
     transition: all 0.3s ease;
 }
 
 .preference-item:hover,
 .preference-toggle:hover {
-    background: #fafbff;
-    border-color: #7556D6;
-    box-shadow: 0 2px 8px rgba(117, 86, 214, 0.1);
+    background: #f0f7ff;
+    border-color: #1976d2;
+    box-shadow: 0 2px 8px rgba(25, 118, 210, 0.1);
 }
 
 .preference-info {
@@ -1482,7 +1483,7 @@
 }
 
 .form-check-input:checked {
-    background: #7556D6;
+    background: #1976d2;
 }
 
 .form-check-input::after {
@@ -1515,7 +1516,7 @@
     padding: 16px;
     background: #fff;
     border-radius: 8px;
-    border-left: 4px solid #7556D6;
+    border-left: 4px solid #1976d2;
     transition: all 0.3s ease;
 }
 
@@ -1532,7 +1533,7 @@
 
 .session-device i {
     font-size: 20px;
-    color: #7556D6;
+    color: #1976d2;
     width: 24px;
     text-align: center;
 }
@@ -1540,13 +1541,13 @@
 .session-name {
     margin: 0;
     font-weight: 600;
-    color: #374151;
+    color: #334155;
     font-size: 13px;
 }
 
 .session-details {
     margin: 4px 0 0;
-    color: #6b7280;
+    color: #64748b;
     font-size: 11px;
 }
 
@@ -1589,12 +1590,12 @@
     padding: 16px;
     background: #fff;
     border-radius: 8px;
-    border-left: 4px solid #7556D6;
+    border-left: 4px solid #1976d2;
     transition: all 0.3s ease;
 }
 
 .activity-item:hover {
-    background: #fafbff;
+    background: #f0f7ff;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     transform: translateX(2px);
 }
@@ -1612,8 +1613,8 @@
 }
 
 .activity-icon.login {
-    background: rgba(117, 86, 214, 0.1);
-    color: #7556D6;
+    background: rgba(25, 118, 210, 0.1);
+    color: #1976d2;
 }
 
 .activity-icon.devices {
@@ -1634,14 +1635,14 @@
 .activity-title {
     margin: 0 0 3px;
     font-weight: 600;
-    color: #374151;
+    color: #334155;
     font-size: 13px;
 }
 
 .activity-meta {
     margin: 0 0 3px;
     font-size: 12px;
-    color: #6b7280;
+    color: #64748b;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -1660,7 +1661,7 @@
     justify-content: flex-end;
     padding-top: 15px;
     margin-top: 15px;
-    border-top: 1px solid #e5e7eb;
+    border-top: 1px solid #e0e0e0;
 }
 
 /* Buttons */
@@ -1680,14 +1681,14 @@
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, #7556D6 0%, #5a3fb3 100%);
+    background: linear-gradient(135deg, #1e88e5 0%, #1976d2 100%);
     color: #fff;
-    box-shadow: 0 4px 12px rgba(117, 86, 214, 0.25);
+    box-shadow: 0 4px 12px rgba(25, 118, 210, 0.25);
 }
 
 .btn-primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(117, 86, 214, 0.35);
+    box-shadow: 0 6px 16px rgba(25, 118, 210, 0.35);
 }
 
 .btn-primary:active {
@@ -1695,8 +1696,8 @@
 }
 
 .btn-secondary {
-    background: #e5e7eb;
-    color: #374151;
+    background: #e0e0e0;
+    color: #334155;
     transition: all 0.3s ease;
 }
 
@@ -1711,7 +1712,7 @@
 }
 
 .text-muted {
-    color: #6b7280;
+    color: #64748b;
 }
 
 .text-danger {

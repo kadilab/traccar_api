@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Test Google Maps API</title>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAQV-6bhGlIqjNYyGPK0Ns36VyjNVFafeA"></script>
+    <script>
+      function initMap() {
+        const map = new google.maps.Map(document.getElementById("map"), {
+          center: { lat: -34.397, lng: 150.644 },
+          zoom: 8,
+        });
+        console.log("Carte chargée avec succès !");
+      }
+    </script>
+  </head>
+  <body onload="initMap()">
+    <h3>Ma Carte Google Maps</h3>
+    <div id="map" style="height: 400px; width: 100%; background-color: #eee;"></div>
+    <p>Ouvrez la console (F12) pour voir les erreurs éventuelles.</p>
+  </body>
+</html>
