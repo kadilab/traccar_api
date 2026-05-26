@@ -1,514 +1,204 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}"
+      x-data="{ dark: localStorage.getItem('darkMode') === 'true', showPwd: false }"
+      :class="{ 'dark': dark }">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Connexion - GeoTrack Pro</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <title>{{ __('messages.login.title') ?? 'Connexion' }} — {{ setting('app_name', 'GeoTrack Pro') }}</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary: #1e88e5;
-            --primary-dark: #1565c0;
-            --secondary: #7556D6;
-            --accent: #00c6ff;
-            --dark: #0f172a;
-            --gray-100: #f8fafc;
-            --gray-600: #64748b;
-            --success: #10b981;
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Inter', sans-serif;
-            min-height: 100vh;
-            display: flex;
-            background: var(--dark);
-            overflow: hidden;
-        }
-        .left-panel {
-            flex: 1;
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 3rem;
-            position: relative;
-            overflow: hidden;
-        }
-        .left-panel::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background-image: 
-                radial-gradient(circle at 20% 30%, rgba(30, 136, 229, 0.2) 0%, transparent 50%),
-                radial-gradient(circle at 80% 70%, rgba(117, 86, 214, 0.2) 0%, transparent 50%),
-                radial-gradient(circle at 50% 50%, rgba(0, 198, 255, 0.1) 0%, transparent 60%);
-        }
-        .grid-pattern {
-            position: absolute;
-            inset: 0;
-            background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
-                              linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
-            background-size: 50px 50px;
-        }
-        .left-content {
-            position: relative;
-            z-index: 2;
-            text-align: center;
-            max-width: 500px;
-        }
-        .brand-logo {
-            display: inline-flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 3rem;
-        }
-        .brand-icon {
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 28px;
-        }
-        .brand-text {
-            font-size: 2rem;
-            font-weight: 800;
-            color: white;
-        }
-        .illustration-container {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 24px;
-            padding: 2rem;
-            margin-bottom: 2rem;
-        }
-        .dashboard-preview {
-            background: linear-gradient(135deg, rgba(30, 136, 229, 0.1) 0%, rgba(117, 86, 214, 0.1) 100%);
-            border-radius: 16px;
-            padding: 1.5rem;
-            position: relative;
-        }
-        .dashboard-header {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 1rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        .dashboard-dots {
-            display: flex;
-            gap: 6px;
-        }
-        .dashboard-dots span {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-        }
-        .dashboard-dots span:nth-child(1) { background: #ef4444; }
-        .dashboard-dots span:nth-child(2) { background: #f59e0b; }
-        .dashboard-dots span:nth-child(3) { background: #10b981; }
-        .dashboard-content {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-        }
-        .stat-card {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 12px;
-            padding: 1rem;
-            text-align: left;
-        }
-        .stat-card .value {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: white;
-        }
-        .stat-card .label {
-            font-size: 0.75rem;
-            color: rgba(255, 255, 255, 0.6);
-        }
-        .stat-card.primary .value { color: var(--primary); }
-        .stat-card.secondary .value { color: var(--secondary); }
-        .stat-card.accent .value { color: var(--accent); }
-        .stat-card.success .value { color: var(--success); }
-        .floating-notification {
-            position: absolute;
-            right: -20px;
-            top: 20px;
-            background: white;
-            border-radius: 12px;
-            padding: 0.75rem 1rem;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            animation: float 3s ease-in-out infinite;
-        }
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-        .floating-notification i {
-            color: var(--success);
-            font-size: 1.2rem;
-        }
-        .floating-notification span {
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: var(--dark);
-        }
-        .feature-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1rem;
-            justify-content: center;
-        }
-        .feature-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(255, 255, 255, 0.05);
-            padding: 0.5rem 1rem;
-            border-radius: 50px;
-            font-size: 0.85rem;
-            color: rgba(255, 255, 255, 0.8);
-        }
-        .feature-item i {
-            color: var(--success);
-        }
-        .right-panel {
-            width: 480px;
-            background: white;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            padding: 3rem;
-        }
-        .login-header { margin-bottom: 2rem; }
-        .login-header h1 {
-            font-size: 1.75rem;
-            font-weight: 700;
-            color: var(--dark);
-            margin-bottom: 0.5rem;
-        }
-        .login-header p { color: var(--gray-600); }
-        .form-group { margin-bottom: 1.5rem; }
-        .form-label {
-            display: block;
-            font-weight: 500;
-            color: var(--dark);
-            margin-bottom: 0.5rem;
-            font-size: 0.9rem;
-        }
-        .form-control {
-            width: 100%;
-            padding: 0.875rem 1rem;
-            border: 2px solid #e2e8f0;
-            border-radius: 12px;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-            background: var(--gray-100);
-        }
-        .form-control:focus {
-            outline: none;
-            border-color: var(--primary);
-            background: white;
-            box-shadow: 0 0 0 4px rgba(30, 136, 229, 0.1);
-        }
-        .input-group { position: relative; }
-        .input-icon {
-            position: absolute;
-            left: 1rem;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--gray-600);
-        }
-        .input-group .form-control { padding-left: 2.75rem; }
-        .password-toggle {
-            position: absolute;
-            right: 1rem;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            color: var(--gray-600);
-            cursor: pointer;
-            padding: 0;
-        }
-        .form-options {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-        }
-        .form-check {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .form-check-input {
-            width: 18px;
-            height: 18px;
-            border-radius: 4px;
-            border: 2px solid #e2e8f0;
-            cursor: pointer;
-        }
-        .form-check-input:checked {
-            background-color: var(--primary);
-            border-color: var(--primary);
-        }
-        .form-check-label {
-            font-size: 0.9rem;
-            color: var(--gray-600);
-            cursor: pointer;
-        }
-        .forgot-link {
-            color: var(--primary);
-            text-decoration: none;
-            font-size: 0.9rem;
-            font-weight: 500;
-        }
-        .forgot-link:hover { text-decoration: underline; }
-        .btn-login {
-            width: 100%;
-            padding: 1rem;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            border: none;
-            border-radius: 12px;
-            color: white;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-        .btn-login:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(30, 136, 229, 0.3);
-        }
-        .btn-login:active { transform: translateY(0); }
-        .alert {
-            padding: 1rem;
-            border-radius: 12px;
-            margin-bottom: 1.5rem;
-            display: flex;
-            align-items: flex-start;
-            gap: 12px;
-        }
-        .alert-danger {
-            background: #fef2f2;
-            border: 1px solid #fecaca;
-            color: #dc2626;
-        }
-        .alert-info {
-            background: #eff6ff;
-            border: 1px solid #bfdbfe;
-            color: #1d4ed8;
-        }
-        .alert-success {
-            background: #f0fdf4;
-            border: 1px solid #bbf7d0;
-            color: #16a34a;
-        }
-        .alert i { font-size: 1.2rem; }
-        .back-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            color: var(--gray-600);
-            text-decoration: none;
-            font-size: 0.9rem;
-            margin-bottom: 2rem;
-            transition: color 0.3s ease;
-        }
-        .back-link:hover { color: var(--primary); }
-        .register-link {
-            text-align: center;
-            margin-top: 1.5rem;
-            color: var(--gray-600);
-        }
-        .register-link a {
-            color: var(--primary);
-            font-weight: 600;
-            text-decoration: none;
-        }
-        .register-link a:hover { text-decoration: underline; }
-        @media (max-width: 991px) {
-            .left-panel { display: none; }
-            .right-panel { width: 100%; max-width: 100%; }
-        }
-        @media (max-width: 576px) {
-            .right-panel { padding: 2rem 1.5rem; }
-        }
-    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body>
-    <div class="left-panel">
-        <div class="grid-pattern"></div>
-        <div class="left-content">
-            <div class="brand-logo">
-                <div class="brand-icon">
-                    <i class="fas fa-satellite-dish"></i>
-                </div>
-                <span class="brand-text">GeoTrack Pro</span>
+<body class="min-h-screen bg-slate-950 font-sans antialiased flex">
+
+{{-- ─── Left panel (branding, hidden on mobile) ───────────────────────── --}}
+<div class="hidden lg:flex lg:w-1/2 xl:w-3/5 relative overflow-hidden bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 flex-col justify-between p-12">
+
+    {{-- Background pattern --}}
+    <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(circle at 1px 1px, rgba(99,102,241,0.5) 1px, transparent 0); background-size: 32px 32px;"></div>
+
+    {{-- Animated glow blobs --}}
+    <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl animate-pulse"></div>
+    <div class="absolute bottom-1/4 right-1/4 w-64 h-64 bg-indigo-500/20 rounded-full blur-3xl animate-pulse" style="animation-delay:1s"></div>
+
+    {{-- Logo --}}
+    <div class="relative z-10 flex items-center gap-3">
+        @php $logo = setting('app_logo'); @endphp
+        @if($logo)
+            <img src="{{ Storage::url($logo) }}" alt="Logo" class="h-10 w-auto">
+        @else
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/30">
+                <i class="fas fa-map-marker-alt text-white"></i>
             </div>
-            <div class="illustration-container">
-                <div class="dashboard-preview">
-                    <div class="dashboard-header">
-                        <div class="dashboard-dots">
-                            <span></span>
-                            <span></span>
-                            <span></span>
-                        </div>
-                    </div>
-                    <div class="dashboard-content">
-                        <div class="stat-card primary">
-                            <div class="value">24</div>
-                            <div class="label">Véhicules actifs</div>
-                        </div>
-                        <div class="stat-card success">
-                            <div class="value">98%</div>
-                            <div class="label">Disponibilité</div>
-                        </div>
-                        <div class="stat-card secondary">
-                            <div class="value">12.5k</div>
-                            <div class="label">Km parcourus</div>
-                        </div>
-                        <div class="stat-card accent">
-                            <div class="value">156</div>
-                            <div class="label">Alertes traitées</div>
-                        </div>
-                    </div>
-                    <div class="floating-notification">
-                        <i class="fas fa-check-circle"></i>
-                        <span>Véhicule arrivé</span>
-                    </div>
-                </div>
-            </div>
-            <div class="feature-list">
-                <div class="feature-item">
-                    <i class="fas fa-check"></i>
-                    <span>Suivi en temps réel</span>
-                </div>
-                <div class="feature-item">
-                    <i class="fas fa-check"></i>
-                    <span>Alertes instantanées</span>
-                </div>
-                <div class="feature-item">
-                    <i class="fas fa-check"></i>
-                    <span>Rapports détaillés</span>
-                </div>
-            </div>
+        @endif
+        <div>
+            <span class="text-white font-bold text-lg leading-none block">{{ setting('app_name', 'GeoTrack Pro') }}</span>
+            <span class="text-blue-400 text-xs font-medium">GPS Fleet Management</span>
         </div>
     </div>
 
-    <div class="right-panel">
-        <a href="/" class="back-link">
-            <i class="fas fa-arrow-left"></i>
-            Retour à l'accueil
-        </a>
-        <div class="login-header">
-            <h1>Bienvenue</h1>
-            <p>Connectez-vous pour accéder à votre tableau de bord</p>
+    {{-- Center content --}}
+    <div class="relative z-10 space-y-6">
+        <h1 class="text-4xl xl:text-5xl font-bold text-white leading-tight">
+            Gérez votre flotte<br>
+            <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">en temps réel</span>
+        </h1>
+        <p class="text-slate-400 text-lg max-w-md leading-relaxed">
+            Plateforme complète de suivi GPS — surveillance en direct, historique, alertes géofencing et rapports détaillés.
+        </p>
+
+        {{-- Feature pills --}}
+        <div class="flex flex-wrap gap-3">
+            @foreach(['Suivi en direct', 'Alertes intelligentes', 'Rapports avancés', 'Géofencing'] as $feat)
+            <span class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-300 text-sm font-medium">
+                <i class="fas fa-check-circle text-xs text-blue-400"></i>
+                {{ $feat }}
+            </span>
+            @endforeach
         </div>
-        
-        @if (session('info'))
-            <div class="alert alert-info">
-                <i class="fas fa-info-circle"></i>
-                <div>{{ session('info') }}</div>
+    </div>
+
+    {{-- Stats strip --}}
+    <div class="relative z-10 grid grid-cols-3 gap-6">
+        @foreach([['fa-satellite-dish','Appareils actifs','—'], ['fa-shield-alt','Uptime','99.9%'], ['fa-bolt','Temps réel','<1s']] as $s)
+        <div>
+            <i class="fas {{ $s[0] }} text-blue-400 text-xl mb-2 block"></i>
+            <div class="text-2xl font-bold text-white">{{ $s[2] }}</div>
+            <div class="text-slate-500 text-xs mt-0.5">{{ $s[1] }}</div>
+        </div>
+        @endforeach
+    </div>
+</div>
+
+{{-- ─── Right panel (login form) ──────────────────────────────────────── --}}
+<div class="w-full lg:w-1/2 xl:w-2/5 flex flex-col justify-center items-center px-6 sm:px-12 py-12 bg-gray-950 relative">
+
+    {{-- Dark mode toggle --}}
+    <button @click="dark = !dark; localStorage.setItem('darkMode', dark)"
+            class="absolute top-5 right-5 w-9 h-9 flex items-center justify-center rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 transition-colors">
+        <i x-show="!dark" class="fas fa-moon text-sm"></i>
+        <i x-show="dark"  class="fas fa-sun text-sm text-amber-400"></i>
+    </button>
+
+    <div class="w-full max-w-sm">
+
+        {{-- Mobile logo --}}
+        <div class="lg:hidden flex items-center gap-3 mb-8">
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+                <i class="fas fa-map-marker-alt text-white text-sm"></i>
             </div>
+            <span class="text-white font-bold">{{ setting('app_name', 'GeoTrack Pro') }}</span>
+        </div>
+
+        {{-- Heading --}}
+        <div class="mb-8">
+            <h2 class="text-2xl font-bold text-white">Bon retour 👋</h2>
+            <p class="text-slate-500 text-sm mt-1">Connectez-vous à votre espace de gestion</p>
+        </div>
+
+        {{-- Session errors --}}
+        @if(session('error'))
+        <div class="mb-4 flex items-start gap-3 p-3.5 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+            <i class="fas fa-exclamation-circle mt-0.5 flex-shrink-0"></i>
+            <span>{{ session('error') }}</span>
+        </div>
         @endif
-        
-        @if (session('success'))
-            <div class="alert alert-success">
-                <i class="fas fa-check-circle"></i>
-                <div>{{ session('success') }}</div>
-            </div>
+
+        @if($errors->any())
+        <div class="mb-4 flex items-start gap-3 p-3.5 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+            <i class="fas fa-exclamation-circle mt-0.5 flex-shrink-0"></i>
+            <ul class="list-none space-y-0.5">
+                @foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach
+            </ul>
+        </div>
         @endif
-        
-        @if (session('error'))
-            <div class="alert alert-danger">
-                <i class="fas fa-exclamation-circle"></i>
-                <div>{{ session('error') }}</div>
-            </div>
-        @endif
-        
-        @if ($errors->any())
-            <div class="alert alert-danger">
-                <i class="fas fa-exclamation-circle"></i>
-                <div>
-                    @foreach ($errors->all() as $error)
-                        <div>{{ $error }}</div>
-                    @endforeach
-                </div>
-            </div>
-        @endif
-        
-        <form method="POST" action="{{ route('login') }}">
+
+        {{-- Language switcher --}}
+        <div class="flex gap-1 mb-6 bg-slate-800/50 p-1 rounded-xl">
+            @foreach(['fr' => '🇫🇷 FR', 'en' => '🇬🇧 EN', 'ar' => '🇸🇦 AR'] as $code => $label)
+            <a href="{{ route('lang.switch', $code) }}"
+               class="flex-1 text-center py-1.5 rounded-lg text-xs font-semibold transition-all
+                      {{ app()->getLocale() === $code
+                         ? 'bg-blue-600 text-white shadow'
+                         : 'text-slate-500 hover:text-slate-300' }}">
+                {{ $label }}
+            </a>
+            @endforeach
+        </div>
+
+        {{-- Form --}}
+        <form method="POST" action="{{ route('login') }}" class="space-y-4">
             @csrf
-            <div class="form-group">
-                <label for="email" class="form-label">Adresse Email</label>
-                <div class="input-group">
-                    <i class="fas fa-envelope input-icon"></i>
-                    <input type="email" class="form-control" id="email" name="email" 
-                           value="{{ old('email') }}" placeholder="votre@email.com" required autofocus>
+
+            {{-- Email --}}
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-1.5">Adresse e-mail</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                        <i class="fas fa-envelope text-slate-500 text-sm"></i>
+                    </div>
+                    <input type="email" name="email" value="{{ old('email') }}" required autocomplete="email"
+                           class="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white placeholder-slate-500 text-sm
+                                  focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all
+                                  @error('email') border-red-500 @enderror"
+                           placeholder="nom@exemple.com">
                 </div>
+                @error('email')<p class="text-red-400 text-xs mt-1">{{ $message }}</p>@enderror
             </div>
-            <div class="form-group">
-                <label for="password" class="form-label">Mot de passe</label>
-                <div class="input-group">
-                    <i class="fas fa-lock input-icon"></i>
-                    <input type="password" class="form-control" id="password" name="password" 
-                           placeholder="••••••••" required>
-                    <button type="button" class="password-toggle" onclick="togglePassword()">
-                        <i class="fas fa-eye" id="toggleIcon"></i>
+
+            {{-- Password --}}
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-1.5">Mot de passe</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                        <i class="fas fa-lock text-slate-500 text-sm"></i>
+                    </div>
+                    <input :type="showPwd ? 'text' : 'password'" name="password" required autocomplete="current-password"
+                           class="w-full pl-10 pr-10 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white placeholder-slate-500 text-sm
+                                  focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all
+                                  @error('password') border-red-500 @enderror"
+                           placeholder="••••••••">
+                    <button type="button" @click="showPwd = !showPwd"
+                            class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-500 hover:text-slate-300 transition-colors">
+                        <i :class="showPwd ? 'fa-eye-slash' : 'fa-eye'" class="fas text-sm"></i>
                     </button>
                 </div>
+                @error('password')<p class="text-red-400 text-xs mt-1">{{ $message }}</p>@enderror
             </div>
-            <div class="form-options">
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" name="remember" id="remember">
-                    <label class="form-check-label" for="remember">Se souvenir de moi</label>
-                </div>
+
+            {{-- Remember + forgot --}}
+            <div class="flex items-center justify-between">
+                <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" name="remember" class="w-4 h-4 rounded border-slate-600 bg-slate-800 text-blue-500 focus:ring-blue-500/50">
+                    <span class="text-sm text-slate-400">Se souvenir de moi</span>
+                </label>
+                <a href="#" class="text-sm text-blue-400 hover:text-blue-300 transition-colors">Mot de passe oublié ?</a>
             </div>
-            <button type="submit" class="btn-login">
-                <i class="fas fa-sign-in-alt"></i>
+
+            {{-- Submit --}}
+            <button type="submit"
+                    class="w-full py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm
+                           transition-all duration-200 shadow-lg shadow-blue-500/20 hover:shadow-blue-500/30
+                           focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-950
+                           flex items-center justify-center gap-2 mt-2">
+                <i class="fas fa-sign-in-alt text-sm"></i>
                 Se connecter
             </button>
         </form>
-        
-        @if(!\App\Models\User::where('administrator', true)->exists())
-        <div class="register-link">
-            <p>Première installation ? <a href="{{ route('register') }}">Créer le compte administrateur</a></p>
-        </div>
-        @endif
+
+        {{-- Footer --}}
+        <p class="text-center text-slate-600 text-xs mt-8">
+            © {{ date('Y') }} {{ setting('app_name', 'GeoTrack Pro') }}
+            @if(setting('company_name')) · {{ setting('company_name') }} @endif
+        </p>
     </div>
-    
-    <script>
-        function togglePassword() {
-            const passwordInput = document.getElementById('password');
-            const toggleIcon = document.getElementById('toggleIcon');
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                toggleIcon.classList.remove('fa-eye');
-                toggleIcon.classList.add('fa-eye-slash');
-            } else {
-                passwordInput.type = 'password';
-                toggleIcon.classList.remove('fa-eye-slash');
-                toggleIcon.classList.add('fa-eye');
-            }
-        }
-    </script>
+</div>
+
 </body>
 </html>

@@ -130,7 +130,7 @@
         <!-- Map Section (Right) -->
         <div class="map-section">
             <div id="historyMap" class="history-map"></div>
-            
+
             <!-- Floating Header -->
             <div class="floating-header">
                 <a href="{{ route('monitor') }}" class="btn-back" title="Retour">
@@ -144,7 +144,7 @@
                     <span class="status-text">{{ __('messages.history.waiting') }}</span>
                 </div>
             </div>
-            
+
             <!-- Map Actions Overlay -->
             <div class="map-actions-overlay">
                 <button class="map-action-btn" id="btnCenterRoute" title="Centrer sur le trajet">
@@ -157,7 +157,7 @@
                     <i class="fas fa-download"></i>
                 </button>
             </div>
-            
+
             <!-- Map Controls -->
             <div class="map-controls">
                 <button class="map-control-btn" id="btnZoomIn" title="Zoom In">
@@ -234,21 +234,30 @@
 @push('styles')
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <style>
+/* Remove layout padding for full-page map view */
+main.flex-1 { padding: 0 !important; overflow: hidden !important; }
+
 /* History Page - Modern Design */
 .history-container {
+    position: fixed;
+    top: 56px;
+    left: 0;
+    right: 0;
+    bottom: 0;
     padding: 0;
-    padding-top: 60px;
-    max-width: 100%;
     margin: 0;
-    min-height: calc(100vh - 60px);
-    position: relative;
+    overflow: hidden;
+}
+
+@media (min-width: 1024px) {
+    .history-container { left: 4rem; }
 }
 
 /* Main Content Layout */
 .history-content {
     display: flex;
     gap: 15px;
-    height: calc(100vh - 60px);
+    height: 100%;
     min-height: 500px;
     padding: 10px;
 }
@@ -999,7 +1008,7 @@
         flex-direction: column;
         height: auto;
     }
-    
+
     .info-panel {
         width: 100%;
         flex-direction: row;
@@ -1008,12 +1017,12 @@
         overflow-y: visible;
         order: 2;
     }
-    
+
     .info-card {
         flex: 1;
         min-width: 290px;
     }
-    
+
     .map-section {
         height: 500px;
         order: 1;
@@ -1025,45 +1034,45 @@
         padding: 8px;
         gap: 10px;
     }
-    
+
     .info-panel {
         flex-direction: column;
     }
-    
+
     .info-card {
         min-width: 100%;
     }
-    
+
     .floating-header {
         top: 10px;
         padding: 6px 12px;
         max-width: calc(100% - 100px);
     }
-    
+
     .title-text {
         font-size: 12px;
     }
-    
+
     .playback-row {
         flex-wrap: wrap;
         justify-content: center;
     }
-    
+
     .timeline-section {
         order: 3;
         width: 100%;
         margin-top: 5px;
     }
-    
+
     .speed-gauge-overlay {
         bottom: 80px;
     }
-    
+
     .speed-gauge {
         width: 60px;
         height: 60px;
     }
-    
+
     .speed-value {
         font-size: 18px;
     }
@@ -1078,7 +1087,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Get device ID from URL
     const urlParams = new URLSearchParams(window.location.search);
     const deviceId = urlParams.get('id');
-    
+
     if (!deviceId) {
         showWarning('Aucun appareil sélectionné');
         window.location.href = '{{ route("monitor") }}';
@@ -1103,10 +1112,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initialize map
     initMap();
-    
+
     // Load device info
     loadDeviceInfo(deviceId);
-    
+
     // Set default dates (today)
     setTodayDates();
 
@@ -1159,8 +1168,8 @@ document.addEventListener('DOMContentLoaded', function() {
         return L.divIcon({
             className: 'custom-marker current-marker',
             html: `<div style="transform: rotate(${rotation}deg); width: 45px; height: 45px; display: flex; align-items: center; justify-content: center;">
-                <img src="/icons/automobile_${iconNumber}.png" 
-                     style="width: 45px; height: 45px; filter: drop-shadow(0 3px 8px rgba(139,92,246,0.5));" 
+                <img src="/icons/automobile_${iconNumber}.png"
+                     style="width: 45px; height: 45px; filter: drop-shadow(0 3px 8px rgba(139,92,246,0.5));"
                      alt="vehicle"/>
             </div>`,
             iconSize: [45, 45],
@@ -1201,7 +1210,7 @@ document.addEventListener('DOMContentLoaded', function() {
         map = L.map('historyMap', {
             zoomControl: false
         }).setView([14.6937, -17.4441], 12);
-        
+
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
@@ -1246,16 +1255,16 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             const response = await fetch(`/api/traccar/devices`);
             const data = await response.json();
-            
+
             let devices = [];
             if (data.success && data.devices) {
                 devices = data.devices;
             } else if (Array.isArray(data)) {
                 devices = data;
             }
-            
+
             const device = devices.find(d => d.id == id);
-            
+
             if (device) {
                 document.getElementById('deviceName').textContent = device.name;
                 document.getElementById('deviceIdentifier').textContent = `IMEI: ${device.uniqueId}`;
@@ -1339,10 +1348,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Draw route
             drawRoute();
-            
+
             // Update statistics
             updateStatistics();
-            
+
             // Update timeline
             updateTimeline();
 
@@ -1360,15 +1369,15 @@ document.addEventListener('DOMContentLoaded', function() {
         stops = [];
         const STOP_SPEED_THRESHOLD = 2; // km/h
         const STOP_DURATION_THRESHOLD = 120000; // 2 minutes en ms
-        
+
         let stopStart = null;
         let stopStartIndex = null;
-        
+
         for (let i = 0; i < positions.length; i++) {
             const pos = positions[i];
             const speed = pos.speed * 1.852; // knots to km/h
             const time = new Date(pos.fixTime).getTime();
-            
+
             if (speed < STOP_SPEED_THRESHOLD) {
                 if (stopStart === null) {
                     stopStart = time;
@@ -1392,7 +1401,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
         }
-        
+
         // Check if still stopped at the end
         if (stopStart !== null) {
             const lastTime = new Date(positions[positions.length - 1].fixTime).getTime();
@@ -1408,7 +1417,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             }
         }
-        
+
         document.getElementById('totalStops').textContent = stops.length;
     }
 
@@ -1503,11 +1512,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
         stops.forEach((stop, index) => {
             const icon = createStopIcon(index + 1, stop.duration);
-            const marker = L.marker([stop.position.latitude, stop.position.longitude], { 
+            const marker = L.marker([stop.position.latitude, stop.position.longitude], {
                 icon: icon,
                 zIndexOffset: 500
             }).addTo(map);
-            
+
             const durationMinutes = Math.round(stop.duration / 60000);
             marker.bindPopup(`
                 <div style="min-width: 150px;">
@@ -1517,7 +1526,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <small><i class="fas fa-stop"></i> ${formatTime(stop.endTime)}</small>
                 </div>
             `);
-            
+
             stopMarkers.push(marker);
         });
     }
@@ -1544,10 +1553,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Update trail polyline (ligne qui suit le véhicule)
     function updateTrailPolyline() {
         if (!trailPolyline || positions.length === 0) return;
-        
+
         const trailLatLngs = positions.slice(0, playbackIndex + 1).map(p => [p.latitude, p.longitude]);
         trailPolyline.setLatLngs(trailLatLngs);
-        
+
         // Update timeline progress
         const progress = (playbackIndex / (positions.length - 1)) * 100;
         document.getElementById('timelineProgress').style.width = `${progress}%`;
@@ -1582,7 +1591,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         const avgSpeed = positions.length > 0 ? speedSum / positions.length : 0;
-        
+
         const startTime = new Date(positions[0].fixTime);
         const endTime = new Date(positions[positions.length - 1].fixTime);
         const durationMs = endTime - startTime;
@@ -1689,7 +1698,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (positions.length === 0) return;
 
         const pos = positions[playbackIndex];
-        
+
         // Update marker position and icon with rotation
         if (currentMarker) {
             currentMarker.setLatLng([pos.latitude, pos.longitude]);
@@ -1719,7 +1728,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const pos = positions[playbackIndex];
         const speed = (pos.speed * 1.852).toFixed(0);
-        
+
         document.getElementById('currentTime').textContent = formatTime(pos.fixTime);
         document.getElementById('currentSpeed').textContent = `${speed} km/h`;
         document.getElementById('speedGaugeValue').textContent = speed;
@@ -1734,7 +1743,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const csv = [
             'Index,Date/Heure,Latitude,Longitude,Vitesse (km/h),Cap',
-            ...positions.map((pos, i) => 
+            ...positions.map((pos, i) =>
                 `${i + 1},"${formatDateTime(pos.fixTime)}",${pos.latitude},${pos.longitude},${(pos.speed * 1.852).toFixed(1)},${pos.course || ''}`
             )
         ].join('\n');

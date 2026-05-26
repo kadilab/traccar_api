@@ -908,9 +908,34 @@ document.addEventListener('DOMContentLoaded', function() {
 @push('styles')
 <style>
 /* Events Page Styles */
+.main-container {
+    display: flex;
+    min-height: calc(100vh - 56px);
+}
+
 .events-sidebar {
     width: 280px;
     min-width: 280px;
+    position: fixed;
+    top: 56px;
+    left: 0;
+    height: calc(100vh - 56px);
+    z-index: 30;
+    overflow-y: auto;
+    background: #fff;
+    border-right: 1px solid #e2e8f0;
+}
+
+@media (min-width: 1024px) {
+    .events-sidebar { left: 4rem; }
+}
+
+.main-content {
+    margin-left: 280px;
+    flex: 1;
+    width: calc(100% - 280px);
+    padding: 20px;
+    overflow-y: auto;
 }
 
 .sidebar-header {

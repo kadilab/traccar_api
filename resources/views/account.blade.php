@@ -13,7 +13,7 @@
                 <input type="text" id="treeSearch" class="search-input" placeholder="Rechercher...">
             </div>
         </div>
-        
+
         <div class="tree-view" id="userTree">
             <div class="tree-loading">
                 <div class="spinner-small"></div>
@@ -38,7 +38,7 @@
                     <span class="realtime-text">Temps réel</span>
                 </div>
             </div>
-            
+
             <!-- Stats Cards -->
             <div class="stats-row">
                 <div class="stat-card stat-total">
@@ -142,7 +142,7 @@
                         <div class="modal-body">
                             <form id="addUserForm">
                                 <input type="hidden" id="addUserId" name="id" value="0">
-                                
+
                                 <div class="row mb-3">
                                     <div class="col-md-6">
                                         <label for="addUserName" class="form-label">Nom <span class="text-danger">*</span></label>
@@ -243,7 +243,7 @@
                         </div>
                         <div class="modal-body">
                             <input type="hidden" id="linkUserId" value="0">
-                            
+
                             <!-- Devices -->
                             <div class="link-section">
                                 <label for="linkDevices" class="form-label">Devices</label>
@@ -351,7 +351,7 @@
                         <div class="modal-body">
                             <form id="editUserForm">
                                 <input type="hidden" id="editUserId" name="id" value="0">
-                                
+
                                 <div class="row mb-3">
                                     <div class="col-md-6">
                                         <label for="editUserName" class="form-label">Nom <span class="text-danger">*</span></label>
@@ -494,7 +494,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Charger les utilisateurs au démarrage
     loadUsers();
-    
+
     // Démarrer le rafraîchissement automatique
     startRealTimeUpdates();
 
@@ -529,11 +529,11 @@ document.addEventListener('DOMContentLoaded', function() {
         if (refreshInterval) {
             clearInterval(refreshInterval);
         }
-        
+
         refreshInterval = setInterval(async () => {
             await loadUsersSilent();
         }, REFRESH_RATE);
-        
+
         console.log('Real-time updates started (every ' + (REFRESH_RATE/1000) + 's)');
     }
 
@@ -542,10 +542,10 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             const response = await fetch('/api/traccar/users');
             const data = await response.json();
-            
+
             if (data.success) {
                 const newUsers = data.users || [];
-                
+
                 if (JSON.stringify(allUsers) !== JSON.stringify(newUsers)) {
                     allUsers = newUsers;
                     filterUsers();
@@ -590,7 +590,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const response = await fetch('/api/traccar/users');
             const data = await response.json();
             console.log('Users response:', data);
-            
+
             if (data.success) {
                 allUsers = data.users || [];
                 filterUsers();
@@ -621,37 +621,37 @@ document.addEventListener('DOMContentLoaded', function() {
         const btnTextId = mode === 'edit' ? 'btnEditSaveUserText' : 'btnAddSaveUserText';
         const btnId = mode === 'edit' ? 'btnEditSaveUser' : 'btnAddSaveUser';
         const modalId = mode === 'edit' ? 'editUserModal' : 'addUserModal';
-        
+
         const form = document.getElementById(formId);
         const errorDiv = document.getElementById(errorDivId);
         const btnText = document.getElementById(btnTextId);
         const btn = document.getElementById(btnId);
-        
+
         // Validation
         const nameId = mode === 'edit' ? 'editUserName' : 'addUserName';
         const emailId = mode === 'edit' ? 'editUserEmail' : 'addUserEmail';
         const passwordId = mode === 'edit' ? 'editUserPassword' : 'addUserPassword';
         const userIdId = mode === 'edit' ? 'editUserId' : 'addUserId';
-        
+
         const name = document.getElementById(nameId).value.trim();
         const email = document.getElementById(emailId).value.trim();
         const password = document.getElementById(passwordId).value;
         const userId = document.getElementById(userIdId).value;
-        
+
         if (!name || !email) {
             errorDiv.textContent = 'Le nom et l\'email sont obligatoires.';
             errorDiv.classList.remove('d-none');
             return;
         }
-        
+
         if (mode === 'add' && !password) {
             errorDiv.textContent = 'Le mot de passe est obligatoire pour un nouvel utilisateur.';
             errorDiv.classList.remove('d-none');
             return;
         }
-        
+
         errorDiv.classList.add('d-none');
-        
+
         // Déterminer les IDs des champs pour ce mode
         const phoneId = mode === 'edit' ? 'editUserPhone' : 'addUserPhone';
         const roleId = mode === 'edit' ? 'editUserRole' : 'addUserRole';
@@ -661,7 +661,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const deviceLimitId = mode === 'edit' ? 'editUserDeviceLimit' : 'addUserDeviceLimit';
         const userLimitId = mode === 'edit' ? 'editUserUserLimit' : 'addUserUserLimit';
         const expirationId = mode === 'edit' ? 'editUserExpiration' : 'addUserExpiration';
-        
+
         // Préparer les données
         const userData = {
             id: parseInt(userId),
@@ -676,20 +676,20 @@ document.addEventListener('DOMContentLoaded', function() {
             userLimit: parseInt(document.getElementById(userLimitId).value) || 0,
             expirationTime: document.getElementById(expirationId).value || null
         };
-        
+
         if (password) {
             userData.password = password;
         }
-        
+
         // Afficher loading
         btn.disabled = true;
         btnText.textContent = mode === 'edit' ? 'Modification...' : 'Enregistrement...';
-        
+
         try {
             const isEdit = mode === 'edit';
             const url = isEdit ? `/api/traccar/users/${userId}` : '/api/traccar/users';
             const method = isEdit ? 'PUT' : 'POST';
-            
+
             const response = await fetch(url, {
                 method: method,
                 headers: {
@@ -699,16 +699,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 },
                 body: JSON.stringify(userData)
             });
-            
+
             const data = await response.json();
-            
+
             if (data.success || response.ok) {
                 const modal = bootstrap.Modal.getInstance(document.getElementById(modalId));
                 modal.hide();
-                
+
                 form.reset();
                 document.getElementById(userIdId).value = '0';
-                
+
                 await loadUsers();
                 console.log(isEdit ? 'Utilisateur modifié avec succès' : 'Utilisateur créé avec succès');
             } else {
@@ -732,15 +732,15 @@ document.addEventListener('DOMContentLoaded', function() {
         const role = document.getElementById('filterRole').value;
 
         let filtered = allUsers.filter(user => {
-            const matchSearch = !search || 
+            const matchSearch = !search ||
                 user.name?.toLowerCase().includes(search) ||
                 user.email?.toLowerCase().includes(search) ||
                 user.phone?.toLowerCase().includes(search);
-            
+
             let matchStatus = true;
             if (status === 'active') matchStatus = !user.disabled;
             if (status === 'disabled') matchStatus = user.disabled;
-            
+
             let matchRole = true;
             if (role === 'admin') matchRole = user.administrator;
             if (role === 'user') matchRole = !user.administrator && !user.readonly;
@@ -814,7 +814,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Construire le tree view
     function buildTreeView() {
         const treeContainer = document.getElementById('userTree');
-        
+
         // Grouper par rôle
         const admins = allUsers.filter(u => u.administrator);
         const users = allUsers.filter(u => !u.administrator && !u.readonly);
@@ -879,7 +879,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function formatDate(dateStr) {
         if (!dateStr) return '-';
         const date = new Date(dateStr);
-        return date.toLocaleDateString('fr-FR', { 
+        return date.toLocaleDateString('fr-FR', {
             day: '2-digit', month: '2-digit', year: 'numeric'
         });
     }
@@ -912,14 +912,14 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function updateTableInfo(total, start, end) {
-        document.getElementById('tableInfo').textContent = 
+        document.getElementById('tableInfo').textContent =
             `Affichage de ${total > 0 ? start + 1 : 0} à ${end} sur ${total} entrées`;
     }
 
     function renderPagination(totalItems) {
         const totalPages = Math.ceil(totalItems / itemsPerPage);
         const pagination = document.getElementById('pagination');
-        
+
         if (totalPages <= 1) {
             pagination.innerHTML = '';
             return;
@@ -927,7 +927,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         let html = '';
         html += `<button class="page-btn" ${currentPage === 1 ? 'disabled' : ''} onclick="goToPage(${currentPage - 1})">«</button>`;
-        
+
         for (let i = 1; i <= totalPages; i++) {
             if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
                 html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</button>`;
@@ -935,7 +935,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 html += `<span class="page-dots">...</span>`;
             }
         }
-        
+
         html += `<button class="page-btn" ${currentPage === totalPages ? 'disabled' : ''} onclick="goToPage(${currentPage + 1})">»</button>`;
         pagination.innerHTML = html;
     }
@@ -966,7 +966,7 @@ document.addEventListener('DOMContentLoaded', function() {
     window.selectUser = function(id) {
         document.querySelectorAll('.tree-child').forEach(c => c.classList.remove('selected'));
         document.querySelector(`.tree-child[data-id="${id}"]`)?.classList.add('selected');
-        
+
         document.querySelectorAll('#usersTable tbody tr').forEach(r => r.classList.remove('highlighted'));
         document.querySelector(`#usersTable tbody tr[data-id="${id}"]`)?.classList.add('highlighted');
     };
@@ -977,7 +977,7 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error('User not found:', id);
             return;
         }
-        
+
         document.getElementById('editUserId').value = user.id;
         document.getElementById('editUserName').value = user.name || '';
         document.getElementById('editUserEmail').value = user.email || '';
@@ -989,16 +989,16 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('editUserDeviceReadonly').checked = user.deviceReadonly || false;
         document.getElementById('editUserDeviceLimit').value = user.deviceLimit ?? -1;
         document.getElementById('editUserUserLimit').value = user.userLimit ?? 0;
-        
+
         if (user.expirationTime) {
             const date = new Date(user.expirationTime);
             document.getElementById('editUserExpiration').value = date.toISOString().slice(0, 16);
         } else {
             document.getElementById('editUserExpiration').value = '';
         }
-        
+
         document.getElementById('editUserFormError').classList.add('d-none');
-        
+
         const modal = new bootstrap.Modal(document.getElementById('editUserModal'));
         modal.show();
     };
@@ -1012,11 +1012,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const user = allUsers.find(u => u.id === id);
         const result = await showDeleteConfirm(user?.name || 'cet utilisateur');
         if (!result.isConfirmed) return;
-        
+
         try {
             const response = await fetch(`/api/traccar/users/${id}`, { method: 'DELETE' });
             const data = await response.json();
-            
+
             if (data.success) {
                 showToast('Utilisateur supprimé avec succès', 'success');
                 loadUsers();
@@ -1062,7 +1062,7 @@ let allItems = {
 async function initLinkModal() {
     try {
         const userId = parseInt(document.getElementById('linkUserId').value);
-        
+
         // Phase 1: Charger tous les éléments disponibles
         await Promise.all([
             loadItems('devices', '/api/traccar/devices'),
@@ -1075,10 +1075,10 @@ async function initLinkModal() {
             loadItems('managedUsers', '/api/traccar/users'),
             loadItems('commands', '/api/traccar/commands')
         ]);
-        
+
         // Phase 2: Charger les permissions existantes de l'utilisateur
         await loadExistingPermissions(userId);
-        
+
         // Phase 3: Remplir les combobox (en excluant les éléments déjà liés)
         populateSelects();
     } catch (error) {
@@ -1091,7 +1091,7 @@ async function loadExistingPermissions(userId) {
     try {
         const response = await fetch(`/api/traccar/permissions-test/${userId}`);
         const data = await response.json();
-        
+
         if (data.success && data.permissions) {
             // Réinitialiser les tableaux de liaisons
             linkedItems = {
@@ -1105,13 +1105,13 @@ async function loadExistingPermissions(userId) {
                 managedUser: [],
                 command: []
             };
-            
+
             // Parcourir les permissions et les afficher en badges
             data.permissions.forEach(permission => {
                 let type = null;
                 let itemId = null;
                 let itemName = '';
-                
+
                 if (permission.deviceId) {
                     type = 'device';
                     itemId = permission.deviceId;
@@ -1158,7 +1158,7 @@ async function loadExistingPermissions(userId) {
                     const command = allItems.commands.find(c => c.id === itemId);
                     itemName = command ? (command.description || command.name) : `Commande ${itemId}`;
                 }
-                
+
                 if (type && itemId) {
                     linkedItems[type].push(itemId);
                     displayLinkedItem(type, itemId, itemName);
@@ -1175,9 +1175,9 @@ async function loadItems(key, endpoint) {
     try {
         const response = await fetch(endpoint);
         const data = await response.json();
-        
+
         if (data.success) {
-            allItems[key] = data[key === 'devices' ? 'devices' : 
+            allItems[key] = data[key === 'devices' ? 'devices' :
                               key === 'groups' ? 'groups' :
                               key === 'geofences' ? 'geofences' :
                               key === 'notifications' ? 'notifications' :
@@ -1195,7 +1195,7 @@ async function loadItems(key, endpoint) {
 // Remplir les combobox avec les données (en excluant les éléments liés)
 function populateSelects() {
     const userId = parseInt(document.getElementById('linkUserId').value);
-    
+
     // Devices - Exclure les devices déjà liés
     const deviceSelect = document.getElementById('linkDevices');
     deviceSelect.innerHTML = '<option value="">Sélectionner un device...</option>' +
@@ -1275,7 +1275,7 @@ async function addLinkedItem(type, selectElement) {
     if (!itemId) return;
 
     const userId = parseInt(document.getElementById('linkUserId').value);
-    
+
     // Vérifier que l'élément n'est pas déjà lié
     if (linkedItems[type].includes(parseInt(itemId))) {
         showWarning('Cet élément est déjà lié.');
@@ -1286,7 +1286,7 @@ async function addLinkedItem(type, selectElement) {
     try {
         // Préparer les paramètres de la requête
         const requestBody = { userId: userId };
-        
+
         if (type === 'device') requestBody.deviceId = parseInt(itemId);
         else if (type === 'group') requestBody.groupId = parseInt(itemId);
         else if (type === 'geofence') requestBody.geofenceId = parseInt(itemId);
@@ -1312,11 +1312,11 @@ async function addLinkedItem(type, selectElement) {
 
         if (data.success || response.ok) {
             linkedItems[type].push(parseInt(itemId));
-            
+
             // Obtenir le nom de l'élément
             let itemName = '';
             let itemsArray = [];
-            
+
             if (type === 'device') itemsArray = allItems.devices;
             else if (type === 'group') itemsArray = allItems.groups;
             else if (type === 'geofence') itemsArray = allItems.geofences;
@@ -1332,11 +1332,11 @@ async function addLinkedItem(type, selectElement) {
 
             // Afficher le badge
             displayLinkedItem(type, itemId, itemName);
-            
+
             // Réinitialiser le select
             selectElement.value = '';
             selectElement.focus();
-            
+
             console.log(`${type} ${itemId} lié avec succès`);
         } else {
             showLinkError(data.message || 'Erreur lors de la liaison');
@@ -1363,7 +1363,7 @@ function displayLinkedItem(type, itemId, itemName) {
     const badge = document.createElement('div');
     badge.className = 'linked-item-badge';
     badge.id = `badge-${type}-${itemId}`;
-    
+
     const typeLabel = type === 'device' ? 'Device' :
                       type === 'group' ? 'Groupe' :
                       type === 'geofence' ? 'Géofence' :
@@ -1379,7 +1379,7 @@ function displayLinkedItem(type, itemId, itemName) {
         <span class="badge-type">${typeLabel}</span>
         <button type="button" class="remove-link" onclick="removeLinkedItem('${type}', ${itemId})">×</button>
     `;
-    
+
     container.appendChild(badge);
 }
 
@@ -1389,7 +1389,7 @@ async function removeLinkedItem(type, itemId) {
         // Préparer les paramètres de la requête
         const userId = parseInt(document.getElementById('linkUserId').value);
         const requestBody = { userId: userId };
-        
+
         if (type === 'device') requestBody.deviceId = itemId;
         else if (type === 'group') requestBody.groupId = itemId;
         else if (type === 'geofence') requestBody.geofenceId = itemId;
@@ -1416,17 +1416,17 @@ async function removeLinkedItem(type, itemId) {
         if (data.success || response.ok) {
             // Supprimer du tableau
             linkedItems[type] = linkedItems[type].filter(id => id !== itemId);
-            
+
             // Supprimer le badge avec animation
             const badge = document.getElementById(`badge-${type}-${itemId}`);
             if (badge) {
                 badge.style.animation = 'slideIn 0.3s ease reverse';
                 setTimeout(() => badge.remove(), 300);
             }
-            
+
             // Mettre à jour les selects pour rendre l'élément disponible
             populateSelects();
-            
+
             console.log(`${type} ${itemId} délié avec succès`);
         } else {
             showLinkError(data.message || 'Erreur lors de la suppression de la liaison');
@@ -1450,7 +1450,7 @@ function showLinkError(message) {
 // Ouvrir le modal de liaison
 window.linkUser = function(id) {
     document.getElementById('linkUserId').value = id;
-    
+
     // Réinitialiser les conteneurs de badges
     document.getElementById('linkedDevices').innerHTML = '';
     document.getElementById('linkedGroups').innerHTML = '';
@@ -1461,7 +1461,7 @@ window.linkUser = function(id) {
     document.getElementById('linkedDrivers').innerHTML = '';
     document.getElementById('linkedManagedUsers').innerHTML = '';
     document.getElementById('linkedCommands').innerHTML = '';
-    
+
     // Réinitialiser les selects
     document.getElementById('linkDevices').value = '';
     document.getElementById('linkGroups').value = '';
@@ -1472,18 +1472,19 @@ window.linkUser = function(id) {
     document.getElementById('linkDrivers').value = '';
     document.getElementById('linkManagedUsers').value = '';
     document.getElementById('linkCommands').value = '';
-    
+
     // Réinitialiser les messages d'erreur
     document.getElementById('linkUserFormError').classList.add('d-none');
-    
+
     // Initialiser le modal avec chargement des permissions existantes
     initLinkModal();
-    
+
     // Afficher le modal
     const modal = new bootstrap.Modal(document.getElementById('linkUserModal'));
     modal.show();
 };
 </script>
+@endpush
 
 @push('styles')
 <style>
@@ -1914,23 +1915,26 @@ window.linkUser = function(id) {
 /* Main Container */
 .main-container {
     display: flex;
-    min-height: calc(100vh - 60px);
-    margin-top: 60px;
+    min-height: calc(100vh - 56px);
 }
 
 /* Sidebar Fixed */
 .device-sidebar {
     position: fixed;
     left: 0;
-    top: 50px;
+    top: 56px;
     width: 280px;
-    height: calc(100vh - 50px);
+    height: calc(100vh - 56px);
     background: white;
     border-right: 1px solid #e3eafc;
     display: flex;
     flex-direction: column;
-    z-index: 99;
+    z-index: 30;
     overflow-y: auto;
+}
+
+@media (min-width: 1024px) {
+    .device-sidebar { left: 4rem; }
 }
 
 /* Main Content adjusted for fixed sidebar */
@@ -1973,29 +1977,29 @@ window.linkUser = function(id) {
     .filters-and-actions-section {
         flex-direction: column;
     }
-    
+
     .filters-section {
         min-width: 100%;
     }
-    
+
     .action-buttons {
         width: 100%;
     }
-    
+
     .action-buttons .btn {
         flex: 1;
         justify-content: center;
     }
-    
+
     .users-table {
         font-size: 0.85rem;
     }
-    
+
     .users-table thead th,
     .users-table tbody td {
         padding: 10px 8px;
     }
-    
+
     .users-table .action-btns {
         flex-direction: column;
     }

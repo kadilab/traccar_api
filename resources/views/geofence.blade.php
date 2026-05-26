@@ -63,7 +63,7 @@
         <!-- Map Section -->
         <div class="map-section">
             <div id="geofenceMap" class="geofence-map"></div>
-            
+
             <!-- Floating Header -->
             <div class="floating-header">
                 <a href="{{ route('monitor') }}" class="btn-back" title="Retour">
@@ -77,7 +77,7 @@
                     <span class="status-text">Prêt</span>
                 </div>
             </div>
-            
+
             <!-- Map Controls -->
             <div class="map-controls">
                 <button class="map-control-btn" id="btnZoomIn" title="Zoom In">
@@ -138,12 +138,12 @@
                     <i class="fas fa-times"></i>
                 </button>
             </div>
-            
+
             <div class="panel-body">
                 <form id="geofenceForm">
                     <input type="hidden" id="geofenceId" value="">
                     <input type="hidden" id="geofenceArea" value="">
-                    
+
                     <!-- Name -->
                     <div class="form-group">
                         <label for="geofenceName">
@@ -151,7 +151,7 @@
                         </label>
                         <input type="text" id="geofenceName" class="form-input" placeholder="{{ __('messages.geofence.name_placeholder') }}" required>
                     </div>
-                    
+
                     <!-- Description -->
                     <div class="form-group">
                         <label for="geofenceDescription">
@@ -159,7 +159,7 @@
                         </label>
                         <textarea id="geofenceDescription" class="form-input" rows="2" placeholder="{{ __('messages.geofence.description_placeholder') }}"></textarea>
                     </div>
-                    
+
                     <!-- Zone Type -->
                     <div class="form-group">
                         <label>
@@ -176,7 +176,7 @@
                             </button>
                         </div>
                     </div>
-                    
+
                     <!-- Circle Options -->
                     <div class="circle-options" id="circleOptions" style="display: none;">
                         <div class="options-header">
@@ -206,7 +206,7 @@
                             <i class="fas fa-map-marker-alt"></i> Placer sur la carte
                         </button>
                     </div>
-                    
+
                     <!-- Polygon Info -->
                     <div class="polygon-info" id="polygonInfo">
                         <div class="draw-box">
@@ -229,7 +229,7 @@
                             <div class="coordinates-text" id="coordinatesText"></div>
                         </div>
                     </div>
-                    
+
                     <!-- Color -->
                     <div class="form-group">
                         <label for="geofenceColor">
@@ -249,7 +249,7 @@
                     </div>
                 </form>
             </div>
-            
+
             <div class="panel-footer">
                 <button type="button" class="btn btn-secondary" id="btnCancelForm">
                     <i class="fas fa-times"></i> {{ __('messages.common.cancel') }}
@@ -283,20 +283,30 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
 <style>
+/* Remove layout padding for full-page map view */
+main.flex-1 { padding: 0 !important; overflow: hidden !important; }
+
 /* Geofence Page - Modern Design */
 .geofence-container {
+    position: fixed;
+    top: 56px;
+    left: 0;
+    right: 0;
+    bottom: 0;
     padding: 0;
-    padding-top: 60px;
-    max-width: 100%;
     margin: 0;
-    min-height: calc(100vh - 60px);
+    overflow: hidden;
+}
+
+@media (min-width: 1024px) {
+    .geofence-container { left: 4rem; }
 }
 
 /* Main Content Layout */
 .geofence-content {
     display: flex;
     gap: 15px;
-    height: calc(100vh - 60px);
+    height: 100%;
     min-height: 500px;
     padding: 10px;
 }
@@ -1338,27 +1348,27 @@
         flex-direction: column;
         height: auto;
     }
-    
+
     .info-panel {
         width: 100%;
         flex-direction: row;
         flex-wrap: wrap;
         max-height: none;
     }
-    
+
     .info-card {
         flex: 1;
         min-width: 280px;
     }
-    
+
     .list-card {
         max-height: 300px;
     }
-    
+
     .map-section {
         height: 500px;
     }
-    
+
     .form-panel {
         width: 100%;
         max-height: none;
@@ -1370,19 +1380,19 @@
         padding: 8px;
         gap: 10px;
     }
-    
+
     .info-panel {
         flex-direction: column;
     }
-    
+
     .info-card {
         min-width: 100%;
     }
-    
+
     .floating-header {
         padding: 6px 12px;
     }
-    
+
     .title-text {
         font-size: 12px;
     }
@@ -1407,7 +1417,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentType = 'polygon';
     let tempCircle = null;
     let circleMarker = null;
-    
+
     // Initialize
     initMap();
     loadGeofences();
@@ -1418,7 +1428,7 @@ document.addEventListener('DOMContentLoaded', function() {
         map = L.map('geofenceMap', {
             zoomControl: false
         }).setView([14.6937, -17.4441], 12);
-        
+
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap'
         }).addTo(map);
@@ -1469,13 +1479,13 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             const response = await fetch('/api/traccar/geofences');
             const data = await response.json();
-            
+
             if (data.success) {
                 geofences = data.geofences || [];
             } else if (Array.isArray(data)) {
                 geofences = data;
             }
-            
+
             renderGeofenceList();
             renderGeofencesOnMap();
             updateStats();
@@ -1493,7 +1503,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Render list
     function renderGeofenceList() {
         const list = document.getElementById('geofenceList');
-        
+
         if (geofences.length === 0) {
             list.innerHTML = `
                 <div class="empty-list">
@@ -1503,12 +1513,12 @@ document.addEventListener('DOMContentLoaded', function() {
             `;
             return;
         }
-        
+
         list.innerHTML = geofences.map(geo => {
             const isCircle = geo.area && geo.area.startsWith('CIRCLE');
             const type = isCircle ? 'circle' : 'polygon';
             const typeLabel = isCircle ? 'Cercle' : 'Polygone';
-            
+
             return `
                 <div class="geofence-item" data-id="${geo.id}">
                     <div class="geofence-icon ${type}">
@@ -1542,7 +1552,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Render on map
     function renderGeofencesOnMap() {
         drawnItems.clearLayers();
-        
+
         geofences.forEach(geo => {
             const layer = parseArea(geo.area, geo.attributes?.color || '#1976d2');
             if (layer) {
@@ -1562,14 +1572,14 @@ document.addEventListener('DOMContentLoaded', function() {
     // Parse area string
     function parseArea(area, color) {
         if (!area) return null;
-        
+
         const style = {
             color: color,
             fillColor: color,
             fillOpacity: 0.2,
             weight: 2
         };
-        
+
         if (area.startsWith('CIRCLE')) {
             const match = area.match(/CIRCLE\s*\(\s*([\d.-]+)\s+([\d.-]+)\s*,\s*([\d.]+)\s*\)/);
             if (match) {
@@ -1608,7 +1618,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.querySelectorAll('.geofence-item').forEach(item => {
             item.classList.toggle('active', parseInt(item.dataset.id) === id);
         });
-        
+
         drawnItems.eachLayer(layer => {
             if (layer.geofenceId === id) {
                 map.fitBounds(layer.getBounds(), { padding: [100, 100] });
@@ -1621,23 +1631,23 @@ document.addEventListener('DOMContentLoaded', function() {
     function setupEventListeners() {
         // New geofence
         document.getElementById('btnNewGeofence').addEventListener('click', showNewForm);
-        
+
         // Close panel
         document.getElementById('btnClosePanel').addEventListener('click', hideForm);
         document.getElementById('btnCancelForm').addEventListener('click', hideForm);
-        
+
         // Type selection
         document.querySelectorAll('.type-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 currentType = btn.dataset.type;
-                
+
                 document.getElementById('circleOptions').style.display = currentType === 'circle' ? 'block' : 'none';
                 document.getElementById('polygonInfo').style.display = currentType === 'polygon' ? 'block' : 'none';
             });
         });
-        
+
         // Color presets
         document.querySelectorAll('.color-preset').forEach(btn => {
             btn.addEventListener('click', () => {
@@ -1647,43 +1657,43 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('geofenceColor').value = selectedColor;
             });
         });
-        
+
         document.getElementById('geofenceColor').addEventListener('change', (e) => {
             selectedColor = e.target.value;
             document.querySelectorAll('.color-preset').forEach(b => b.classList.remove('active'));
         });
-        
+
         // Radius slider
         document.getElementById('radiusSlider').addEventListener('input', (e) => {
             document.getElementById('circleRadius').value = e.target.value;
             updateTempCircle();
         });
-        
+
         document.getElementById('circleRadius').addEventListener('input', (e) => {
             document.getElementById('radiusSlider').value = e.target.value;
             updateTempCircle();
         });
-        
+
         // Place circle
         document.getElementById('btnPlaceCircle').addEventListener('click', startCirclePlacement);
-        
+
         // Start draw
         document.getElementById('btnStartDraw').addEventListener('click', startDrawing);
-        
+
         // Drawing controls
         document.getElementById('btnFinishDraw').addEventListener('click', finishDrawing);
         document.getElementById('btnCancelDraw').addEventListener('click', cancelDrawing);
-        
+
         // Save
         document.getElementById('btnSaveGeofence').addEventListener('click', saveGeofence);
-        
+
         // Delete modal
         document.getElementById('btnCancelDelete').addEventListener('click', () => {
             document.getElementById('deleteModal').style.display = 'none';
         });
-        
+
         document.getElementById('btnConfirmDelete').addEventListener('click', deleteGeofence);
-        
+
         // Search
         document.getElementById('searchGeofence').addEventListener('input', filterGeofences);
     }
@@ -1727,7 +1737,7 @@ document.addEventListener('DOMContentLoaded', function() {
         updateStatus('drawing', 'Dessin en cours');
         document.getElementById('drawingPanel').style.display = 'block';
         document.querySelector('.floating-header').style.display = 'none';
-        
+
         // Enable polygon draw
         const drawHandler = new L.Draw.Polygon(map, {
             shapeOptions: {
@@ -1738,7 +1748,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
         drawHandler.enable();
-        
+
         map.on('draw:created', (e) => {
             currentDrawing = e.layer;
             drawnItems.addLayer(currentDrawing);
@@ -1753,7 +1763,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('drawingPanel').style.display = 'none';
         document.querySelector('.floating-header').style.display = 'flex';
         updateStatus('ready', 'Prêt');
-        
+
         if (currentDrawing) {
             const area = layerToArea(currentDrawing);
             document.getElementById('geofenceArea').value = area;
@@ -1766,7 +1776,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('drawingPanel').style.display = 'none';
         document.querySelector('.floating-header').style.display = 'flex';
         updateStatus('ready', 'Prêt');
-        
+
         if (currentDrawing) {
             drawnItems.removeLayer(currentDrawing);
             currentDrawing = null;
@@ -1779,7 +1789,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const preview = document.getElementById('coordinatesPreview');
         const text = document.getElementById('coordinatesText');
         const count = document.getElementById('pointsCount');
-        
+
         if (layer instanceof L.Polygon) {
             const latlngs = layer.getLatLngs()[0];
             count.textContent = `${latlngs.length} points`;
@@ -1790,7 +1800,7 @@ document.addEventListener('DOMContentLoaded', function() {
             count.textContent = 'Cercle';
             text.textContent = `Centre: ${center.lat.toFixed(6)}, ${center.lng.toFixed(6)}\nRayon: ${radius.toFixed(0)}m`;
         }
-        
+
         preview.style.display = 'block';
     }
 
@@ -1824,11 +1834,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const lat = parseFloat(document.getElementById('circleLat').value);
         const lng = parseFloat(document.getElementById('circleLng').value);
         const radius = parseFloat(document.getElementById('circleRadius').value);
-        
+
         if (isNaN(lat) || isNaN(lng) || isNaN(radius)) return;
-        
+
         clearTempCircle();
-        
+
         tempCircle = L.circle([lat, lng], {
             radius: radius,
             color: selectedColor,
@@ -1836,11 +1846,11 @@ document.addEventListener('DOMContentLoaded', function() {
             fillOpacity: 0.2,
             weight: 2
         }).addTo(map);
-        
+
         currentDrawing = tempCircle;
         showCoordinates(tempCircle);
         document.getElementById('geofenceArea').value = layerToArea(tempCircle);
-        
+
         map.fitBounds(tempCircle.getBounds(), { padding: [50, 50] });
     }
 
@@ -1857,35 +1867,35 @@ document.addEventListener('DOMContentLoaded', function() {
         const name = document.getElementById('geofenceName').value.trim();
         const description = document.getElementById('geofenceDescription').value.trim();
         const area = document.getElementById('geofenceArea').value;
-        
+
         if (!name) {
             showWarning('Veuillez entrer un nom');
             return;
         }
-        
+
         if (!area) {
             showWarning('Veuillez dessiner une zone sur la carte');
             return;
         }
-        
+
         const data = {
             name: name,
             description: description,
             area: area,
             attributes: { color: selectedColor }
         };
-        
+
         const id = document.getElementById('geofenceId').value;
         const url = id ? `/api/traccar/geofences/${id}` : '/api/traccar/geofences';
         const method = id ? 'PUT' : 'POST';
-        
+
         try {
             const response = await fetch(url, {
                 method: method,
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
             });
-            
+
             if (response.ok) {
                 hideForm();
                 loadGeofences();
@@ -1903,35 +1913,35 @@ document.addEventListener('DOMContentLoaded', function() {
     window.editGeofence = function(id) {
         const geo = geofences.find(g => g.id === id);
         if (!geo) return;
-        
+
         editingGeofence = geo;
         document.getElementById('formPanel').classList.add('active');
         document.getElementById('formTitle').textContent = 'Modifier la géobarrière';
         document.getElementById('formIcon').className = 'fas fa-edit';
-        
+
         document.getElementById('geofenceId').value = geo.id;
         document.getElementById('geofenceName').value = geo.name;
         document.getElementById('geofenceDescription').value = geo.description || '';
         document.getElementById('geofenceArea').value = geo.area;
-        
+
         const color = geo.attributes?.color || '#1976d2';
         selectedColor = color;
         document.getElementById('geofenceColor').value = color;
-        
+
         const isCircle = geo.area?.startsWith('CIRCLE');
         document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
         document.querySelector(`.type-btn[data-type="${isCircle ? 'circle' : 'polygon'}"]`).classList.add('active');
         document.getElementById('circleOptions').style.display = isCircle ? 'block' : 'none';
         document.getElementById('polygonInfo').style.display = isCircle ? 'none' : 'block';
         currentType = isCircle ? 'circle' : 'polygon';
-        
+
         // Parse existing area
         const layer = parseArea(geo.area, color);
         if (layer) {
             currentDrawing = layer;
             drawnItems.addLayer(layer);
             showCoordinates(layer);
-            
+
             if (isCircle) {
                 const center = layer.getLatLng();
                 document.getElementById('circleLat').value = center.lat.toFixed(6);
@@ -1952,10 +1962,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Delete geofence
     async function deleteGeofence() {
         const id = document.getElementById('btnConfirmDelete').dataset.id;
-        
+
         try {
             const response = await fetch(`/api/traccar/geofences/${id}`, { method: 'DELETE' });
-            
+
             if (response.ok) {
                 document.getElementById('deleteModal').style.display = 'none';
                 loadGeofences();

@@ -121,6 +121,31 @@
 </div>
 
 <style>
+.main-container {
+    display: flex;
+    min-height: calc(100vh - 56px);
+}
+aside.sidebar {
+    width: 240px;
+    min-width: 240px;
+    position: fixed;
+    top: 56px;
+    left: 0;
+    height: calc(100vh - 56px);
+    z-index: 30;
+    overflow-y: auto;
+    background: #fff;
+    border-right: 1px solid #e2e8f0;
+    padding: 1rem;
+}
+@media (min-width: 1024px) {
+    aside.sidebar { left: 4rem; }
+}
+.main-content {
+    margin-left: 240px;
+    flex: 1;
+    padding: 20px;
+}
 .stat-card {
     padding: 20px;
     border-radius: 10px;

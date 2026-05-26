@@ -940,6 +940,42 @@ document.addEventListener('DOMContentLoaded', function() {
 <style>
 /* ===================== DRIVERS PAGE - SAME STYLE AS ACCOUNT ===================== */
 
+/* Layout */
+.main-container {
+    display: flex;
+    min-height: calc(100vh - 56px);
+}
+
+.device-sidebar {
+    width: 280px;
+    min-width: 280px;
+    position: fixed;
+    top: 56px;
+    left: 0;
+    height: calc(100vh - 56px);
+    z-index: 30;
+    overflow-y: auto;
+    background: #fff;
+    border-right: 1px solid #e2e8f0;
+}
+
+@media (min-width: 1024px) {
+    .device-sidebar { left: 4rem; }
+}
+
+.main-content {
+    margin-left: 280px;
+    flex: 1;
+    width: calc(100% - 280px);
+    overflow-y: auto;
+    padding: 20px;
+}
+
+@media (max-width: 768px) {
+    .device-sidebar { display: none; }
+    .main-content { margin-left: 0; width: 100%; }
+}
+
 /* Card Header Enhanced */
 .card-header-custom {
     display: flex;

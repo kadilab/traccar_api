@@ -15,7 +15,7 @@
                 <input type="text" id="treeSearch" class="search-input" placeholder="Rechercher...">
             </div>
         </div>
-        
+
         <div class="tree-view" id="fleetTree">
             <div class="tree-loading">
                 <div class="spinner-small"></div>
@@ -37,7 +37,7 @@
                     <span class="realtime-text">Temps réel</span>
                 </div>
             </div>
-            
+
             <!-- Stats Cards -->
             <div class="stats-row">
                 <div class="stat-card stat-total">
@@ -582,7 +582,7 @@
 @push('scripts')
 <script>
     console.log('Fleet management script loaded');
-    
+
     let allVehicles = [];
     let allGroups = [];
     let allDevices = [];
@@ -616,7 +616,7 @@
             showTableLoading();
             const response = await fetch('/api/traccar/devices?all=true');
             const data = await response.json();
-            
+
             if (data.success) {
                 // Transformer les devices en véhicules avec infos supplémentaires
                 allVehicles = (data.devices || []).map(device => ({
@@ -634,7 +634,7 @@
                     lastUpdate: device.lastUpdate,
                     position: device.position
                 }));
-                
+
                 updateStats();
                 filterVehicles();
                 buildTreeView();
@@ -716,11 +716,11 @@
         const groupFilter = document.getElementById('filterGroup').value;
 
         let filtered = allVehicles.filter(vehicle => {
-            const matchSearch = !searchTerm || 
+            const matchSearch = !searchTerm ||
                 vehicle.plate.toLowerCase().includes(searchTerm) ||
                 vehicle.brand.toLowerCase().includes(searchTerm) ||
                 vehicle.model.toLowerCase().includes(searchTerm);
-            
+
             const matchStatus = !statusFilter || vehicle.status === statusFilter;
             const matchType = !typeFilter || vehicle.type === typeFilter;
             const matchGroup = !groupFilter || vehicle.groupId == groupFilter;
@@ -980,7 +980,7 @@
 
     function buildTreeView() {
         const treeContainer = document.getElementById('fleetTree');
-        
+
         const groupedVehicles = {};
         allVehicles.forEach(vehicle => {
             const groupName = vehicle.groupName || 'Sans groupe';
@@ -991,7 +991,7 @@
         });
 
         let html = '<ul class="tree-list">';
-        
+
         Object.keys(groupedVehicles).sort().forEach(groupName => {
             const vehicles = groupedVehicles[groupName];
             html += `
@@ -1014,7 +1014,7 @@
                 </li>
             `;
         });
-        
+
         html += '</ul>';
         treeContainer.innerHTML = html;
     }
@@ -1097,7 +1097,7 @@
     function filterTree() {
         const searchTerm = document.getElementById('treeSearch').value.toLowerCase();
         const items = document.querySelectorAll('.tree-device');
-        
+
         items.forEach(item => {
             const label = item.querySelector('.tree-label').textContent.toLowerCase();
             item.style.display = label.includes(searchTerm) ? '' : 'none';
@@ -1139,7 +1139,7 @@
 /* Main Container */
 .fleet-page .main-container {
     display: flex;
-    min-height: calc(100vh - 70px);
+    min-height: calc(100vh - 56px);
     background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
 }
 
@@ -1930,7 +1930,7 @@
     .fleet-page .stats-row {
         grid-template-columns: repeat(2, 1fr);
     }
-    
+
     .fleet-page .filters-row {
         grid-template-columns: repeat(2, 1fr);
     }
@@ -1940,16 +1940,16 @@
     .fleet-page .device-sidebar {
         position: fixed;
         left: -280px;
-        top: 70px;
-        height: calc(100vh - 70px);
+        top: 56px;
+        height: calc(100vh - 56px);
         z-index: 1000;
         transition: left 0.3s ease;
     }
-    
+
     .fleet-page .device-sidebar.show {
         left: 0;
     }
-    
+
     .fleet-page .main-content {
         padding: 16px;
     }
@@ -1959,20 +1959,20 @@
     .fleet-page .stats-row {
         grid-template-columns: 1fr;
     }
-    
+
     .fleet-page .filters-row {
         grid-template-columns: 1fr;
     }
-    
+
     .fleet-page .action-buttons {
         flex-direction: column;
     }
-    
+
     .fleet-page .action-buttons .btn {
         width: 100%;
         justify-content: center;
     }
-    
+
     .fleet-page .pagination-container {
         flex-direction: column;
         gap: 16px;

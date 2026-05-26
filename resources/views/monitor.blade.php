@@ -7,8 +7,18 @@
 <div class="monitor-container">
     <!-- Main Content -->
     <div class="monitor-content">
-        <!-- Left Panel - Devices List -->
-        <div class="info-panel">
+        <!-- Left Panel - Devices List (floating overlay) -->
+        <div class="info-panel" id="infoPanel">
+            <!-- Panel Header -->
+            <div class="panel-header-bar">
+                <div class="flex items-center gap-2">
+                    <i class="fas fa-car text-blue-500 text-sm"></i>
+                    <span class="text-sm font-semibold text-gray-800">Véhicules</span>
+                </div>
+                <button onclick="toggleInfoPanel()" class="panel-collapse-btn" title="Réduire">
+                    <i class="fas fa-chevron-left text-xs"></i>
+                </button>
+            </div>
             <!-- Search & Filters -->
             <div class="info-card search-card">
                 <div class="search-box">
@@ -43,12 +53,17 @@
             </div>
         </div>
 
-        <!-- Map Section -->
+        <!-- Panel Toggle Button (outside panel, sticks to its right edge) -->
+        <button id="panelToggleBtn" class="panel-toggle-btn" onclick="toggleInfoPanel()" title="Afficher/masquer le panneau">
+            <i class="fas fa-chevron-left text-xs" id="panelToggleIcon"></i>
+        </button>
+
+        <!-- Map Section (full area) -->
         <div class="map-section">
             <div id="map" class="main-map"></div>
-            
+
             <!-- Floating Stats Card -->
-            <div class="floating-stats-card">
+            {{-- <div class="floating-stats-card">
                 <div class="stats-header">
                     <div class="stats-icon">
                         <i class="fas fa-satellite-dish"></i>
@@ -84,8 +99,8 @@
                         <span class="mini-stat-label">Offline</span>
                     </div>
                 </div>
-            </div>
-            
+            </div> --}}
+
             <!-- Quick Actions -->
             <div class="quick-actions">
                 <a href="{{ route('tracking') }}" class="action-btn" title="Tracking">
@@ -100,7 +115,7 @@
                 <div class="action-divider"></div>
                 <span class="last-update-badge" id="lastUpdate">--:--:--</span>
             </div>
-            
+
             <!-- Map Controls -->
             <div class="map-controls">
                 <button class="map-control-btn" id="btnZoomIn" title="Zoom In">
@@ -241,7 +256,7 @@
                     <div class="form-control bg-light" id="geofenceDeviceName">-</div>
                     <input type="hidden" id="geofenceDeviceId">
                 </div>
-                
+
                 <!-- Géofences assignées -->
                 <div class="mb-4">
                     <label class="form-label fw-bold">
@@ -253,7 +268,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Assigner une nouvelle géofence -->
                 <div class="mb-3">
                     <label class="form-label fw-bold">
@@ -388,7 +403,7 @@ body {
 
 .monitor-container {
     position: fixed;
-    top: 50px;
+    top: 56px; /* h-14 navbar */
     left: 0;
     right: 0;
     bottom: 0;
@@ -398,41 +413,84 @@ body {
     overflow: hidden;
 }
 
-/* Main Content Layout */
+/* Offset left to clear the fixed nav sidebar (w-64 = 16rem) on large screens */
+@media (min-width: 1024px) {
+    .monitor-container {
+        left: 4rem;
+    }
+}
+
+/* Main Content Layout - map takes full area */
 .monitor-content {
-    display: flex;
-    gap: 12px;
-    height: 100%;
-    padding: 10px;
-    box-sizing: border-box;
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-}
-
-/* Left Panel */
-.info-panel {
-    width: 300px;
-    flex-shrink: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    height: 100%;
+    top: 0; left: 0; right: 0; bottom: 0;
     overflow: hidden;
 }
 
-/* Map Section */
+/* Map Section - full background */
 .map-section {
-    flex: 1;
-    position: relative;
-    border-radius: 14px;
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    border-radius: 0;
     overflow: hidden;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    min-height: 500px;
     background: #d1d5db;
 }
+
+/* Left Panel - glass floating overlay */
+.info-panel {
+    position: absolute;
+    top: 10px; left: 10px; bottom: 10px;
+    width: 300px;
+    z-index: 10;
+    background: rgba(255, 255, 255, 0.97);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-radius: 14px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.18), 0 0 0 1px rgba(255,255,255,0.6);
+    display: flex; flex-direction: column;
+    overflow: hidden;
+    transition: transform 0.3s cubic-bezier(0.4,0,0.2,1), opacity 0.3s ease;
+}
+.info-panel.collapsed {
+    transform: translateX(-320px);
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Panel header bar */
+.panel-header-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 14px;
+    border-bottom: 1px solid #f0f0f0;
+    background: rgba(255,255,255,0.98);
+    flex-shrink: 0;
+}
+.panel-collapse-btn {
+    width: 24px; height: 24px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 6px; border: none;
+    background: #f3f4f6; color: #6b7280;
+    cursor: pointer; transition: all 0.15s;
+}
+.panel-collapse-btn:hover { background: #e5e7eb; color: #111827; }
+
+/* Toggle button that sticks to the panel's right edge */
+.panel-toggle-btn {
+    position: absolute;
+    top: 50%; transform: translateY(-50%);
+    left: 320px; /* panel left(10) + width(300) + gap(10) */
+    z-index: 11;
+    width: 22px; height: 48px;
+    background: rgba(255,255,255,0.97);
+    border: 1px solid rgba(0,0,0,0.1);
+    border-left: none;
+    border-radius: 0 10px 10px 0;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; color: #6b7280;
+    box-shadow: 3px 0 12px rgba(0,0,0,0.1);
+    transition: left 0.3s cubic-bezier(0.4,0,0.2,1), background 0.15s;
+}
+.panel-toggle-btn:hover { background: #f3f4f6; color: #111827; }
 
 #map, .main-map {
     position: absolute !important;
@@ -456,10 +514,10 @@ body {
 .info-card {
     background: rgba(255, 255, 255, 0.98);
     backdrop-filter: blur(10px);
-    border-radius: 0px;
-    padding: 14px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.8);
+    border-radius: 0;
+    padding: 12px 14px;
+    border-bottom: 1px solid #f3f4f6;
+    flex-shrink: 0;
 }
 
 /* Search Card */
@@ -917,8 +975,8 @@ body {
 /* Map Legend */
 .map-legend {
     position: absolute;
-    bottom: 50px;
-    left: 15px;
+    bottom: 20px;
+    left: 30%;
     display: flex;
     gap: 12px;
     background: rgba(255, 255, 255, 0.95);
@@ -1236,23 +1294,23 @@ body {
         flex-direction: column;
         height: auto;
     }
-    
+
     .info-panel {
         width: 100%;
         height: auto;
         max-height: 280px;
     }
-    
+
     .list-card {
         max-height: 180px;
     }
-    
+
     .map-section {
         height: 500px;
         min-height: 400px;
         width: 100%;
     }
-    
+
     .device-panel {
         left: 10px;
         right: 10px;
@@ -1265,32 +1323,32 @@ body {
         padding: 8px;
         gap: 8px;
     }
-    
+
     .info-panel {
         max-height: 220px;
     }
-    
+
     .stats-row {
         grid-template-columns: repeat(2, 1fr);
     }
-    
+
     .floating-header {
         padding: 6px 12px;
     }
-    
+
     .header-actions {
         display: none;
     }
-    
+
     .map-legend {
         flex-wrap: wrap;
         gap: 8px;
     }
-    
+
     .map-controls {
         right: 10px;
     }
-    
+
     .device-panel {
         bottom: 10px;
         left: 8px;
@@ -1360,9 +1418,19 @@ body {
 @push('scripts')
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
+// ── Info Panel Toggle ─────────────────────────────────────────
+function toggleInfoPanel() {
+    const panel = document.getElementById('infoPanel');
+    const btn   = document.getElementById('panelToggleBtn');
+    const icon  = document.getElementById('panelToggleIcon');
+    const collapsed = panel.classList.toggle('collapsed');
+    btn.style.left = collapsed ? '10px' : '320px';
+    icon.className = collapsed ? 'fas fa-chevron-right text-xs' : 'fas fa-chevron-left text-xs';
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Monitor page loaded - Modern Design');
-    
+
     let map;
     let markers = {};
     let allDevices = [];
@@ -1374,7 +1442,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let expandedGroups = {};
     let isCurrentUserAdmin = false;
     const REFRESH_RATE = 3000;
-    
+
     // Initialize
     initMap();
     loadCurrentUserStatus();
@@ -1391,24 +1459,24 @@ document.addEventListener('DOMContentLoaded', function() {
             zoom: 12,
             zoomControl: false
         });
-        
+
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap'
         }).addTo(map);
-        
+
         // Force map resize after initialization with multiple attempts
         setTimeout(() => {
             map.invalidateSize();
         }, 100);
-        
+
         setTimeout(() => {
             map.invalidateSize();
         }, 500);
-        
+
         setTimeout(() => {
             map.invalidateSize();
         }, 1000);
-        
+
         console.log('Map initialized successfully');
     }
 
@@ -1421,7 +1489,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('btnZoomIn').addEventListener('click', () => map.zoomIn());
         document.getElementById('btnZoomOut').addEventListener('click', () => map.zoomOut());
         document.getElementById('btnFullscreen').addEventListener('click', toggleFullscreen);
-        
+
         // Filters
         document.querySelectorAll('.filter-chip').forEach(btn => {
             btn.addEventListener('click', function() {
@@ -1457,7 +1525,7 @@ document.addEventListener('DOMContentLoaded', function() {
             setTimeout(() => map.invalidateSize(), 100);
         }
     });
-    
+
     // Load user status
     async function loadCurrentUserStatus() {
         try {
@@ -1481,7 +1549,7 @@ document.addEventListener('DOMContentLoaded', function() {
             allUsers = [];
         }
     }
-    
+
     // Load devices
     async function loadDevices() {
         try {
@@ -1496,7 +1564,7 @@ document.addEventListener('DOMContentLoaded', function() {
             allDevices = [];
         }
     }
-    
+
     // Load positions
     async function loadPositions() {
         try {
@@ -1510,7 +1578,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
                 updateMarkers();
                 updateLastRefreshTime();
-                
+
                 if (selectedDeviceId) {
                     updateDevicePanel(selectedDeviceId);
                 }
@@ -1519,7 +1587,7 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error('Error loading positions:', error);
         }
     }
-    
+
     // Real-time updates
     function startRealTimeUpdates() {
         if (refreshInterval) clearInterval(refreshInterval);
@@ -1528,17 +1596,17 @@ document.addEventListener('DOMContentLoaded', function() {
             loadDevices();
         }, REFRESH_RATE);
     }
-    
+
     // Update time
     function updateLastRefreshTime() {
         const now = new Date();
         document.getElementById('lastUpdate').textContent = now.toLocaleTimeString('fr-FR');
     }
-    
+
     // Update counts
     function updateCounts() {
         let moving = 0, stopped = 0, idling = 0, offline = 0;
-        
+
         allDevices.forEach(device => {
             const iconNum = getVehicleIconNumber(device);
             if (iconNum === 0) offline++;
@@ -1546,9 +1614,9 @@ document.addEventListener('DOMContentLoaded', function() {
             else if (iconNum === 2) moving++;
             else if (iconNum === 3) idling++;
         });
-        
+
         const online = allDevices.filter(d => d.status === 'online').length;
-        
+
         document.getElementById('countMoving').textContent = moving;
         document.getElementById('countStopped').textContent = stopped;
         document.getElementById('countIdling').textContent = idling;
@@ -1562,7 +1630,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const container = document.getElementById('deviceTree');
         const search = document.getElementById('deviceSearch').value.toLowerCase();
         const activeFilter = document.querySelector('.filter-chip.active')?.dataset.filter || 'all';
-        
+
         // Save expanded state
         if (isCurrentUserAdmin) {
             const currentExpanded = {};
@@ -1575,37 +1643,37 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             expandedGroups = currentExpanded;
         }
-        
+
         // Filter devices
         let filteredDevices = allDevices.filter(device => {
             const user = allUsers.find(u => u.id === device.userId);
             const userName = user ? user.name.toLowerCase() : 'non assigné';
-            
-            const matchSearch = !search || 
+
+            const matchSearch = !search ||
                 device.name?.toLowerCase().includes(search) ||
                 device.uniqueId?.toLowerCase().includes(search) ||
                 userName.includes(search);
-            
+
             let matchFilter = true;
             if (activeFilter === 'online') matchFilter = device.status === 'online';
             if (activeFilter === 'offline') matchFilter = device.status === 'offline';
-            
+
             return matchSearch && matchFilter;
         });
-        
+
         let html = '';
-        
+
         if (isCurrentUserAdmin) {
             const grouped = {};
             grouped['Non assigné'] = filteredDevices.filter(d => !d.userId);
-            
+
             allUsers.forEach(user => {
                 const userDevices = filteredDevices.filter(d => d.userId === user.id);
                 if (userDevices.length > 0) {
                     grouped[user.name] = userDevices;
                 }
             });
-            
+
             for (const [userName, devices] of Object.entries(grouped)) {
                 if (devices.length > 0) {
                     const isExpanded = expandedGroups[userName] ? 'expanded' : '';
@@ -1627,7 +1695,7 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
             html = filteredDevices.map(device => renderDeviceItem(device)).join('');
         }
-        
+
         container.innerHTML = html || '<div class="tree-empty"><i class="fas fa-car"></i><p>Aucun véhicule trouvé</p></div>';
     }
 
@@ -1637,10 +1705,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const speed = pos ? Math.round(pos.speed * 1.852) : 0;
         const iconNum = getVehicleIconNumber(device);
         const isMoving = speed > 1;
-        
+
         return `
-            <div class="device-item ${selectedDeviceId === device.id ? 'selected' : ''}" 
-                 data-id="${device.id}" 
+            <div class="device-item ${selectedDeviceId === device.id ? 'selected' : ''}"
+                 data-id="${device.id}"
                  onclick="selectDevice(${device.id})">
                 <div class="device-status-icon">
                     <img src="/icons/automobile_${iconNum}.png" alt="status">
@@ -1655,29 +1723,29 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         `;
     }
-    
+
     // Get vehicle icon number
     function getVehicleIconNumber(device) {
         const pos = positions[device.id];
-        
+
         if (device.status !== 'online') return 0;
-        
+
         const speed = pos ? (pos.speed * 1.852) : 0;
         const ignition = pos?.attributes?.ignition ?? false;
-        
+
         if (speed > 1) return 2;
         else if (ignition) return 3;
         else return 1;
     }
-    
+
     // Update markers
     function updateMarkers() {
         allDevices.forEach(device => {
             const pos = positions[device.id];
             if (!pos || !pos.latitude || !pos.longitude) return;
-            
+
             const latLng = [pos.latitude, pos.longitude];
-            
+
             if (markers[device.id]) {
                 markers[device.id].setLatLng(latLng);
                 markers[device.id].setIcon(createMarkerIcon(device));
@@ -1686,27 +1754,27 @@ document.addEventListener('DOMContentLoaded', function() {
                 const marker = L.marker(latLng, {
                     icon: createMarkerIcon(device)
                 }).addTo(map);
-                
+
                 marker.bindPopup(createPopupContent(device, pos));
                 marker.on('click', () => selectDevice(device.id));
                 markers[device.id] = marker;
             }
         });
-        
+
         buildDeviceTree();
-        
+
         if (autoFollow && selectedDeviceId && positions[selectedDeviceId]) {
             const pos = positions[selectedDeviceId];
             map.panTo([pos.latitude, pos.longitude]);
         }
     }
-    
+
     // Create marker icon
     function createMarkerIcon(device) {
         const iconNumber = getVehicleIconNumber(device);
         const pos = positions[device.id];
         const rotation = pos?.course || 0;
-        
+
         return L.divIcon({
             className: 'custom-marker',
             html: `
@@ -1718,8 +1786,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     justify-content: center;
                     transform: rotate(${rotation}deg);
                 ">
-                    <img src="/icons/automobile_${iconNumber}.png" 
-                         style="width: 40px; height: 40px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));" 
+                    <img src="/icons/automobile_${iconNumber}.png"
+                         style="width: 40px; height: 40px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));"
                          alt="vehicle"/>
                 </div>
             `,
@@ -1727,13 +1795,13 @@ document.addEventListener('DOMContentLoaded', function() {
             iconAnchor: [20, 20]
         });
     }
-    
+
     // Create popup content
     function createPopupContent(device, pos) {
         const speed = pos ? Math.round(pos.speed * 1.852) : 0;
         return `<div style="min-width: 120px;"><h6 style="margin: 0 0 5px 0; font-weight: 600;">${device.name}</h6><p style="margin: 0; font-size: 12px; color: #666;"><i class="fas fa-tachometer-alt"></i> ${speed} km/h</p></div>`;
     }
-    
+
     // Get category icon
     function getCategoryIcon(category) {
         const icons = {
@@ -1746,45 +1814,45 @@ document.addEventListener('DOMContentLoaded', function() {
         };
         return icons[category] || icons['default'];
     }
-    
+
     // Select device
     window.selectDevice = function(deviceId) {
         selectedDeviceId = deviceId;
-        
+
         document.querySelectorAll('.device-item').forEach(item => {
             item.classList.remove('selected');
         });
         document.querySelector(`.device-item[data-id="${deviceId}"]`)?.classList.add('selected');
-        
+
         const pos = positions[deviceId];
         if (pos && pos.latitude && pos.longitude) {
             map.setView([pos.latitude, pos.longitude], 16);
             if (markers[deviceId]) markers[deviceId].openPopup();
         }
-        
+
         updateDevicePanel(deviceId);
     };
-    
+
     // Update device panel
     function updateDevicePanel(deviceId) {
         const device = allDevices.find(d => d.id === deviceId);
         const pos = positions[deviceId];
-        
+
         if (!device) return;
-        
+
         const iconNum = getVehicleIconNumber(device);
         document.getElementById('panelIcon').innerHTML = `<img src="/icons/automobile_${iconNum}.png" style="width: 24px; height: 24px;">`;
         document.getElementById('panelDeviceName').textContent = device.name;
         document.getElementById('panelDeviceImei').textContent = device.uniqueId || '-';
-        
+
         const speed = pos ? Math.round(pos.speed * 1.852) : 0;
         const isOnline = device.status === 'online';
         const lastUpdate = pos?.fixTime ? new Date(pos.fixTime).toLocaleString('fr-FR') : '-';
-        
+
         const monitorAttrs = device.attributes?.monitorAttributes || [];
         const posAttrs = pos?.attributes || {};
         let dynamicIndicators = generateDynamicIndicators(monitorAttrs, posAttrs);
-        
+
         document.getElementById('panelBody').innerHTML = `
             <div class="status-row">
                 <div class="status-badge ${isOnline ? 'online' : 'offline'}">
@@ -1801,7 +1869,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <span>${lastUpdate}</span>
             </div>
         `;
-        
+
         // Update action buttons (fixed section)
         document.getElementById('panelActions').style.display = 'block';
         document.getElementById('actionIcons').innerHTML = `
@@ -1822,11 +1890,11 @@ document.addEventListener('DOMContentLoaded', function() {
             </button>
         `;
     }
-    
+
     // Generate dynamic indicators
     function generateDynamicIndicators(monitorAttrs, posAttrs) {
         if (!monitorAttrs || monitorAttrs.length === 0) return '';
-        
+
         const attrConfig = {
             ignition: { icon: 'fa-key', label: 'Moteur', color: 'warning', getValue: (v) => v ? 'ON' : 'OFF', isActive: (v) => v === true },
             batteryLevel: { icon: 'fa-battery-three-quarters', label: 'Batterie', color: 'success', getValue: (v) => v !== undefined ? `${Math.round(v)}%` : '-', isActive: (v) => v > 20 },
@@ -1841,16 +1909,16 @@ document.addEventListener('DOMContentLoaded', function() {
             sat: { icon: 'fa-satellite', label: 'Satellites', color: 'info', getValue: (v) => v !== undefined ? v : '0', isActive: (v) => v > 0 },
             power: { icon: 'fa-bolt', label: 'Alim.', color: 'warning', getValue: (v) => v !== undefined ? `${Number(v).toFixed(1)}V` : '-', isActive: (v) => v > 10 }
         };
-        
+
         let indicators = '';
         monitorAttrs.forEach(attr => {
             const config = attrConfig[attr];
             if (!config) return;
-            
+
             const value = posAttrs[attr];
             const isActive = config.isActive(value);
             const displayValue = config.getValue(value);
-            
+
             indicators += `
                 <div class="dynamic-indicator ${isActive ? 'active' : 'inactive'}">
                     <div class="indicator-icon ${config.color}">
@@ -1863,10 +1931,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             `;
         });
-        
+
         return indicators;
     }
-    
+
     // Close panel
     function closePanel() {
         selectedDeviceId = null;
@@ -1884,7 +1952,7 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
         document.getElementById('panelActions').style.display = 'none';
     }
-    
+
     // Center all devices
     function centerAllDevices() {
         const bounds = [];
@@ -1895,28 +1963,28 @@ document.addEventListener('DOMContentLoaded', function() {
             map.fitBounds(L.latLngBounds(bounds), { padding: [50, 50] });
         }
     }
-    
+
     // Toggle auto follow
     function toggleAutoFollow() {
         autoFollow = !autoFollow;
         document.getElementById('btnAutoFollow').classList.toggle('active', autoFollow);
     }
-    
+
     // Toggle group
     window.toggleGroup = function(header) {
         header.parentElement.classList.toggle('expanded');
     };
-    
+
     // Filter devices
     function filterDevices() {
         buildDeviceTree();
     }
-    
+
     // Actions
     window.viewHistory = function(deviceId) {
         window.location.href = `/history?id=${deviceId}`;
     };
-    
+
     // Command types descriptions
     const commandDescriptions = {
         'custom': 'Envoyer une commande personnalisée brute à l\'appareil.',
@@ -1952,36 +2020,36 @@ document.addEventListener('DOMContentLoaded', function() {
         'movementAlarm': 'Configurer l\'alarme de mouvement.',
         'setDriverId': 'Définir l\'ID du conducteur.'
     };
-    
+
     // Open command modal
     window.sendCommand = function(deviceId) {
         const device = allDevices.find(d => d.id === deviceId);
         if (!device) return;
-        
+
         document.getElementById('commandDeviceId').value = deviceId;
         document.getElementById('commandDeviceName').textContent = device.name || 'Appareil #' + deviceId;
         document.getElementById('commandType').innerHTML = '<option value="">Chargement...</option>';
         document.getElementById('commandDataGroup').style.display = 'none';
         document.getElementById('commandData').value = '';
         document.getElementById('commandDescription').innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Chargement des commandes disponibles...';
-        
+
         // Open modal
         const modal = new bootstrap.Modal(document.getElementById('commandModal'));
         modal.show();
-        
+
         // Load available command types for this device
         loadCommandTypes(deviceId);
     };
-    
+
     // Load command types for device
     async function loadCommandTypes(deviceId) {
         try {
             const response = await fetch(`/api/traccar/commands/types?deviceId=${deviceId}`);
             const data = await response.json();
-            
+
             const select = document.getElementById('commandType');
             select.innerHTML = '<option value="">-- Sélectionnez une commande --</option>';
-            
+
             if (data.success && data.types) {
                 data.types.forEach(type => {
                     const option = document.createElement('option');
@@ -1989,22 +2057,22 @@ document.addEventListener('DOMContentLoaded', function() {
                     option.textContent = formatCommandType(type.type);
                     select.appendChild(option);
                 });
-                
-                document.getElementById('commandDescription').innerHTML = 
+
+                document.getElementById('commandDescription').innerHTML =
                     '<i class="fas fa-info-circle me-1"></i> Sélectionnez une commande pour voir sa description.';
             } else {
                 select.innerHTML = '<option value="">Aucune commande disponible</option>';
-                document.getElementById('commandDescription').innerHTML = 
+                document.getElementById('commandDescription').innerHTML =
                     '<i class="fas fa-exclamation-triangle me-1"></i> Aucune commande disponible pour cet appareil.';
             }
         } catch (error) {
             console.error('Error loading command types:', error);
             document.getElementById('commandType').innerHTML = '<option value="">Erreur de chargement</option>';
-            document.getElementById('commandDescription').innerHTML = 
+            document.getElementById('commandDescription').innerHTML =
                 '<i class="fas fa-exclamation-circle me-1"></i> Erreur lors du chargement des commandes.';
         }
     }
-    
+
     // Format command type for display
     function formatCommandType(type) {
         const formats = {
@@ -2043,19 +2111,19 @@ document.addEventListener('DOMContentLoaded', function() {
         };
         return formats[type] || type;
     }
-    
+
     // Handle command type change
     window.onCommandTypeChange = function() {
         const type = document.getElementById('commandType').value;
         const dataGroup = document.getElementById('commandDataGroup');
         const description = document.getElementById('commandDescription');
-        
+
         if (type === 'custom') {
             dataGroup.style.display = 'block';
         } else {
             dataGroup.style.display = 'none';
         }
-        
+
         if (type && commandDescriptions[type]) {
             description.innerHTML = '<i class="fas fa-info-circle me-1"></i> ' + commandDescriptions[type];
             description.className = 'alert alert-info mb-0';
@@ -2066,34 +2134,34 @@ document.addEventListener('DOMContentLoaded', function() {
             description.innerHTML = '<i class="fas fa-info-circle me-1"></i> Sélectionnez une commande pour voir sa description.';
         }
     };
-    
+
     // Execute command
     window.executeCommand = async function() {
         const deviceId = document.getElementById('commandDeviceId').value;
         const type = document.getElementById('commandType').value;
         const data = document.getElementById('commandData').value;
-        
+
         if (!type) {
             showWarning('Veuillez sélectionner un type de commande.');
             return;
         }
-        
+
         const btn = document.getElementById('btnSendCommand');
         const originalHtml = btn.innerHTML;
         btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Envoi...';
         btn.disabled = true;
-        
+
         try {
             const commandData = {
                 deviceId: parseInt(deviceId),
                 type: type
             };
-            
+
             // Add custom data if present
             if (type === 'custom' && data) {
                 commandData.data = data;
             }
-            
+
             const response = await fetch('/api/traccar/commands/send', {
                 method: 'POST',
                 headers: {
@@ -2102,26 +2170,26 @@ document.addEventListener('DOMContentLoaded', function() {
                 },
                 body: JSON.stringify(commandData)
             });
-            
+
             const result = await response.json();
-            
+
             if (result.success) {
-                document.getElementById('commandDescription').innerHTML = 
+                document.getElementById('commandDescription').innerHTML =
                     '<i class="fas fa-check-circle me-1"></i> Commande envoyée avec succès!';
                 document.getElementById('commandDescription').className = 'alert alert-success mb-0';
-                
+
                 // Close modal after success
                 setTimeout(() => {
                     bootstrap.Modal.getInstance(document.getElementById('commandModal')).hide();
                 }, 1500);
             } else {
-                document.getElementById('commandDescription').innerHTML = 
+                document.getElementById('commandDescription').innerHTML =
                     '<i class="fas fa-exclamation-circle me-1"></i> Erreur: ' + (result.message || 'Échec de l\'envoi');
                 document.getElementById('commandDescription').className = 'alert alert-danger mb-0';
             }
         } catch (error) {
             console.error('Error sending command:', error);
-            document.getElementById('commandDescription').innerHTML = 
+            document.getElementById('commandDescription').innerHTML =
                 '<i class="fas fa-exclamation-circle me-1"></i> Erreur de connexion au serveur.';
             document.getElementById('commandDescription').className = 'alert alert-danger mb-0';
         } finally {
@@ -2129,33 +2197,33 @@ document.addEventListener('DOMContentLoaded', function() {
             btn.disabled = false;
         }
     };
-    
+
     window.viewDeviceDetails = function(deviceId) {
         const device = allDevices.find(d => d.id === deviceId);
         showInfo(`Détails de ${device?.name || 'device'} - Fonctionnalité à venir !`);
     };
-    
+
     window.viewGeofences = function(deviceId) {
         const device = allDevices.find(d => d.id === deviceId);
         if (!device) return;
-        
+
         document.getElementById('geofenceDeviceName').textContent = device.name;
         document.getElementById('geofenceDeviceId').value = deviceId;
-        
+
         // Load assigned geofences and available geofences
         loadDeviceGeofences(deviceId);
-        
+
         const modal = new bootstrap.Modal(document.getElementById('geofenceModal'));
         modal.show();
     };
-    
+
     // Load geofences for a device
     async function loadDeviceGeofences(deviceId) {
         const assignedContainer = document.getElementById('assignedGeofences');
         const availableSelect = document.getElementById('availableGeofences');
-        
+
         assignedContainer.innerHTML = '<div class="text-center text-muted py-3"><i class="fas fa-spinner fa-spin"></i> Chargement...</div>';
-        
+
         try {
             // Fetch all geofences
             const geofencesResponse = await fetch('/api/traccar/geofences', {
@@ -2166,7 +2234,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             const geofencesData = await geofencesResponse.json();
             const allGeofences = geofencesData.geofences || [];
-            
+
             // Fetch permissions to know which geofences are assigned to this device
             const permissionsResponse = await fetch(`/api/traccar/permissions?deviceId=${deviceId}`, {
                 headers: {
@@ -2175,7 +2243,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
             const permissionsData = await permissionsResponse.json();
-            
+
             // Extract assigned geofence IDs from permissions
             let assignedGeofenceIds = [];
             if (permissionsData.success && permissionsData.permissions) {
@@ -2183,7 +2251,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     .filter(p => p.deviceId === deviceId && p.geofenceId)
                     .map(p => p.geofenceId);
             }
-            
+
             // Also check geofences that have deviceId in their response
             const deviceGeofencesResponse = await fetch(`/api/traccar/geofences?deviceId=${deviceId}`, {
                 headers: {
@@ -2194,14 +2262,14 @@ document.addEventListener('DOMContentLoaded', function() {
             const deviceGeofencesData = await deviceGeofencesResponse.json();
             const deviceGeofences = deviceGeofencesData.geofences || [];
             const deviceGeofenceIds = deviceGeofences.map(g => g.id);
-            
+
             // Combine both methods to get assigned geofences
             assignedGeofenceIds = [...new Set([...assignedGeofenceIds, ...deviceGeofenceIds])];
-            
+
             // Separate assigned and available geofences
             const assignedGeofences = allGeofences.filter(g => assignedGeofenceIds.includes(g.id));
             const availableGeofences = allGeofences.filter(g => !assignedGeofenceIds.includes(g.id));
-            
+
             // Render assigned geofences
             if (assignedGeofences.length === 0) {
                 assignedContainer.innerHTML = `
@@ -2228,7 +2296,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                 `).join('');
             }
-            
+
             // Populate available geofences dropdown
             availableSelect.innerHTML = '<option value="">Sélectionnez une géofence...</option>';
             availableGeofences.forEach(geofence => {
@@ -2237,7 +2305,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 option.textContent = geofence.name;
                 availableSelect.appendChild(option);
             });
-            
+
         } catch (error) {
             console.error('Error loading geofences:', error);
             assignedContainer.innerHTML = `
@@ -2248,17 +2316,17 @@ document.addEventListener('DOMContentLoaded', function() {
             `;
         }
     }
-    
+
     // Assign geofence to device
     window.assignGeofence = async function() {
         const deviceId = parseInt(document.getElementById('geofenceDeviceId').value);
         const geofenceId = parseInt(document.getElementById('availableGeofences').value);
-        
+
         if (!geofenceId) {
             showWarning('Veuillez sélectionner une géofence');
             return;
         }
-        
+
         try {
             const response = await fetch('/api/traccar/permissions', {
                 method: 'POST',
@@ -2272,9 +2340,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     geofenceId: geofenceId
                 })
             });
-            
+
             const data = await response.json();
-            
+
             if (response.ok) {
                 // Reload the geofences list
                 loadDeviceGeofences(deviceId);
@@ -2287,14 +2355,14 @@ document.addEventListener('DOMContentLoaded', function() {
             showError('Erreur lors de l\'assignation de la géofence');
         }
     };
-    
+
     // Unassign geofence from device
     window.unassignGeofence = async function(deviceId, geofenceId) {
         const confirmed = await showConfirm('Voulez-vous vraiment retirer cette géofence du véhicule ?', 'Confirmation');
         if (!confirmed) {
             return;
         }
-        
+
         try {
             const response = await fetch('/api/traccar/permissions', {
                 method: 'DELETE',
@@ -2308,9 +2376,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     geofenceId: geofenceId
                 })
             });
-            
+
             const data = await response.json();
-            
+
             if (response.ok) {
                 // Reload the geofences list
                 loadDeviceGeofences(deviceId);
@@ -2323,12 +2391,12 @@ document.addEventListener('DOMContentLoaded', function() {
             showError('Erreur lors du retrait de la géofence');
         }
     };
-    
+
     window.viewAlerts = function(deviceId) {
         const device = allDevices.find(d => d.id === deviceId);
         showInfo(`Alertes de ${device?.name || 'device'} - Fonctionnalité à venir !`);
     };
-    
+
     // Debounce
     function debounce(func, wait) {
         let timeout;
@@ -2337,7 +2405,7 @@ document.addEventListener('DOMContentLoaded', function() {
             timeout = setTimeout(() => func.apply(this, args), wait);
         };
     }
-    
+
     // Visibility change
     document.addEventListener('visibilitychange', function() {
         if (document.hidden) {

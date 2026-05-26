@@ -13,7 +13,7 @@
                 <input type="text" id="treeSearch" class="search-input" placeholder="Rechercher...">
             </div>
         </div>
-        
+
         <div class="tree-view" id="groupTree">
             <div class="tree-loading">
                 <div class="spinner-small"></div>
@@ -38,7 +38,7 @@
                     <span class="realtime-text">Temps réel</span>
                 </div>
             </div>
-            
+
             <!-- Stats Cards -->
             <div class="stats-row">
                 <div class="stat-card stat-total">
@@ -133,7 +133,7 @@
                         <div class="modal-body">
                             <form id="addGroupForm">
                                 <input type="hidden" id="addGroupId" name="id" value="0">
-                                
+
                                 <div class="row mb-3">
                                     <div class="col-md-12">
                                         <label for="addGroupName" class="form-label">Nom du Groupe <span class="text-danger">*</span></label>
@@ -199,7 +199,7 @@
                         <div class="modal-body">
                             <form id="editGroupForm">
                                 <input type="hidden" id="editGroupId" name="id" value="0">
-                                
+
                                 <div class="row mb-3">
                                     <div class="col-md-12">
                                         <label for="editGroupName" class="form-label">Nom du Groupe <span class="text-danger">*</span></label>
@@ -332,7 +332,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Charger les données au démarrage
     loadGroups();
     loadDevices();
-    
+
     // Démarrer le rafraîchissement automatique
     startRealTimeUpdates();
 
@@ -372,11 +372,11 @@ document.addEventListener('DOMContentLoaded', function() {
         if (refreshInterval) {
             clearInterval(refreshInterval);
         }
-        
+
         refreshInterval = setInterval(async () => {
             await loadGroupsSilent();
         }, REFRESH_RATE);
-        
+
         console.log('Real-time updates started (every ' + (REFRESH_RATE/1000) + 's)');
     }
 
@@ -385,10 +385,10 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             const response = await fetch('/api/traccar/groups');
             const data = await response.json();
-            
+
             if (data.success) {
                 const newGroups = data.groups || [];
-                
+
                 if (JSON.stringify(allGroups) !== JSON.stringify(newGroups)) {
                     allGroups = newGroups;
                     filterGroups();
@@ -433,7 +433,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const response = await fetch('/api/traccar/groups');
             const data = await response.json();
             console.log('Groups response:', data);
-            
+
             if (data.success) {
                 allGroups = data.groups || [];
                 filterGroups();
@@ -454,7 +454,7 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             const response = await fetch('/api/traccar/devices');
             const data = await response.json();
-            
+
             if (data.success) {
                 allDevices = data.devices || [];
                 updateStats();
@@ -481,10 +481,10 @@ document.addEventListener('DOMContentLoaded', function() {
     function populateParentSelects() {
         const addSelect = document.getElementById('addGroupParent');
         const editSelect = document.getElementById('editGroupParent');
-        
+
         const options = '<option value="">-- Aucun (Groupe racine) --</option>' +
             allGroups.map(g => `<option value="${g.id}">${g.name}</option>`).join('');
-        
+
         addSelect.innerHTML = options;
         editSelect.innerHTML = options;
     }
@@ -496,29 +496,29 @@ document.addEventListener('DOMContentLoaded', function() {
         const btnTextId = mode === 'edit' ? 'btnEditSaveGroupText' : 'btnAddSaveGroupText';
         const btnId = mode === 'edit' ? 'btnEditSaveGroup' : 'btnAddSaveGroup';
         const modalId = mode === 'edit' ? 'editGroupModal' : 'addGroupModal';
-        
+
         const form = document.getElementById(formId);
         const errorDiv = document.getElementById(errorDivId);
         const btnText = document.getElementById(btnTextId);
         const btn = document.getElementById(btnId);
-        
+
         const nameId = mode === 'edit' ? 'editGroupName' : 'addGroupName';
         const parentId = mode === 'edit' ? 'editGroupParent' : 'addGroupParent';
         const groupIdId = mode === 'edit' ? 'editGroupId' : 'addGroupId';
         const attrContainerId = mode === 'edit' ? 'editAttributesContainer' : 'addAttributesContainer';
-        
+
         const name = document.getElementById(nameId).value.trim();
         const parentGroupId = document.getElementById(parentId).value;
         const groupId = document.getElementById(groupIdId).value;
-        
+
         if (!name) {
             errorDiv.textContent = 'Le nom du groupe est obligatoire.';
             errorDiv.classList.remove('d-none');
             return;
         }
-        
+
         errorDiv.classList.add('d-none');
-        
+
         // Collecter les attributs (seulement si remplis)
         const attributes = {};
         const attrRows = document.querySelectorAll(`#${attrContainerId} .attribute-row`);
@@ -533,29 +533,29 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
         });
-        
+
         // Préparer les données
         const groupData = {
             name: name
         };
-        
+
         // Ajouter les attributs seulement s'il y en a
         if (Object.keys(attributes).length > 0) {
             groupData.attributes = attributes;
         }
-        
+
         if (parentGroupId) {
             groupData.groupId = parseInt(parentGroupId);
         }
-        
+
         if (mode === 'edit') {
             groupData.id = parseInt(groupId);
         }
-        
+
         // Afficher loading
         btn.disabled = true;
         btnText.textContent = mode === 'edit' ? 'Modification...' : 'Enregistrement...';
-        
+
         try {
             const isEdit = mode === 'edit';
             const url = isEdit ? `/api/traccar/groups/${groupId}` : '/api/traccar/groups';
@@ -570,16 +570,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 },
                 body: JSON.stringify(groupData)
             });
-            
+
             const data = await response.json();
-            
+
             if (data.success || response.ok) {
                 const modal = bootstrap.Modal.getInstance(document.getElementById(modalId));
                 modal.hide();
-                
+
                 form.reset();
                 document.getElementById(groupIdId).value = '0';
-                
+
                 // Réinitialiser les attributs
                 const attrContainer = document.getElementById(attrContainerId);
                 attrContainer.innerHTML = `
@@ -591,7 +591,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         </button>
                     </div>
                 `;
-                
+
                 await loadGroups();
                 console.log(isEdit ? 'Groupe modifié avec succès' : 'Groupe créé avec succès');
             } else {
@@ -615,7 +615,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         let filtered = allGroups.filter(group => {
             const matchSearch = !search || group.name?.toLowerCase().includes(search);
-            
+
             let matchParent = true;
             if (parentFilter === 'root') matchParent = !group.groupId;
             if (parentFilter === 'child') matchParent = !!group.groupId;
@@ -650,7 +650,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const parentGroup = allGroups.find(g => g.id === group.groupId);
                 const deviceCount = allDevices.filter(d => d.groupId === group.id).length;
                 const attrCount = group.attributes ? Object.keys(group.attributes).length : 0;
-                
+
                 return `
                     <tr data-id="${group.id}">
                         <td><input type="checkbox" class="group-checkbox" value="${group.id}"></td>
@@ -693,7 +693,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Construire le tree view
     function buildTreeView() {
         const treeContainer = document.getElementById('groupTree');
-        
+
         // Grouper les groupes par parent
         const rootGroups = allGroups.filter(g => !g.groupId);
         const childGroups = allGroups.filter(g => g.groupId);
@@ -701,7 +701,7 @@ document.addEventListener('DOMContentLoaded', function() {
         function buildGroupNode(group) {
             const children = childGroups.filter(g => g.groupId === group.id);
             const deviceCount = allDevices.filter(d => d.groupId === group.id).length;
-            
+
             let childrenHtml = '';
             if (children.length > 0) {
                 childrenHtml = `
@@ -710,7 +710,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                 `;
             }
-            
+
             return `
                 <div class="tree-node ${children.length > 0 ? 'expanded' : ''}">
                     <div class="tree-parent" onclick="${children.length > 0 ? 'toggleTreeNode(this)' : `selectGroup(${group.id})`}">
@@ -769,14 +769,14 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function updateTableInfo(total, start, end) {
-        document.getElementById('tableInfo').textContent = 
+        document.getElementById('tableInfo').textContent =
             `Affichage de ${total > 0 ? start + 1 : 0} à ${end} sur ${total} entrées`;
     }
 
     function renderPagination(totalItems) {
         const totalPages = Math.ceil(totalItems / itemsPerPage);
         const pagination = document.getElementById('pagination');
-        
+
         if (totalPages <= 1) {
             pagination.innerHTML = '';
             return;
@@ -784,7 +784,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         let html = '';
         html += `<button class="page-btn" ${currentPage === 1 ? 'disabled' : ''} onclick="goToPage(${currentPage - 1})">«</button>`;
-        
+
         for (let i = 1; i <= totalPages; i++) {
             if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
                 html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</button>`;
@@ -792,7 +792,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 html += `<span class="page-dots">...</span>`;
             }
         }
-        
+
         html += `<button class="page-btn" ${currentPage === totalPages ? 'disabled' : ''} onclick="goToPage(${currentPage + 1})">»</button>`;
         pagination.innerHTML = html;
     }
@@ -813,15 +813,15 @@ document.addEventListener('DOMContentLoaded', function() {
     // Supprimer les groupes sélectionnés
     async function deleteSelectedGroups() {
         const selected = Array.from(document.querySelectorAll('.group-checkbox:checked')).map(cb => cb.value);
-        
+
         if (selected.length === 0) {
             showWarning('Veuillez sélectionner au moins un groupe.');
             return;
         }
-        
+
         const confirmed = await showConfirm(`Êtes-vous sûr de vouloir supprimer ${selected.length} groupe(s) ?`, 'Confirmation de suppression');
         if (!confirmed) return;
-        
+
         for (const id of selected) {
             try {
                 await fetch(`/api/traccar/groups/${id}`, { method: 'DELETE' });
@@ -829,7 +829,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.error('Erreur suppression groupe:', id, error);
             }
         }
-        
+
         loadGroups();
         showToast('Groupes supprimés avec succès', 'success');
     }
@@ -845,7 +845,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 return [g.id, g.name, parent?.name || '', deviceCount, attrs].join(',');
             })
         ].join('\n');
-        
+
         const blob = new Blob([csv], { type: 'text/csv' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -876,15 +876,15 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error('Group not found:', id);
             return;
         }
-        
+
         document.getElementById('editGroupId').value = group.id;
         document.getElementById('editGroupName').value = group.name || '';
         document.getElementById('editGroupParent').value = group.groupId || '';
-        
+
         // Charger les attributs
         const attrContainer = document.getElementById('editAttributesContainer');
         attrContainer.innerHTML = '';
-        
+
         if (group.attributes && Object.keys(group.attributes).length > 0) {
             Object.entries(group.attributes).forEach(([key, value]) => {
                 attrContainer.innerHTML += `
@@ -908,15 +908,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             `;
         }
-        
+
         // Ne pas permettre de s'assigner comme propre parent
         const parentSelect = document.getElementById('editGroupParent');
         Array.from(parentSelect.options).forEach(opt => {
             opt.disabled = parseInt(opt.value) === id;
         });
-        
+
         document.getElementById('editGroupFormError').classList.add('d-none');
-        
+
         const modal = new bootstrap.Modal(document.getElementById('editGroupModal'));
         modal.show();
     };
@@ -924,13 +924,13 @@ document.addEventListener('DOMContentLoaded', function() {
     window.viewGroupDevices = function(id) {
         const group = allGroups.find(g => g.id === id);
         const devices = allDevices.filter(d => d.groupId === id);
-        
+
         const container = document.getElementById('groupDevicesList');
         document.getElementById('viewDevicesModalLabel').innerHTML = `
             <i class="fas fa-car me-2"></i>
             Devices du Groupe "${group?.name || id}"
         `;
-        
+
         if (devices.length === 0) {
             container.innerHTML = `
                 <div class="empty-state text-center py-4">
@@ -956,7 +956,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             `;
         }
-        
+
         const modal = new bootstrap.Modal(document.getElementById('viewDevicesModal'));
         modal.show();
     };
@@ -965,11 +965,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const group = allGroups.find(g => g.id === id);
         const confirmed = await showDeleteConfirm(group?.name || 'ce groupe');
         if (!confirmed) return;
-        
+
         try {
             const response = await fetch(`/api/traccar/groups/${id}`, { method: 'DELETE' });
             const data = await response.json();
-            
+
             if (data.success || response.ok) {
                 loadGroups();
                 showToast('Groupe supprimé avec succès', 'success');
@@ -1003,7 +1003,7 @@ function addAttributeRow(containerId) {
 function removeAttributeRow(button) {
     const row = button.closest('.attribute-row');
     const container = row.parentElement;
-    
+
     if (container.querySelectorAll('.attribute-row').length > 1) {
         row.remove();
     } else {
@@ -1027,17 +1027,21 @@ function removeAttributeRow(button) {
 
 .device-sidebar {
     position: fixed !important;
-    top: 55px;
+    top: 56px;
     left: 0;
-    height: calc(100vh - 55px);
+    height: calc(100vh - 56px);
     width: 280px;
-    z-index: 1000;
+    z-index: 30;
     display: flex;
     flex-direction: column;
     background: #fff;
     border-right: 1px solid #e8e8e8;
     margin-top: 0;
     overflow: visible;
+}
+
+@media (min-width: 1024px) {
+    .device-sidebar { left: 4rem; }
 }
 
 .device-sidebar .sidebar-search {
@@ -1060,7 +1064,7 @@ function removeAttributeRow(button) {
     width: calc(100% - 280px);
     overflow-y: auto;
     overflow-x: hidden;
-    height: calc(100vh - 55px);
+    height: calc(100vh - 56px);
 }
 
 /* Card Header Enhanced */
@@ -1474,29 +1478,29 @@ function removeAttributeRow(button) {
     .filters-and-actions-section {
         flex-direction: column;
     }
-    
+
     .filters-section {
         min-width: 100%;
     }
-    
+
     .action-buttons {
         width: 100%;
     }
-    
+
     .action-buttons .btn {
         flex: 1;
         justify-content: center;
     }
-    
+
     .groups-table {
         font-size: 0.85rem;
     }
-    
+
     .groups-table thead th,
     .groups-table tbody td {
         padding: 10px 8px;
     }
-    
+
     .groups-table .action-btns {
         flex-direction: column;
     }

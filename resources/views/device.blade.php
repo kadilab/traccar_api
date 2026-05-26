@@ -4,6 +4,8 @@
 
 @section('content')
 
+
+
 <div class="main-container">
     <!-- Sidebar -->
     <aside class="sidebar device-sidebar">
@@ -13,7 +15,7 @@
                 <input type="text" id="treeSearch" class="search-input" placeholder="Rechercher...">
             </div>
         </div>
-        
+
         <div class="tree-view" id="deviceTree">
             <div class="tree-loading">
                 <div class="spinner-small"></div>
@@ -32,7 +34,7 @@
                     <span class="realtime-text">Temps réel</span>
                 </div>
             </div>
-            
+
             <!-- Filters Section -->
             <div class="filters-section">
                 <div class="filters-row">
@@ -81,7 +83,7 @@
                     <i class="fas fa-sync-alt"></i>
                     Rafraîchir
                 </button>
-                
+
                 @if(Auth::user()->administrator)
                 <button class="btn btn-danger" id="btnDeleteSelected">
                     <i class="fas fa-trash"></i>
@@ -104,7 +106,7 @@
                 <div class="modal-body">
                     <form id="addDeviceForm">
                         <input type="hidden" id="addDeviceId" name="id" value="0">
-                        
+
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label for="addDeviceName" class="form-label">Nom <span class="text-danger">*</span></label>
@@ -124,7 +126,7 @@
                                 <label for="addDeviceModel" class="form-label">Modèle</label>
                                 <input type="text" class="form-control" id="addDeviceModel" name="model" placeholder="Ex: GT06N, TK103...">
                             </div>
-                        </div>  
+                        </div>
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label for="addDeviceGroup" class="form-label">Groupe</label>
@@ -196,7 +198,7 @@
                 <div class="modal-body">
                     <form id="editDeviceForm">
                         <input type="hidden" id="editDeviceId" name="id" value="0">
-                        
+
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label for="editDeviceName" class="form-label">Nom <span class="text-danger">*</span></label>
@@ -216,7 +218,7 @@
                                 <label for="editDeviceModel" class="form-label">Modèle</label>
                                 <input type="text" class="form-control" id="editDeviceModel" name="model" placeholder="Ex: GT06N, TK103...">
                             </div>
-                        </div>  
+                        </div>
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label for="editDeviceGroup" class="form-label">Groupe</label>
@@ -265,7 +267,7 @@
                                     Attributs à afficher sur le Monitor
                                 </label>
                                 <p class="text-muted small">Sélectionnez les attributs disponibles pour ce device qui seront affichés sur la page Monitor</p>
-                                
+
                                 <div class="monitor-attributes-config" id="editMonitorAttributes">
                                     <div class="attributes-grid">
                                         <!-- Attributs standards -->
@@ -422,7 +424,7 @@
                                     Notifications
                                 </label>
                                 <p class="text-muted small">Sélectionnez les notifications que vous souhaitez activer pour cet appareil. Vous serez alerté via les canaux configurés (Web, Email, SMS, Telegram).</p>
-                                
+
                                 <div class="notifications-container" id="editDeviceNotifications">
                                     <div class="text-muted text-center py-3">
                                         <i class="fas fa-spinner fa-spin"></i>
@@ -470,7 +472,7 @@
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <div class="link-section">
                                 <label for="selectUserForDevice" class="form-label">Sélectionner un Utilisateur</label>
                                 <select id="selectUserForDevice" class="form-select" onchange="addLinkedUserToDevice(this)">
@@ -510,7 +512,7 @@
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <!-- Géofences assignées -->
                             <div class="mb-4">
                                 <label class="form-label fw-bold">
@@ -522,7 +524,7 @@
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <!-- Assigner une nouvelle géofence -->
                             <div class="mb-3">
                                 <label class="form-label fw-bold">
@@ -585,7 +587,7 @@
                                     <label>Modèle</label>
                                     <span id="detailsDeviceModel">-</span>
                                 </div>
-                                
+
                                 <!-- Row 2 -->
                                 <div class="detail-item">
                                     <label>Téléphone</label>
@@ -595,7 +597,7 @@
                                     <label>Contact</label>
                                     <span id="detailsDeviceContact">-</span>
                                 </div>
-                                
+
                                 <!-- Row 3 -->
                                 <div class="detail-item">
                                     <label>Catégorie</label>
@@ -696,10 +698,10 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Device management script loaded');
-    
+
     // Variable pour savoir si l'utilisateur est admin
     const isAdmin = {{ Auth::user()->administrator ? 'true' : 'false' }};
-    
+
     let allDevices = [];
     let allGroups = [];
     let allUsers = [];
@@ -718,7 +720,7 @@ document.addEventListener('DOMContentLoaded', function() {
         await loadDevices();
         startRealTimeUpdates();
     }
-    
+
     initializeData();
 
     // Event listeners
@@ -736,12 +738,12 @@ document.addEventListener('DOMContentLoaded', function() {
         if (refreshInterval) {
             clearInterval(refreshInterval);
         }
-        
+
         // Démarrer le rafraîchissement automatique
         refreshInterval = setInterval(async () => {
             await loadDevicesSilent();
         }, REFRESH_RATE);
-        
+
         console.log('Real-time updates started (every ' + (REFRESH_RATE/1000) + 's)');
     }
 
@@ -750,16 +752,16 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             const response = await fetch('/api/traccar/devices?all=true');
             const data = await response.json();
-            
+
             if (data.success) {
                 const newDevices = data.devices || [];
-                
+
                 // Vérifier s'il y a des changements et mettre à jour uniquement les éléments modifiés
                 const changes = getDevicesChanges(allDevices, newDevices);
-                
+
                 if (changes.hasChanges) {
                     console.log('Devices updated in real-time:', changes);
-                    
+
                     // Mettre à jour uniquement les devices modifiés
                     if (changes.updated.length > 0) {
                         changes.updated.forEach(device => {
@@ -767,7 +769,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             updateDeviceTreeItem(device);
                         });
                     }
-                    
+
                     // Si des devices ont été ajoutés ou supprimés, reconstruire
                     if (changes.added.length > 0 || changes.removed.length > 0) {
                         allDevices = newDevices;
@@ -777,7 +779,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         // Sinon, mettre à jour seulement allDevices
                         allDevices = newDevices;
                     }
-                    
+
                     updateLastRefreshTime();
                 }
             }
@@ -789,17 +791,17 @@ document.addEventListener('DOMContentLoaded', function() {
     // Comparer les devices pour détecter les changements
     function hasDevicesChanged(oldDevices, newDevices) {
         if (oldDevices.length !== newDevices.length) return true;
-        
+
         for (let i = 0; i < newDevices.length; i++) {
             const newDev = newDevices[i];
             const oldDev = oldDevices.find(d => d.id === newDev.id);
-            
+
             if (!oldDev) return true;
             if (oldDev.status !== newDev.status) return true;
             if (oldDev.lastUpdate !== newDev.lastUpdate) return true;
             if (oldDev.name !== newDev.name) return true;
         }
-        
+
         return false;
     }
 
@@ -815,7 +817,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Trouver les devices ajoutés et modifiés
         newDevices.forEach(newDev => {
             const oldDev = oldDevices.find(d => d.id === newDev.id);
-            
+
             if (!oldDev) {
                 changes.added.push(newDev);
                 changes.hasChanges = true;
@@ -855,7 +857,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (statusCell) {
             const newStatus = device.status || 'unknown';
             const oldStatus = statusCell.className.match(/status-(\w+)/)?.[1];
-            
+
             if (oldStatus !== newStatus) {
                 statusCell.className = `status-badge status-${newStatus}`;
                 statusCell.textContent = getStatusLabel(newStatus);
@@ -865,25 +867,25 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Mettre à jour les autres cellules
         const cells = row.querySelectorAll('td');
-        
+
         // Name (index 2)
         if (cells[2] && cells[2].textContent !== (device.name || '-')) {
             cells[2].textContent = device.name || '-';
             hasChanged = true;
         }
-        
+
         // Model (index 4)
         if (cells[4] && cells[4].textContent !== (device.model || '-')) {
             cells[4].textContent = device.model || '-';
             hasChanged = true;
         }
-        
+
         // Phone (index 5)
         if (cells[5] && cells[5].textContent !== (device.phone || '-')) {
             cells[5].textContent = device.phone || '-';
             hasChanged = true;
         }
-        
+
         // Animation de mise en évidence seulement si quelque chose a changé
         if (hasChanged) {
             row.classList.add('row-updated');
@@ -966,15 +968,15 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             const response = await fetch('/api/traccar/users');
             console.log('Users Response status:', response.status);
-            
+
             if (!response.ok) {
                 console.error('Erreur HTTP lors du chargement des utilisateurs:', response.status);
                 return;
             }
-            
+
             const data = await response.json();
             console.log('Users API response:', JSON.stringify(data));
-            
+
             if (data.success && data.users && Array.isArray(data.users)) {
                 allUsers = data.users;
                 console.log('Utilisateurs chargés avec succès:', allUsers.length, 'utilisateurs');
@@ -999,15 +1001,15 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             const response = await fetch('/api/traccar/groups?all=true');
             console.log('Response status:', response.status);
-            
+
             if (!response.ok) {
                 console.error('Erreur HTTP:', response.status, response.statusText);
                 return;
             }
-            
+
             const data = await response.json();
             console.log('Groups API response:', JSON.stringify(data));
-            
+
             if (data.success && data.groups && Array.isArray(data.groups)) {
                 allGroups = data.groups;
                 console.log('Groupes chargés avec succès:', allGroups.length, 'groupes');
@@ -1038,7 +1040,7 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             const response = await fetch('/api/traccar/notifications?all=true');
             const data = await response.json();
-            
+
             if (data.success) {
                 allNotifications = Array.isArray(data.notifications) ? data.notifications : data.notification || [];
                 console.log('Notifications chargées:', allNotifications.length);
@@ -1057,9 +1059,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const filterSelect = document.getElementById('filterGroup');
         const addDeviceSelect = document.getElementById('addDeviceGroup');
         const editDeviceSelect = document.getElementById('editDeviceGroup');
-        
+
         console.log('Remplissage des sélects de groupes, nombre:', allGroups.length);
-        
+
         // Vider d'abord les options existantes (sauf la première)
         if (filterSelect) {
             filterSelect.innerHTML = '<option value="">Tous les groupes</option>';
@@ -1070,15 +1072,15 @@ document.addEventListener('DOMContentLoaded', function() {
         if (editDeviceSelect) {
             editDeviceSelect.innerHTML = '<option value="">-- Aucun groupe --</option>';
         }
-        
+
         if (!allGroups || allGroups.length === 0) {
             console.log('Aucun groupe à afficher');
             return;
         }
-        
+
         allGroups.forEach(group => {
             console.log('Ajout groupe:', group.name, 'ID:', group.id);
-            
+
             // Filtre principal
             if (filterSelect) {
                 const option = document.createElement('option');
@@ -1086,7 +1088,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 option.textContent = group.name;
                 filterSelect.appendChild(option);
             }
-            
+
             // Select modal d'ajout
             if (addDeviceSelect) {
                 const addOption = document.createElement('option');
@@ -1094,7 +1096,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 addOption.textContent = group.name;
                 addDeviceSelect.appendChild(addOption);
             }
-            
+
             // Select modal d'édition
             if (editDeviceSelect) {
                 const editOption = document.createElement('option');
@@ -1103,14 +1105,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 editDeviceSelect.appendChild(editOption);
             }
         });
-        
+
         console.log('Sélects de groupes remplis avec', allGroups.length, 'groupes');
     }
 
     // Gérer la soumission du formulaire d'ajout
     const btnAddSaveDevice = document.getElementById('btnAddSaveDevice');
     console.log('Bouton Ajouter Enregistrer trouvé:', btnAddSaveDevice);
-    
+
     if (btnAddSaveDevice) {
         btnAddSaveDevice.addEventListener('click', function(e) {
             e.preventDefault();
@@ -1122,7 +1124,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Gérer la soumission du formulaire d'édition
     const btnEditSaveDevice = document.getElementById('btnEditSaveDevice');
     console.log('Bouton Édition Enregistrer trouvé:', btnEditSaveDevice);
-    
+
     if (btnEditSaveDevice) {
         btnEditSaveDevice.addEventListener('click', function(e) {
             e.preventDefault();
@@ -1133,9 +1135,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     async function saveDevice(mode = 'add') {
         console.log('saveDevice() appelée en mode:', mode);
-        
+
         let form, errorDiv, btnText, btn, idField, nameField, uniqueIdField, phoneField, modelField, groupField, categoryField, contactField, disabledField;
-        
+
         if (mode === 'add') {
             form = document.getElementById('addDeviceForm');
             errorDiv = document.getElementById('addDeviceFormError');
@@ -1165,19 +1167,19 @@ document.addEventListener('DOMContentLoaded', function() {
             contactField = document.getElementById('editDeviceContact');
             disabledField = document.getElementById('editDeviceDisabled');
         }
-        
+
         // Validation
         const name = nameField.value.trim();
         const uniqueId = uniqueIdField.value.trim();
-        
+
         if (!name || !uniqueId) {
             errorDiv.textContent = 'Le nom et l\'identifiant unique (IMEI) sont obligatoires.';
             errorDiv.classList.remove('d-none');
             return;
         }
-        
+
         errorDiv.classList.add('d-none');
-        
+
         // Préparer les données
         const deviceData = {
             id: idField.value,
@@ -1190,38 +1192,38 @@ document.addEventListener('DOMContentLoaded', function() {
             contact: contactField.value.trim() || null,
             disabled: disabledField.checked
         };
-        
+
         // Récupérer les attributs monitor sélectionnés (uniquement en mode edit)
         if (mode === 'edit') {
             const monitorAttrs = [];
             document.querySelectorAll('#editMonitorAttributes input[type="checkbox"]:checked').forEach(cb => {
                 monitorAttrs.push(cb.value);
             });
-            
+
             // Récupérer les attributs existants du device
             const existingDevice = allDevices.find(d => d.id == idField.value);
             const existingAttrs = existingDevice?.attributes || {};
-            
+
             // Fusionner avec les nouveaux attributs monitor
             deviceData.attributes = {
                 ...existingAttrs,
                 monitorAttributes: monitorAttrs
             };
         }
-        
+
         const deviceId = idField.value;
         const isEdit = deviceId && deviceId !== '0';
-        
+
         // Afficher loading
         btn.disabled = true;
         const originalText = btnText.textContent;
         btnText.textContent = isEdit ? 'Modification en cours...' : 'Enregistrement en cours...';
-        
+
         try {
             const url = isEdit ? `/api/traccar/devices/${deviceId}` : '/api/traccar/devices';
             const method = isEdit ? 'PUT' : 'POST';
             console.log(`Envoi de la requête ${method} à ${url} avec les données:`, deviceData);
-            
+
             const response = await fetch(url, {
                 method: method,
                 headers: {
@@ -1231,9 +1233,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 },
                 body: JSON.stringify(deviceData)
             });
-            
+
             const data = await response.json();
-            
+
             if (data.success || response.ok) {
                 // Déterminer quel modal fermer
                 const modalId = mode === 'add' ? 'addDeviceModal' : 'editDeviceModal';
@@ -1241,18 +1243,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (modal) {
                     modal.hide();
                 }
-                
+
                 // Reset form
                 form.reset();
                 idField.value = '0';
-                
+
                 // Recharger les devices
                 await loadDevices();
-                
+
                 // Message de succès
                 const message = isEdit ? 'Device modifié avec succès !' : 'Device créé avec succès !';
                 console.log(message);
-                
+
                 // Optionnel: Afficher une notification toast
                 if (typeof showNotification === 'function') {
                     showNotification(message, 'success');
@@ -1274,14 +1276,14 @@ document.addEventListener('DOMContentLoaded', function() {
     // Reset du formulaire d'ajout à l'ouverture du modal
     document.getElementById('addDeviceModal').addEventListener('show.bs.modal', function(event) {
         console.log('Modal d\'ajout en cours d\'ouverture');
-        
+
         // Reset complet du formulaire pour "Ajouter"
         document.getElementById('addDeviceForm').reset();
         document.getElementById('addDeviceId').value = '0';
         document.getElementById('addDeviceGroup').value = '';
         document.getElementById('addDeviceCategory').value = '';
         document.getElementById('addDeviceDisabled').checked = false;
-        
+
         document.getElementById('addDeviceFormError').classList.add('d-none');
     });
 
@@ -1301,13 +1303,13 @@ document.addEventListener('DOMContentLoaded', function() {
         let filtered = allDevices.filter(device => {
             // Récupérer le nom du groupe pour la recherche
             const groupName = getGroupName(device.groupId)?.toLowerCase() || '';
-            
-            const matchSearch = !search || 
+
+            const matchSearch = !search ||
                 device.name?.toLowerCase().includes(search) ||
                 device.uniqueId?.toLowerCase().includes(search) ||
                 device.phone?.toLowerCase().includes(search) ||
                 groupName.includes(search);
-            
+
             const matchStatus = !status || device.status === status;
             const matchGroup = !groupId || device.groupId == groupId;
             const matchCategory = !category || device.category === category;
@@ -1328,7 +1330,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (devices.length === 0) {
             tbody.innerHTML = `
-                <tr>
+                <tr class="no-results>
                     <td colspan="9" class="empty-cell">
                         <div class="empty-state">
                             <i class="fas fa-mobile-alt fa-3x"></i>
@@ -1355,14 +1357,14 @@ document.addEventListener('DOMContentLoaded', function() {
                         ${isAdmin ? `<button class="btn-icon btn-edit" title="Modifier" onclick="editDevice(${device.id})">
                             <i class="fas fa-edit"></i>
                         </button>` : ''}
-                        <button class="btn-icon btn-link-user ${device.userId ? 'has-links' : ''}" 
-                                title="${device.userId ? 'Utilisateur assigné' : 'Assigner Utilisateur'}" 
+                        <button class="btn-icon btn-link-user ${device.userId ? 'has-links' : ''}"
+                                title="${device.userId ? 'Utilisateur assigné' : 'Assigner Utilisateur'}"
                                 onclick="openLinkUserModal(${device.id})">
                             <i class="fas fa-user-tie"></i>
                             ${device.userId ? `<span class="link-badge"><i class="fas fa-check"></i></span>` : ''}
                         </button>
-                        <button class="btn-icon btn-link-geofence ${device.geofenceIds && device.geofenceIds.length > 0 ? 'has-links' : ''}" 
-                                title="${device.geofenceIds && device.geofenceIds.length > 0 ? device.geofenceIds.length + ' geofence(s) liée(s)' : 'Associer Geofences'}" 
+                        <button class="btn-icon btn-link-geofence ${device.geofenceIds && device.geofenceIds.length > 0 ? 'has-links' : ''}"
+                                title="${device.geofenceIds && device.geofenceIds.length > 0 ? device.geofenceIds.length + ' geofence(s) liée(s)' : 'Associer Geofences'}"
                                 onclick="openLinkGeofenceModal(${device.id})">
                             <i class="fas fa-draw-polygon"></i>
                             ${device.geofenceIds && device.geofenceIds.length > 0 ? `<span class="link-badge">${device.geofenceIds.length}</span>` : ''}
@@ -1385,14 +1387,14 @@ document.addEventListener('DOMContentLoaded', function() {
     // Construire le tree view
     function buildTreeView() {
         const treeContainer = document.getElementById('deviceTree');
-        
+
         let html = '';
-        
+
         // SI ADMIN: Grouper les devices par utilisateur
         if (isAdmin) {
             const grouped = {};
             grouped['Non assigné'] = allDevices.filter(d => !d.userId);
-            
+
             allUsers.forEach(user => {
                 grouped[user.name] = allDevices.filter(d => d.userId === user.id);
             });
@@ -1437,7 +1439,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     `;
                 }
             }
-        } 
+        }
         // SINON (utilisateur simple): Afficher directement les devices sans groupement
         else {
             html = allDevices.map(d => `
@@ -1473,11 +1475,11 @@ document.addEventListener('DOMContentLoaded', function() {
     function filterTree() {
         const search = document.getElementById('treeSearch').value.toLowerCase();
         const treeChildren = document.querySelectorAll('.tree-child');
-        
+
         if (isAdmin) {
             // Mode groupé (admin)
             const treeNodes = document.querySelectorAll('.tree-node');
-            
+
             treeChildren.forEach(child => {
                 const name = child.querySelector('.tree-device-name').textContent.toLowerCase();
                 child.style.display = name.includes(search) ? 'flex' : 'none';
@@ -1488,7 +1490,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const visibleChildren = node.querySelectorAll('.tree-child[style*="flex"], .tree-child:not([style])');
                 const hasVisibleChildren = Array.from(node.querySelectorAll('.tree-child')).some(c => c.style.display !== 'none');
                 node.style.display = hasVisibleChildren || !search ? 'block' : 'none';
-                
+
                 if (search && hasVisibleChildren) {
                     node.classList.add('expanded');
                 }
@@ -1517,7 +1519,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function formatDate(dateStr) {
         if (!dateStr) return '-';
         const date = new Date(dateStr);
-        return date.toLocaleString('fr-FR', { 
+        return date.toLocaleString('fr-FR', {
             day: '2-digit', month: '2-digit', year: 'numeric',
             hour: '2-digit', minute: '2-digit'
         });
@@ -1541,7 +1543,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Afficher et gérer les sélecteurs de notifications
     function renderNotificationsSelector(deviceId) {
         const container = document.getElementById('editDeviceNotifications');
-        
+
         if (!allNotifications || allNotifications.length === 0) {
             container.innerHTML = `
                 <div class="alert alert-info mb-0">
@@ -1551,10 +1553,10 @@ document.addEventListener('DOMContentLoaded', function() {
             `;
             return;
         }
-        
+
         // Récupérer les notifications déjà assignées à ce device
         const assignedNotifs = deviceNotifications[deviceId] || [];
-        
+
         // Créer une grille de notifications groupées par type
         const notificationsByType = {};
         allNotifications.forEach(notif => {
@@ -1564,10 +1566,10 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             notificationsByType[type].push(notif);
         });
-        
+
         // Créer le HTML
         let html = `<div class="notifications-grid">`;
-        
+
         for (const [type, notifs] of Object.entries(notificationsByType)) {
             html += `
                 <div class="notification-group">
@@ -1576,16 +1578,16 @@ document.addEventListener('DOMContentLoaded', function() {
                     </h6>
                     <div class="notification-items">
             `;
-            
+
             notifs.forEach(notif => {
                 const channels = notif.channels ? notif.channels.join(', ').toUpperCase() : 'Web';
                 const isChecked = assignedNotifs.includes(notif.id) ? 'checked' : '';
-                
+
                 html += `
                     <div class="notification-checkbox">
-                        <input type="checkbox" 
-                               id="notif_${notif.id}" 
-                               class="device-notification-checkbox" 
+                        <input type="checkbox"
+                               id="notif_${notif.id}"
+                               class="device-notification-checkbox"
                                data-notif-id="${notif.id}"
                                ${isChecked}>
                         <label for="notif_${notif.id}">
@@ -1595,15 +1597,15 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                 `;
             });
-            
+
             html += `
                     </div>
                 </div>
             `;
         }
-        
+
         html += `</div>`;
-        
+
         container.innerHTML = html;
     }
 
@@ -1635,14 +1637,14 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function updateTableInfo(total, start, end) {
-        document.getElementById('tableInfo').textContent = 
+        document.getElementById('tableInfo').textContent =
             `Affichage de ${total > 0 ? start + 1 : 0} à ${end} sur ${total} entrées`;
     }
 
     function renderPagination(totalItems) {
         const totalPages = Math.ceil(totalItems / itemsPerPage);
         const pagination = document.getElementById('pagination');
-        
+
         if (totalPages <= 1) {
             pagination.innerHTML = '';
             return;
@@ -1650,7 +1652,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         let html = '';
         html += `<button class="page-btn" ${currentPage === 1 ? 'disabled' : ''} onclick="goToPage(${currentPage - 1})">«</button>`;
-        
+
         for (let i = 1; i <= totalPages; i++) {
             if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
                 html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</button>`;
@@ -1658,7 +1660,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 html += `<span class="page-dots">...</span>`;
             }
         }
-        
+
         html += `<button class="page-btn" ${currentPage === totalPages ? 'disabled' : ''} onclick="goToPage(${currentPage + 1})">»</button>`;
         pagination.innerHTML = html;
     }
@@ -1689,7 +1691,7 @@ document.addEventListener('DOMContentLoaded', function() {
     window.selectDevice = function(id) {
         document.querySelectorAll('.tree-child').forEach(c => c.classList.remove('selected'));
         document.querySelector(`.tree-child[data-id="${id}"]`)?.classList.add('selected');
-        
+
         // Highlight dans le tableau
         document.querySelectorAll('#devicesTable tbody tr').forEach(r => r.classList.remove('highlighted'));
         document.querySelector(`#devicesTable tbody tr[data-id="${id}"]`)?.classList.add('highlighted');
@@ -1698,15 +1700,15 @@ document.addEventListener('DOMContentLoaded', function() {
     // Toggle device menu dropdown
     window.toggleDeviceMenu = function(menuElement, deviceId) {
         const dropdown = menuElement.querySelector('.device-menu-dropdown');
-        
+
         // Close all other dropdowns
         document.querySelectorAll('.device-menu-dropdown').forEach(d => {
             if (d !== dropdown) d.style.display = 'none';
         });
-        
+
         // Toggle current dropdown
         dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
-        
+
         // Close dropdown when clicking outside
         document.addEventListener('click', function(e) {
             if (!menuElement.contains(e.target) && dropdown.style.display !== 'none') {
@@ -1718,11 +1720,11 @@ document.addEventListener('DOMContentLoaded', function() {
     window.showDeviceDetails = function(id) {
         const device = allDevices.find(d => d.id === id);
         if (!device) return;
-        
+
         // Get the group name
         const group = allUsers.find(u => u.id === device.userId);
         const groupName = group ? group.name : 'Non assigné';
-        
+
         // Fill modal with device details
         document.getElementById('detailsDeviceName').textContent = device.name || '-';
         document.getElementById('detailsDeviceIcon').className = getCategoryIcon(device.category);
@@ -1737,7 +1739,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('detailsDeviceLatitude').textContent = device.latitude ? device.latitude.toFixed(6) : '-';
         document.getElementById('detailsDeviceAltitude').textContent = device.altitude ? device.altitude.toFixed(2) + ' m' : '-';
         document.getElementById('detailsDeviceSpeed').textContent = device.speed ? (device.speed * 1.852).toFixed(1) + ' km/h' : '-';
-        
+
         // Fill attributes
         const attributesContainer = document.getElementById('detailsDeviceAttributes');
         if (device.attributes && Object.keys(device.attributes).length > 0) {
@@ -1747,13 +1749,13 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
             attributesContainer.innerHTML = '<span class="text-muted">Aucun attribut</span>';
         }
-        
+
         // Setup the edit button
         document.getElementById('btnDetailsEdit').onclick = function() {
             bootstrap.Modal.getInstance(document.getElementById('deviceDetailsModal')).hide();
             editDevice(id);
         };
-        
+
         // Show the modal
         const modal = new bootstrap.Modal(document.getElementById('deviceDetailsModal'));
         modal.show();
@@ -1770,7 +1772,7 @@ document.addEventListener('DOMContentLoaded', function() {
     window.deleteDevice = async function(id) {
         const device = allDevices.find(d => d.id === id);
         if (!device) return;
-        
+
         const confirmed = await showDeleteConfirm(device.name);
         if (confirmed) {
             // Trigger the delete action - assuming there's a deleteDevice function
@@ -1786,7 +1788,7 @@ document.addEventListener('DOMContentLoaded', function() {
             showError('Device non trouvé');
             return;
         }
-        
+
         console.log('Édition du device:', device);
         // Remplir le formulaire d'édition avec les données du device
         document.getElementById('editDeviceId').value = device.id;
@@ -1796,52 +1798,52 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('editDeviceModel').value = device.model || '';
         document.getElementById('editDeviceContact').value = device.contact || '';
         document.getElementById('editDeviceDisabled').checked = device.disabled === true;
-        
+
         // Remplir les sélects avec les bonnes valeurs
         const groupSelect = document.getElementById('editDeviceGroup');
         const categorySelect = document.getElementById('editDeviceCategory');
-        
+
         // Définir le groupe
         if (device.groupId) {
             groupSelect.value = device.groupId;
         } else {
             groupSelect.value = '';
         }
-        
+
         // Définir la catégorie
         if (device.category) {
             categorySelect.value = device.category;
         } else {
             categorySelect.value = '';
         }
-        
+
         // Charger les attributs monitor sélectionnés
         const monitorAttrs = device.attributes?.monitorAttributes || [];
         document.querySelectorAll('#editMonitorAttributes input[type="checkbox"]').forEach(cb => {
             cb.checked = monitorAttrs.includes(cb.value);
         });
-        
+
         // Charger et afficher les notifications
         renderNotificationsSelector(device.id);
-        
+
         // Forcer le rafraîchissement des sélects (pour certains navigateurs)
         groupSelect.dispatchEvent(new Event('change'));
         categorySelect.dispatchEvent(new Event('change'));
-        
+
         console.log('Formulaire d\'édition rempli - Groupe:', groupSelect.value, 'Catégorie:', categorySelect.value);
         console.log('Monitor Attributes:', monitorAttrs);
-        
+
         // Masquer les messages d'erreur
         document.getElementById('editDeviceFormError').classList.add('d-none');
-        
+
         // Changer le titre avec le nom du device
         document.getElementById('editDeviceModalLabel').innerHTML = `
             <i class="fas fa-edit me-2"></i>
             Modifier: <strong>${device.name}</strong>
         `;
-        
+
         console.log('Titre du modal d\'édition changé - Device:', device.name);
-        
+
         // Ouvrir le modal d'édition
         try {
             const modalElement = document.getElementById('editDeviceModal');
@@ -1860,11 +1862,11 @@ document.addEventListener('DOMContentLoaded', function() {
     window.deleteDevice = async function(id) {
         const confirmed = await showDeleteConfirm('ce device');
         if (!confirmed) return;
-        
+
         try {
             const response = await fetch(`/api/traccar/devices/${id}`, { method: 'DELETE' });
             const data = await response.json();
-            
+
             if (data.success) {
                 loadDevices();
                 showToast('Device supprimé avec succès', 'success');
@@ -1878,7 +1880,7 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     // ==================== GEOFENCE LINKING ====================
-    
+
     let allGeofences = [];
     let deviceGeofenceLinks = [];
 
@@ -1904,7 +1906,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 deviceGeofenceLinks = device.geofenceIds;
                 return;
             }
-            
+
             // Sinon, recharger le device depuis l'API
             const response = await fetch(`/api/traccar/devices/${deviceId}`);
             const data = await response.json();
@@ -1924,17 +1926,17 @@ document.addEventListener('DOMContentLoaded', function() {
     window.openLinkUserModal = async function(deviceId) {
         currentLinkDeviceId = deviceId;
         const device = allDevices.find(d => d.id === deviceId);
-        
+
         if (!device) return;
-        
+
         // Afficher les infos du device
         document.getElementById('linkUserDeviceName').textContent = device.name || 'Device';
         document.getElementById('linkUserDeviceImei').textContent = device.uniqueId || '-';
-        
+
         // Remplir le select avec les utilisateurs
         const select = document.getElementById('selectUserForDevice');
         select.innerHTML = '<option value="">-- Aucun utilisateur (Supprimer l\'assignation) --</option>';
-        
+
         allUsers.forEach(user => {
             const option = document.createElement('option');
             option.value = user.id;
@@ -1944,11 +1946,11 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             select.appendChild(option);
         });
-        
+
         // Afficher l'utilisateur actuellement assigné
         const linkedUserContainer = document.getElementById('linkedUserContainer');
         linkedUserContainer.innerHTML = '';
-        
+
         if (device.userId) {
             const user = allUsers.find(u => u.id === device.userId);
             if (user) {
@@ -1962,7 +1964,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 linkedUserContainer.appendChild(badge);
             }
         }
-        
+
         // Ouvrir le modal
         const modal = new bootstrap.Modal(document.getElementById('linkUserModal'));
         modal.show();
@@ -1972,9 +1974,9 @@ document.addEventListener('DOMContentLoaded', function() {
     window.addLinkedUserToDevice = async function(selectElement) {
         const userId = selectElement.value ? parseInt(selectElement.value) : null;
         const device = allDevices.find(d => d.id === currentLinkDeviceId);
-        
+
         if (!device) return;
-        
+
         try {
             if (userId) {
                 // Assigner l'utilisateur
@@ -1997,7 +1999,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Mettre à jour le device
                     device.userId = userId;
                     const user = allUsers.find(u => u.id === userId);
-                    
+
                     // Afficher le badge
                     const linkedUserContainer = document.getElementById('linkedUserContainer');
                     linkedUserContainer.innerHTML = '';
@@ -2009,10 +2011,10 @@ document.addEventListener('DOMContentLoaded', function() {
                         <button type="button" class="remove-link" onclick="removeUserFromDevice(${device.id})">×</button>
                     `;
                     linkedUserContainer.appendChild(badge);
-                    
+
                     // Reconstruire l'arbre
                     buildTreeView();
-                    
+
                     console.log('Utilisateur assigné avec succès au device');
                 } else {
                     showError(data.message || 'Erreur lors de l\'assignation');
@@ -2027,9 +2029,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Supprimer l'assignation d'utilisateur
     window.removeUserFromDevice = async function(deviceId) {
         const device = allDevices.find(d => d.id === deviceId);
-        
+
         if (!device || !device.userId) return;
-        
+
         try {
             const response = await fetch('/api/traccar/permissions-test', {
                 method: 'DELETE',
@@ -2049,17 +2051,17 @@ document.addEventListener('DOMContentLoaded', function() {
             if (data.success || response.ok) {
                 // Mettre à jour le device
                 device.userId = null;
-                
+
                 // Mettre à jour l'interface
                 const linkedUserContainer = document.getElementById('linkedUserContainer');
                 linkedUserContainer.innerHTML = '';
-                
+
                 const select = document.getElementById('selectUserForDevice');
                 select.value = '';
-                
+
                 // Reconstruire l'arbre
                 buildTreeView();
-                
+
                 console.log('Utilisateur supprimé avec succès');
             }
         } catch (error) {
@@ -2073,24 +2075,24 @@ document.addEventListener('DOMContentLoaded', function() {
     window.openLinkGeofenceModal = async function(deviceId) {
         currentLinkDeviceId = deviceId;
         const device = allDevices.find(d => d.id === deviceId);
-        
+
         if (!device) return;
-        
+
         // Afficher les infos du device
         document.getElementById('linkDeviceName').textContent = device.name || 'Device';
         document.getElementById('linkDeviceImei').textContent = device.uniqueId || '-';
-        
+
         // Afficher loading
         document.getElementById('assignedGeofencesList').innerHTML = `
             <div class="text-center py-3 text-muted">
                 <i class="fas fa-spinner fa-spin"></i> Chargement...
             </div>
         `;
-        
+
         // Ouvrir le modal
         const modal = new bootstrap.Modal(document.getElementById('linkGeofenceModal'));
         modal.show();
-        
+
         // Charger et afficher les géofences
         await loadAndRenderDeviceGeofences(deviceId);
     };
@@ -2099,18 +2101,18 @@ document.addEventListener('DOMContentLoaded', function() {
     async function loadAndRenderDeviceGeofences(deviceId) {
         const assignedContainer = document.getElementById('assignedGeofencesList');
         const availableSelect = document.getElementById('availableGeofenceSelect');
-        
+
         try {
             // Charger toutes les géofences
             await loadGeofences();
-            
+
             // Charger les liens device-geofence
             await loadDeviceGeofenceLinks(deviceId);
-            
+
             // Séparer les géofences assignées et disponibles
             const assignedGeofences = allGeofences.filter(g => deviceGeofenceLinks.includes(g.id));
             const availableGeofences = allGeofences.filter(g => !deviceGeofenceLinks.includes(g.id));
-            
+
             // Afficher les géofences assignées
             if (assignedGeofences.length === 0) {
                 assignedContainer.innerHTML = `
@@ -2137,7 +2139,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                 `).join('');
             }
-            
+
             // Remplir le dropdown des géofences disponibles
             availableSelect.innerHTML = '<option value="">Sélectionnez une géofence...</option>';
             availableGeofences.forEach(geofence => {
@@ -2146,7 +2148,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 option.textContent = geofence.name;
                 availableSelect.appendChild(option);
             });
-            
+
         } catch (error) {
             console.error('Erreur chargement géofences:', error);
             assignedContainer.innerHTML = `
@@ -2161,17 +2163,17 @@ document.addEventListener('DOMContentLoaded', function() {
     // Assigner une géofence au device
     document.getElementById('btnAssignGeofence').addEventListener('click', async function() {
         const geofenceId = parseInt(document.getElementById('availableGeofenceSelect').value);
-        
+
         if (!geofenceId) {
             showWarning('Veuillez sélectionner une géofence');
             return;
         }
-        
+
         const btn = this;
         const originalContent = btn.innerHTML;
         btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
         btn.disabled = true;
-        
+
         try {
             const response = await fetch('/api/traccar/permissions', {
                 method: 'POST',
@@ -2185,7 +2187,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     geofenceId: geofenceId
                 })
             });
-            
+
             if (response.ok) {
                 // Recharger la liste
                 await loadAndRenderDeviceGeofences(currentLinkDeviceId);
@@ -2211,7 +2213,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!confirmed) {
             return;
         }
-        
+
         try {
             const response = await fetch('/api/traccar/permissions', {
                 method: 'DELETE',
@@ -2225,7 +2227,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     geofenceId: geofenceId
                 })
             });
-            
+
             if (response.ok) {
                 // Recharger la liste
                 await loadAndRenderDeviceGeofences(deviceId);
@@ -2338,16 +2340,22 @@ document.addEventListener('DOMContentLoaded', function() {
 /* Device Sidebar Fixed */
 .device-sidebar {
     position: fixed !important;
-    top: 55px;
+    top: 56px;
     left: 0;
-    height: calc(100vh - 55px);
+    height: calc(100vh - 56px);
     width: 280px;
-    z-index: 1000;
+    z-index: 30;
     display: flex;
     flex-direction: column;
     background: #fff;
     border-right: 1px solid #e8e8e8;
     margin-top: 0;
+}
+
+@media (min-width: 1024px) {
+    .device-sidebar {
+        left: 4rem; /* clear the icon-rail nav sidebar (w-16) */
+    }
 }
 
 .device-sidebar .sidebar-search {
@@ -2399,7 +2407,7 @@ document.addEventListener('DOMContentLoaded', function() {
     gap: 30px;
     cursor: pointer;
     min-width: 0;
-    margin-top: 2px;        
+    margin-top: 2px;
 }
 
 .device-widget-top {
@@ -2996,6 +3004,155 @@ document.addEventListener('DOMContentLoaded', function() {
     text-overflow: ellipsis;
 }
 
+/* ===================== MAIN CONTENT LAYOUT ===================== */
+
+/* Content card */
+.content-card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+    padding: 20px 24px;
+    margin-bottom: 20px;
+}
+
+/* Card header */
+.card-header-custom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 14px;
+    border-bottom: 1px solid #f0f0f0;
+    margin-bottom: 16px;
+}
+
+.card-header-custom h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1a1a2e;
+}
+
+/* Filters section */
+.filters-section {
+    margin-bottom: 16px;
+}
+
+.filters-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: flex-end;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-width: 160px;
+    flex: 1;
+}
+
+.filter-group label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 0;
+}
+
+.filter-input,
+.filter-select {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    color: #374151;
+    background: #f9fafb;
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.filter-input:focus,
+.filter-select:focus {
+    border-color: #7556D6;
+    box-shadow: 0 0 0 3px rgba(117,86,214,0.12);
+    background: #fff;
+}
+
+/* Action buttons row */
+.action-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+/* Table container */
+.table-container {
+    overflow-x: auto;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+/* Data table base styles */
+#devicesTable,
+.data-table,
+.device-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+    background: #fff;
+}
+
+#devicesTable thead th,
+.data-table thead th,
+.device-table thead th {
+    background: #f8f9fa;
+    padding: 10px 12px;
+    text-align: left;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid #e9ecef;
+    white-space: nowrap;
+}
+
+#devicesTable tbody td,
+.data-table tbody td,
+.device-table tbody td {
+    padding: 10px 12px;
+    border-bottom: 1px solid #f0f0f0;
+    vertical-align: middle;
+    color: #374151;
+}
+
+#devicesTable tbody tr:hover,
+.data-table tbody tr:hover,
+.device-table tbody tr:hover {
+    background: #f9fafb;
+}
+
+#devicesTable tbody tr:last-child td,
+.data-table tbody tr:last-child td,
+.device-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.th-checkbox {
+    width: 36px;
+}
+
+/* Pagination info */
+.pagination-info {
+    margin-top: 12px;
+    font-size: 0.82rem;
+    color: #9ca3af;
+}
+
 /* ===================== RESPONSIVE STYLES ===================== */
 
 /* Tablet - 991px et moins */
@@ -3003,7 +3160,7 @@ document.addEventListener('DOMContentLoaded', function() {
     /* Sidebar devient une barre horizontale en haut */
     .device-sidebar {
         position: fixed !important;
-        top: 50px !important;
+        top: 56px !important;
         left: 0 !important;
         right: 0 !important;
         width: 100% !important;
@@ -3014,7 +3171,7 @@ document.addEventListener('DOMContentLoaded', function() {
         border-bottom: 2px solid #e8e8e8;
         z-index: 99;
     }
-    
+
     .device-sidebar .sidebar-search {
         width: 40%;
         min-width: 200px;
@@ -3022,78 +3179,78 @@ document.addEventListener('DOMContentLoaded', function() {
         border-bottom: none;
         border-right: 1px solid #f0f0f0;
     }
-    
+
     .device-sidebar .tree-view {
         width: 60%;
         max-height: 160px;
         overflow-y: auto;
         padding: 8px;
     }
-    
+
     /* Main content s'adapte */
     .device-sidebar + .main-content {
         margin-left: 0 !important;
         margin-top: 180px;
         width: 100% !important;
     }
-    
+
     /* Filtres en grille 2 colonnes */
     .filters-row {
         display: grid !important;
         grid-template-columns: repeat(2, 1fr);
         gap: 10px;
     }
-    
+
     .filter-group {
         min-width: unset !important;
     }
-    
+
     /* Boutons d'action en wrap */
     .action-buttons {
         flex-wrap: wrap;
         gap: 8px;
     }
-    
+
     .action-buttons .btn {
         padding: 8px 12px;
         font-size: 0.85rem;
     }
-    
+
     /* Table responsive */
     .device-table-wrapper {
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
     }
-    
+
     .device-table th,
     .device-table td {
         padding: 10px 8px;
         white-space: nowrap;
     }
-    
+
     /* Colonnes masquées sur tablette */
     .device-table .col-model,
     .device-table .col-contact {
         display: none;
     }
-    
+
     /* Modals */
     .modal-dialog {
         margin: 10px;
         max-width: calc(100% - 20px);
     }
-    
+
     .modal-lg {
         max-width: calc(100% - 20px);
     }
-    
+
     /* Card header */
     .card-header-custom {
         flex-direction: column;
         align-items: flex-start;
         gap: 10px;
     }
-    
+
     /* Attributes grid */
     .attributes-grid {
         grid-template-columns: repeat(2, 1fr);
@@ -3107,107 +3264,107 @@ document.addEventListener('DOMContentLoaded', function() {
         flex-direction: column;
         max-height: 250px;
     }
-    
+
     .device-sidebar .sidebar-search {
         width: 100%;
         border-right: none;
         border-bottom: 1px solid #f0f0f0;
     }
-    
+
     .device-sidebar .tree-view {
         width: 100%;
         max-height: 150px;
     }
-    
+
     /* Main content ajusté */
     .device-sidebar + .main-content {
         margin-top: 250px;
     }
-    
+
     /* Filtres en 1 colonne */
     .filters-row {
         grid-template-columns: 1fr !important;
     }
-    
+
     /* Boutons d'action pleine largeur */
     .action-buttons {
         flex-direction: column;
     }
-    
+
     .action-buttons .btn {
         width: 100%;
         justify-content: center;
     }
-    
+
     /* Masquer plus de colonnes */
     .device-table .col-phone,
     .device-table .col-group,
     .device-table .col-category {
         display: none;
     }
-    
+
     /* Conserver seulement nom, statut, actions */
     .device-table th,
     .device-table td {
         padding: 8px 6px;
         font-size: 0.85rem;
     }
-    
+
     /* Boutons d'action de la table */
     .device-actions {
         flex-direction: column;
         gap: 4px;
     }
-    
+
     .device-actions .btn {
         padding: 6px 8px;
         font-size: 0.75rem;
     }
-    
+
     /* Content card */
     .content-card {
         padding: 10px;
         margin: 10px;
         border-radius: 8px;
     }
-    
+
     /* Modal forms */
     .modal-body .row {
         flex-direction: column;
     }
-    
+
     .modal-body .col-md-6,
     .modal-body .col-md-12 {
         width: 100%;
         margin-bottom: 10px;
     }
-    
+
     /* Attributes grid */
     .attributes-grid {
         grid-template-columns: 1fr;
     }
-    
+
     /* Geofence items */
     .geofences-list-container {
         max-height: 300px;
     }
-    
+
     .geofence-label {
         padding: 10px;
         font-size: 0.9rem;
     }
-    
+
     /* Status badges */
     .status-badge {
         font-size: 0.7rem;
         padding: 3px 6px;
     }
-    
+
     /* Device info header */
     .device-info-header {
         padding: 10px;
     }
-    
+
     .device-info-header h6 {
         font-size: 0.9rem;
     }
@@ -3218,38 +3375,38 @@ document.addEventListener('DOMContentLoaded', function() {
     .device-sidebar {
         max-height: 200px;
     }
-    
+
     .device-sidebar .tree-view {
         max-height: 120px;
     }
-    
+
     .device-sidebar + .main-content {
         margin-top: 200px;
     }
-    
+
     .tree-item-content {
         font-size: 0.8rem;
     }
-    
+
     /* Actions table simplifiées */
     .device-actions .btn span {
         display: none;
     }
-    
+
     .device-actions .btn i {
         margin: 0;
     }
-    
+
     /* Card header */
     .card-header-custom h3 {
         font-size: 1.1rem;
     }
-    
+
     /* Filter labels */
     .filter-group label {
         font-size: 0.8rem;
     }
-    
+
     .filter-input,
     .filter-select {
         font-size: 0.85rem;
@@ -3268,7 +3425,7 @@ document.addEventListener('DOMContentLoaded', function() {
     .main-container {
         flex-direction: column;
     }
-    
+
     body.modal-open {
         overflow: hidden;
     }

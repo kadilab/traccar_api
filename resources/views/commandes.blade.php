@@ -252,12 +252,34 @@
 @push('styles')
 <style>
 /* Commands Page Styles */
+.main-container {
+    display: flex;
+    min-height: calc(100vh - 56px);
+}
+
 .command-sidebar {
     width: 280px;
+    min-width: 280px;
     background: #fff;
     border-right: 1px solid #e5e7eb;
     display: flex;
     flex-direction: column;
+    position: fixed;
+    top: 56px;
+    left: 0;
+    height: calc(100vh - 56px);
+    z-index: 30;
+    overflow-y: auto;
+}
+
+@media (min-width: 1024px) {
+    .command-sidebar { left: 4rem; }
+}
+
+.main-content {
+    margin-left: 280px;
+    flex: 1;
+    overflow-y: auto;
 }
 
 .sidebar-header {
@@ -629,6 +651,10 @@
 @media (max-width: 991px) {
     .command-sidebar {
         display: none;
+    }
+    
+    .main-content {
+        margin-left: 0;
     }
     
     .card-header-custom {

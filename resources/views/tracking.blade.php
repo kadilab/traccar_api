@@ -106,7 +106,7 @@
         <!-- Map Section (Right) -->
         <div class="map-section">
             <div id="trackingMap" class="tracking-map"></div>
-            
+
             <!-- Floating Header (inside map) -->
             <div class="floating-header">
                 <a href="{{ route('device') }}" class="btn-back" title="Retour">
@@ -121,7 +121,7 @@
                     <span class="status-text" id="statusText">--</span>
                 </div>
             </div>
-            
+
             <!-- Action Buttons Overlay -->
             <div class="map-actions-overlay">
                 <button class="map-action-btn" id="btnCenterMap" title="{{ __('messages.monitor.center_map') }}">
@@ -137,7 +137,7 @@
                     <i class="fas fa-location-arrow"></i>
                 </button>
             </div>
-            
+
             <!-- Map Controls -->
             <div class="map-controls">
                 <button class="map-control-btn" id="btnZoomIn" title="Zoom In">
@@ -158,7 +158,7 @@
                     <span class="speed-unit">km/h</span>
                 </div>
             </div>
-            
+
             <!-- Command Button -->
             <div class="command-btn-overlay">
                 <button class="command-floating-btn" id="btnOpenCommand" title="Envoyer une commande">
@@ -224,14 +224,23 @@
 @push('styles')
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <style>
+/* Remove layout padding for full-page map view */
+main.flex-1 { padding: 0 !important; overflow: hidden !important; }
+
 /* Tracking Page Styles */
 .tracking-container {
+    position: fixed;
+    top: 56px;
+    left: 0;
+    right: 0;
+    bottom: 0;
     padding: 0;
-    padding-top: 60px;
-    max-width: 100%;
     margin: 0;
-    min-height: calc(100vh - 60px);
-    position: relative;
+    overflow: hidden;
+}
+
+@media (min-width: 1024px) {
+    .tracking-container { left: 4rem; }
 }
 
 /* Floating Header */
@@ -345,7 +354,7 @@
 .tracking-content {
     display: flex;
     gap: 15px;
-    height: calc(100vh - 60px);
+    height: 100%;
     min-height: 500px;
     padding: 10px;
 }
@@ -803,19 +812,19 @@
         height: auto;
         flex-direction: column;
     }
-    
+
     .info-panel {
         width: 100%;
         flex-direction: row;
         flex-wrap: wrap;
         order: 2;
     }
-    
+
     .info-card {
         flex: 1;
         min-width: 250px;
     }
-    
+
     .map-section {
         height: 450px;
         order: 1;
@@ -829,142 +838,142 @@
         gap: 10px;
         max-width: calc(100% - 100px);
     }
-    
+
     .floating-header .btn-back {
         width: 32px;
         height: 32px;
         font-size: 12px;
     }
-    
+
     .device-name {
         font-size: 13px;
     }
-    
+
     .device-imei {
         font-size: 10px;
     }
-    
+
     .floating-header .status-badge {
         padding: 5px 10px;
         font-size: 11px;
     }
-    
+
     .tracking-content {
         padding: 8px;
         gap: 10px;
     }
-    
+
     .info-panel {
         flex-direction: column;
         gap: 10px;
     }
-    
+
     .info-card {
         padding: 15px;
         min-width: 100%;
         border-radius: 14px;
     }
-    
+
     .card-header-modern {
         gap: 12px;
         margin-bottom: 14px;
         padding-bottom: 12px;
     }
-    
+
     .card-icon {
         width: 42px;
         height: 42px;
         font-size: 18px;
     }
-    
+
     .card-title-modern {
         font-size: 14px;
     }
-    
+
     .info-row {
         padding: 8px 10px;
     }
-    
+
     .info-icon {
         width: 28px;
         height: 28px;
         font-size: 12px;
     }
-    
+
     .position-stats {
         gap: 8px;
     }
-    
+
     .stat-box {
         padding: 10px 8px;
     }
-    
+
     .stat-icon {
         width: 32px;
         height: 32px;
         font-size: 14px;
     }
-    
+
     .stat-value {
         font-size: 14px;
     }
-    
+
     .stat-label {
         font-size: 9px;
     }
-    
+
     .coordinates-detail {
         padding: 10px;
         gap: 12px;
     }
-    
+
     .coord-value {
         font-size: 12px;
     }
-    
+
     .map-section {
         height: 400px;
     }
-    
+
     .map-actions-overlay {
         top: 10px;
         left: 10px;
         gap: 6px;
     }
-    
+
     .map-action-btn {
         width: 38px;
         height: 38px;
         font-size: 16px;
     }
-    
+
     .map-controls {
         top: 10px;
         right: 10px;
         gap: 6px;
     }
-    
+
     .map-control-btn {
         width: 36px;
         height: 36px;
         font-size: 14px;
     }
-    
+
     .speed-gauge-overlay {
         bottom: 15px;
         left: 15px;
     }
-    
+
     .speed-gauge {
         width: 75px;
         height: 75px;
         border: 3px solid #3b82f6;
     }
-    
+
     .speed-value {
         font-size: 24px;
     }
-    
+
     .speed-unit {
         font-size: 10px;
     }
@@ -978,101 +987,101 @@
         border-radius: 30px;
         max-width: calc(100% - 80px);
     }
-    
+
     .floating-header .btn-back {
         width: 28px;
         height: 28px;
         font-size: 11px;
     }
-    
+
     .device-title {
         max-width: 120px;
     }
-    
+
     .device-name {
         font-size: 12px;
     }
-    
+
     .device-imei {
         font-size: 9px;
     }
-    
+
     .floating-header .status-badge {
         padding: 4px 8px;
         font-size: 10px;
         gap: 4px;
     }
-    
+
     .floating-header .status-dot {
         width: 6px;
         height: 6px;
     }
-    
+
     .tracking-content {
         padding: 5px;
     }
-    
+
     .info-card {
         padding: 12px;
         border-radius: 12px;
     }
-    
+
     .card-header-modern {
         gap: 10px;
         margin-bottom: 12px;
         padding-bottom: 10px;
     }
-    
+
     .card-icon {
         width: 38px;
         height: 38px;
         font-size: 16px;
         border-radius: 10px;
     }
-    
+
     .card-title-modern {
         font-size: 13px;
     }
-    
+
     .card-subtitle {
         font-size: 11px;
     }
-    
+
     .info-list {
         gap: 8px;
     }
-    
+
     .info-row {
         padding: 8px;
         border-radius: 8px;
     }
-    
+
     .info-icon {
         width: 26px;
         height: 26px;
         font-size: 11px;
         border-radius: 6px;
     }
-    
+
     .info-label {
         font-size: 10px;
     }
-    
+
     .info-value {
         font-size: 12px;
     }
-    
+
     .position-stats {
         grid-template-columns: repeat(3, 1fr);
         gap: 6px;
         margin-bottom: 10px;
     }
-    
+
     .stat-box {
         padding: 8px 6px;
         border-radius: 10px;
     }
-    
+
     .stat-icon {
         width: 28px;
         height: 28px;
@@ -1080,60 +1089,60 @@
         margin-bottom: 6px;
         border-radius: 8px;
     }
-    
+
     .stat-value {
         font-size: 13px;
     }
-    
+
     .stat-label {
         font-size: 8px;
     }
-    
+
     .coordinates-detail {
         padding: 8px;
         gap: 10px;
         border-radius: 8px;
     }
-    
+
     .coord-label {
         font-size: 9px;
     }
-    
+
     .coord-value {
         font-size: 11px;
     }
-    
+
     .coord-divider {
         height: 24px;
     }
-    
+
     .map-section {
         height: 350px;
         border-radius: 10px;
     }
-    
+
     .map-action-btn {
         width: 34px;
         height: 34px;
         font-size: 14px;
     }
-    
+
     .map-control-btn {
         width: 32px;
         height: 32px;
         font-size: 12px;
     }
-    
+
     .speed-gauge {
         width: 65px;
         height: 65px;
         border: 2px solid #3b82f6;
     }
-    
+
     .speed-value {
         font-size: 20px;
     }
-    
+
     .speed-unit {
         font-size: 9px;
     }
@@ -1222,7 +1231,7 @@
         bottom: 15px;
         right: 130px;
     }
-    
+
     .command-floating-btn {
         width: 48px;
         height: 48px;
@@ -1235,7 +1244,7 @@
         bottom: 10px;
         right: 100px;
     }
-    
+
     .command-floating-btn {
         width: 42px;
         height: 42px;
@@ -1252,7 +1261,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Get device ID from URL
     const urlParams = new URLSearchParams(window.location.search);
     const deviceId = urlParams.get('id');
-    
+
     if (!deviceId) {
         showWarning('{{ __("messages.device.no_devices") }}');
         window.location.href = '{{ route("device") }}';
@@ -1272,7 +1281,7 @@ document.addEventListener('DOMContentLoaded', function() {
         map = L.map('trackingMap', {
             zoomControl: false // Disable native zoom controls
         }).setView([36.7538, 3.0588], 13);
-        
+
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
@@ -1282,7 +1291,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         marker = L.marker([36.7538, 3.0588], { icon: carIcon }).addTo(map);
     }
-    
+
     // Déterminer l'icône du véhicule basée sur son statut
     // 0 = offline, 1 = arrêté moteur éteint, 2 = en mouvement, 3 = moteur allumé mais arrêté (idling)
     function getVehicleIconNumber() {
@@ -1290,11 +1299,11 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!device || device.status !== 'online') {
             return 0; // offline
         }
-        
+
         // Récupérer la vitesse et l'état d'allumage
         const speed = position ? (position.speed * 1.852) : 0; // knots to km/h
         const ignition = position?.attributes?.ignition ?? false;
-        
+
         if (speed > 1) {
             return 2; // en mouvement
         } else if (ignition) {
@@ -1303,14 +1312,14 @@ document.addEventListener('DOMContentLoaded', function() {
             return 1; // arrêté moteur éteint
         }
     }
-    
+
     // Créer l'icône du véhicule
     function createVehicleIcon(iconNumber, rotation) {
         return L.divIcon({
             className: 'custom-car-marker',
             html: `<div class="car-marker-container" style="transform: rotate(${rotation}deg);">
-                <img src="/icons/automobile_${iconNumber}.png" 
-                     style="width: 50px; height: 50px; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.4));" 
+                <img src="/icons/automobile_${iconNumber}.png"
+                     style="width: 50px; height: 50px; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.4));"
                      alt="vehicle"/>
             </div>`,
             iconSize: [50, 50],
@@ -1323,7 +1332,7 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             const response = await fetch(`/api/traccar/devices/${deviceId}`);
             const data = await response.json();
-            
+
             if (data.success && data.device) {
                 device = data.device;
                 updateDeviceInfo();
@@ -1340,11 +1349,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // Load position
     async function loadPosition() {
         if (!device) return;
-        
+
         try {
             const response = await fetch(`/api/traccar/positions?deviceId=${deviceId}`);
             const data = await response.json();
-            
+
             if (data.success && data.positions && data.positions.length > 0) {
                 position = data.positions[0];
                 updatePositionInfo();
@@ -1359,25 +1368,25 @@ document.addEventListener('DOMContentLoaded', function() {
     function updateDeviceInfo() {
         document.getElementById('deviceName').textContent = device.name || 'Unknown';
         document.getElementById('deviceIdentifier').textContent = device.uniqueId || '--';
-        
+
         // Status badge
         const statusBadge = document.getElementById('statusBadge');
         const statusText = document.getElementById('statusText');
         const status = device.status || 'unknown';
-        
+
         statusBadge.className = `status-badge ${status}`;
         statusText.textContent = getStatusLabel(status);
-        
+
         // Info panel - Card subtitle shows status
         // const infoStatus = document.getElementById('infoStatus');
         // if (infoStatus) {
         //     infoStatus.innerHTML = `<span class="status-badge-mini status-${status}">${getStatusLabel(status)}</span>`;
         // }
-        
+
         document.getElementById('infoLastUpdate').textContent = formatDate(device.lastUpdate);
         document.getElementById('infoModel').textContent = device.model || '--';
         document.getElementById('infoPhone').textContent = device.phone || '--';
-        
+
         // History link
         document.getElementById('btnHistory').href = `/history?id=${deviceId}`;
     }
@@ -1385,25 +1394,25 @@ document.addEventListener('DOMContentLoaded', function() {
     // Update position info in UI
     function updatePositionInfo() {
         if (!position) return;
-        
+
         const latElem = document.getElementById('infoLatitude');
         const lngElem = document.getElementById('infoLongitude');
         const speedElem = document.getElementById('infoSpeed');
         const courseElem = document.getElementById('infoCourse');
         const altElem = document.getElementById('infoAltitude');
         const coordsElem = document.getElementById('infoCoords');
-        
+
         const lat = position.latitude?.toFixed(6) || '--';
         const lng = position.longitude?.toFixed(6) || '--';
-        
+
         if (latElem) latElem.textContent = lat;
         if (lngElem) lngElem.textContent = lng;
         if (coordsElem) coordsElem.textContent = `${lat}, ${lng}`;
-        
+
         const speedKmh = (position.speed * 1.852).toFixed(1); // knots to km/h
         if (speedElem) speedElem.textContent = `${speedKmh} km/h`;
         document.getElementById('speedGaugeValue').textContent = Math.round(speedKmh);
-        
+
         if (courseElem) courseElem.textContent = `${position.course?.toFixed(0) || 0}°`;
         if (altElem) altElem.textContent = `${position.altitude?.toFixed(0) || 0} m`;
     }
@@ -1411,24 +1420,24 @@ document.addEventListener('DOMContentLoaded', function() {
     // Update map
     function updateMap() {
         if (!position || !map || !marker) return;
-        
+
         const lat = position.latitude;
         const lng = position.longitude;
-        
+
         // Update marker position
         marker.setLatLng([lat, lng]);
-        
+
         // Recreate icon with new rotation and status-based icon
         const iconNumber = getVehicleIconNumber();
         const rotation = position.course || 0;
         const carIcon = createVehicleIcon(iconNumber, rotation);
         marker.setIcon(carIcon);
-        
+
         // Center map if auto-follow is enabled
         if (autoFollow) {
             map.setView([lat, lng], map.getZoom());
         }
-        
+
         // Update marker popup
         marker.bindPopup(`
             <div class="marker-popup">
@@ -1444,7 +1453,7 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
             const data = await response.json();
-            
+
             if (data.display_name) {
                 document.getElementById('infoAddress').textContent = data.display_name;
             }
@@ -1458,12 +1467,12 @@ document.addEventListener('DOMContentLoaded', function() {
         if (refreshInterval) {
             clearInterval(refreshInterval);
         }
-        
+
         refreshInterval = setInterval(async () => {
             await loadPosition();
             await loadDeviceStatus();
         }, REFRESH_RATE);
-        
+
         console.log('Real-time tracking started');
     }
 
@@ -1472,7 +1481,7 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             const response = await fetch(`/api/traccar/devices/${deviceId}`);
             const data = await response.json();
-            
+
             if (data.success && data.device) {
                 device = data.device;
                 updateDeviceInfo();
@@ -1491,7 +1500,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function formatDate(dateStr) {
         if (!dateStr) return '--';
         const date = new Date(dateStr);
-        return date.toLocaleString('{{ app()->getLocale() }}', { 
+        return date.toLocaleString('{{ app()->getLocale() }}', {
             day: '2-digit', month: '2-digit', year: 'numeric',
             hour: '2-digit', minute: '2-digit', second: '2-digit'
         });
@@ -1536,7 +1545,7 @@ document.addEventListener('DOMContentLoaded', function() {
         'movementAlarm': 'Configurer l\'alarme de mouvement.',
         'setDriverId': 'Définir l\'ID du conducteur.'
     };
-    
+
     // Format command type for display
     function formatCommandType(type) {
         const formats = {
@@ -1575,35 +1584,35 @@ document.addEventListener('DOMContentLoaded', function() {
         };
         return formats[type] || type;
     }
-    
+
     // Open command modal
     function openCommandModal() {
         if (!device) return;
-        
+
         document.getElementById('commandDeviceId').value = deviceId;
         document.getElementById('commandDeviceName').textContent = device.name || 'Appareil #' + deviceId;
         document.getElementById('commandType').innerHTML = '<option value="">Chargement...</option>';
         document.getElementById('commandDataGroup').style.display = 'none';
         document.getElementById('commandData').value = '';
         document.getElementById('commandDescription').innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Chargement des commandes disponibles...';
-        
+
         // Open modal
         const modal = new bootstrap.Modal(document.getElementById('commandModal'));
         modal.show();
-        
+
         // Load available command types for this device
         loadCommandTypes();
     }
-    
+
     // Load command types for device
     async function loadCommandTypes() {
         try {
             const response = await fetch(`/api/traccar/commands/types?deviceId=${deviceId}`);
             const data = await response.json();
-            
+
             const select = document.getElementById('commandType');
             select.innerHTML = '<option value="">-- Sélectionnez une commande --</option>';
-            
+
             if (data.success && data.types) {
                 data.types.forEach(type => {
                     const option = document.createElement('option');
@@ -1611,34 +1620,34 @@ document.addEventListener('DOMContentLoaded', function() {
                     option.textContent = formatCommandType(type.type);
                     select.appendChild(option);
                 });
-                
-                document.getElementById('commandDescription').innerHTML = 
+
+                document.getElementById('commandDescription').innerHTML =
                     '<i class="fas fa-info-circle me-1"></i> Sélectionnez une commande pour voir sa description.';
             } else {
                 select.innerHTML = '<option value="">Aucune commande disponible</option>';
-                document.getElementById('commandDescription').innerHTML = 
+                document.getElementById('commandDescription').innerHTML =
                     '<i class="fas fa-exclamation-triangle me-1"></i> Aucune commande disponible pour cet appareil.';
             }
         } catch (error) {
             console.error('Error loading command types:', error);
             document.getElementById('commandType').innerHTML = '<option value="">Erreur de chargement</option>';
-            document.getElementById('commandDescription').innerHTML = 
+            document.getElementById('commandDescription').innerHTML =
                 '<i class="fas fa-exclamation-circle me-1"></i> Erreur lors du chargement des commandes.';
         }
     }
-    
+
     // Handle command type change
     window.onCommandTypeChange = function() {
         const type = document.getElementById('commandType').value;
         const dataGroup = document.getElementById('commandDataGroup');
         const description = document.getElementById('commandDescription');
-        
+
         if (type === 'custom') {
             dataGroup.style.display = 'block';
         } else {
             dataGroup.style.display = 'none';
         }
-        
+
         if (type && commandDescriptions[type]) {
             description.innerHTML = '<i class="fas fa-info-circle me-1"></i> ' + commandDescriptions[type];
             description.className = 'alert alert-info mb-0';
@@ -1649,34 +1658,34 @@ document.addEventListener('DOMContentLoaded', function() {
             description.innerHTML = '<i class="fas fa-info-circle me-1"></i> Sélectionnez une commande pour voir sa description.';
         }
     };
-    
+
     // Execute command
     window.executeCommand = async function() {
         const cmdDeviceId = document.getElementById('commandDeviceId').value;
         const type = document.getElementById('commandType').value;
         const data = document.getElementById('commandData').value;
-        
+
         if (!type) {
             showWarning('Veuillez sélectionner un type de commande.');
             return;
         }
-        
+
         const btn = document.getElementById('btnSendCommand');
         const originalHtml = btn.innerHTML;
         btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Envoi...';
         btn.disabled = true;
-        
+
         try {
             const commandData = {
                 deviceId: parseInt(cmdDeviceId),
                 type: type
             };
-            
+
             // Add custom data if present
             if (type === 'custom' && data) {
                 commandData.data = data;
             }
-            
+
             const response = await fetch('/api/traccar/commands/send', {
                 method: 'POST',
                 headers: {
@@ -1685,26 +1694,26 @@ document.addEventListener('DOMContentLoaded', function() {
                 },
                 body: JSON.stringify(commandData)
             });
-            
+
             const result = await response.json();
-            
+
             if (result.success) {
-                document.getElementById('commandDescription').innerHTML = 
+                document.getElementById('commandDescription').innerHTML =
                     '<i class="fas fa-check-circle me-1"></i> Commande envoyée avec succès!';
                 document.getElementById('commandDescription').className = 'alert alert-success mb-0';
-                
+
                 // Close modal after success
                 setTimeout(() => {
                     bootstrap.Modal.getInstance(document.getElementById('commandModal')).hide();
                 }, 1500);
             } else {
-                document.getElementById('commandDescription').innerHTML = 
+                document.getElementById('commandDescription').innerHTML =
                     '<i class="fas fa-exclamation-circle me-1"></i> Erreur: ' + (result.message || 'Échec de l\'envoi');
                 document.getElementById('commandDescription').className = 'alert alert-danger mb-0';
             }
         } catch (error) {
             console.error('Error sending command:', error);
-            document.getElementById('commandDescription').innerHTML = 
+            document.getElementById('commandDescription').innerHTML =
                 '<i class="fas fa-exclamation-circle me-1"></i> Erreur de connexion au serveur.';
             document.getElementById('commandDescription').className = 'alert alert-danger mb-0';
         } finally {
@@ -1732,7 +1741,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('btnToggleFollow').addEventListener('click', function() {
         autoFollow = !autoFollow;
         this.classList.toggle('active', autoFollow);
-        
+
         if (autoFollow && position) {
             map.setView([position.latitude, position.longitude], map.getZoom());
         }
@@ -1754,7 +1763,7 @@ document.addEventListener('DOMContentLoaded', function() {
             mapSection.requestFullscreen();
         }
     });
-    
+
     // Command button event listener
     document.getElementById('btnOpenCommand').addEventListener('click', function() {
         openCommandModal();
@@ -1778,7 +1787,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initMap();
     loadDevice();
     startRealTimeUpdates();
-    
+
     // Set auto-follow button as active by default
     document.getElementById('btnToggleFollow').classList.add('active');
 });

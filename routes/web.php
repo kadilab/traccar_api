@@ -5,6 +5,7 @@ use App\Http\Controllers\TraccarController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DriverController;
 use App\Http\Controllers\LanguageController;
+use App\Http\Controllers\SettingController;
 
 use Illuminate\Support\Facades\Route;
 
@@ -28,7 +29,7 @@ Route::middleware('auth')->group(function () {
     // ============================================
     // PAGES ACCESSIBLES À TOUS LES UTILISATEURS
     // ============================================
-    
+
     // Monitor - suivi temps réel (page d'accueil pour non-admins)
     Route::get('/monitor', function () {
         return view('monitor');
@@ -72,8 +73,35 @@ Route::middleware('auth')->group(function () {
         return view('profile');
     })->name('profile');
 
+    Route::put('/profile', function (\Illuminate\Http\Request $req) {
+        $req->validate(['name' => 'required|string|max:255', 'email' => 'required|email|max:255']);
+        $user = \Illuminate\Support\Facades\Auth::user();
+        $user->name  = $req->name;
+        $user->email = $req->email;
+        $user->save();
+        return back()->with('success', 'Profil mis à jour avec succès.');
+    })->name('profile.update');
+
+    Route::put('/profile/password', function (\Illuminate\Http\Request $req) {
+        $req->validate([
+            'current_password' => 'required',
+            'password'         => 'required|min:8|confirmed',
+        ]);
+        $user = \Illuminate\Support\Facades\Auth::user();
+        if (!\Illuminate\Support\Facades\Hash::check($req->current_password, $user->password)) {
+            return back()->withErrors(['current_password' => 'Mot de passe actuel incorrect.']);
+        }
+        $user->password = \Illuminate\Support\Facades\Hash::make($req->password);
+        $user->save();
+        return back()->with('success', 'Mot de passe changé avec succès.');
+    })->name('profile.password');
+
+    Route::put('/profile/preferences', function (\Illuminate\Http\Request $req) {
+        return back()->with('success', 'Préférences enregistrées.');
+    })->name('profile.preferences');
+
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-    
+
     // ============================================
     // PAGES RÉSERVÉES AUX ADMINISTRATEURS
     // ============================================
@@ -83,12 +111,12 @@ Route::middleware('auth')->group(function () {
         Route::get('/dashboard/stats', [DashboardController::class, 'getStats'])->name('dashboard.stats');
         Route::get('/dashboard/server-status', [DashboardController::class, 'getServerStatusApi'])->name('dashboard.server-status');
         Route::post('/dashboard/refresh', [DashboardController::class, 'refreshStats'])->name('dashboard.refresh');
-        
+
         // Groupe - gestion des groupes (admin seulement)
         Route::get('/groupe', function () {
             return view('groupe');
         })->name('groupe');
-        
+
         // Account - gestion des utilisateurs
         Route::get('/account', function () {
             return view('account');
@@ -106,7 +134,7 @@ Route::middleware('auth')->group(function () {
         })->name('attributes');
 
         // Attributs - gestion des attributs personnalisés (ancien)
-       
+
 
         // Reports - rapports
         Route::get('/reports', function () {
@@ -127,7 +155,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/fleet', function () {
             return view('fleet');
         })->name('fleet');
-        
+
         // ============================================
         // DRIVERS - Gestion des conducteurs
         // ============================================
@@ -140,6 +168,10 @@ Route::middleware('auth')->group(function () {
         Route::get('/drivers/{id}/devices', [DriverController::class, 'getDeviceLinks'])->name('drivers.devices');
         Route::post('/drivers/assign', [DriverController::class, 'linkDevice'])->name('drivers.api.assign');
         Route::post('/drivers/unassign', [DriverController::class, 'unlinkDevice'])->name('drivers.api.unassign');
+
+        // Settings - paramètres de l'application
+        Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
+        Route::post('/settings', [SettingController::class, 'update'])->name('settings.update');
     });
 });
 

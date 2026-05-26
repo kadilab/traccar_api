@@ -538,4 +538,18 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 @endpush
 
+@push('styles')
+<style>
+.main-container {
+    display: flex;
+    min-height: calc(100vh - 56px);
+}
+.main-content {
+    flex: 1;
+    padding: 20px;
+    width: 100%;
+}
+</style>
+@endpush
+
 @endsection
